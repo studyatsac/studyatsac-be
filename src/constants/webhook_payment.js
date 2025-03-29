@@ -1,0 +1,7 @@
+const WEBHOOK_PAYMENT_MAYAR = 'mayar';
+const WEBHOOK_PAYMENT_STATUS_SUCCESS = 'success';
+
+module.exports = {
+    WEBHOOK_PAYMENT_MAYAR,
+    WEBHOOK_PAYMENT_STATUS_SUCCESS
+};
