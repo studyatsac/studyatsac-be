@@ -46,5 +46,8 @@ module.exports = Object.freeze({
     NIP_NOT_VALID: 'NIP not valid',
     FACULTY_NAME_NOT_VALID: 'Faculty name not valid',
     USER_ALREADY_SUBMIT_SCORE: 'User already submit score',
-    INSTITUTION_NAME_CANNOT_BE_BLANK: 'Institution name cannot be blank'
+    INSTITUTION_NAME_CANNOT_BE_BLANK: 'Institution name cannot be blank',
+    EMAIL_INVALID: 'Email format is invalid',
+    EMAIL_REQUIRED: 'Email is required',
+    INTERNAL_SERVER_ERROR: 'Something went wrong'
 });

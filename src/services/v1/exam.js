@@ -83,6 +83,15 @@ const startExam = async (input, opts = {}) => {
         { order: [['question_number', 'asc']] }
     );
 
+    // Ambil semua resource yang terkait dengan questions (langsung dari tabel Resources)
+    const resourceIds = questions.map(q => q.resource_id).filter(Boolean);
+    let resources = [];
+    if (resourceIds.length > 0) {
+        resources = await require('../../models/mysql').Resources.findAll({
+            where: { id: resourceIds }
+        });
+    }
+
     const userExamPayload = {
         userId: input.user.id,
         examId: exam.id,
@@ -95,7 +104,8 @@ const startExam = async (input, opts = {}) => {
     const data = {
         userExam: userExamCreated,
         exam,
-        questions
+        questions,
+        resources
     };
 
     return Response.formatServiceReturn(true, 200, data, null);

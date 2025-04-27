@@ -38,6 +38,23 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(255),
             allowNull: true,
             defaultValue: null
+        },
+        reset_password_token: {
+            type: DataTypes.STRING(255),
+            allowNull: false,
+            unique: true
+        },
+        reset_password_token_expires: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            unique: true
+        },
+        // Role user: 'admin', 'user', dst
+        role: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+            defaultValue: 'user',
+            unique: false
         }
     };
 

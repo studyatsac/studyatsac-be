@@ -5,6 +5,13 @@ exports.findAll = function (where, opts = {}, trx = null) {
 };
 
 exports.findOne = function (where, opts = {}, trx = null) {
+    const include = opts.include || [];
+    include.push({
+        model: Models.Resources,
+        as: 'resource', // pastikan as sama dengan di model
+        required: false
+    });
+    opts.include = include;
     return Models.Question.findOne({ where, ...opts, transaction: trx });
 };
 

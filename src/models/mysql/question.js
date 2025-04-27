@@ -38,6 +38,10 @@ module.exports = (sequelize, DataTypes) => {
         score: {
             type: DataTypes.INTEGER().UNSIGNED,
             allowNull: true
+        },
+        resource_id: {
+            type: DataTypes.INTEGER().UNSIGNED,
+            allowNull: true
         }
     };
 
@@ -56,7 +60,9 @@ module.exports = (sequelize, DataTypes) => {
             sourceKey: 'id',
             foreignKey: 'question_id'
         });
+
     };
+
 
     return Question;
 };

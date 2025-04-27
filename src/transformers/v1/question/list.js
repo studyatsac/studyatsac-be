@@ -9,8 +9,9 @@ exports.item = (data) => {
         uuid: data.uuid,
         questionNumber: data.questionNumber,
         question: data.question,
-        answerOption: data.answerOption.options,
-        userAnswer: userAnswer?.answer || null
+        answerOption: data.answerOption?.options || data.answerOption || [],
+        userAnswer: userAnswer?.answer || null,
+        resource_id: data.resource_id || null
     };
 
     if (data.isFinishedExam) {

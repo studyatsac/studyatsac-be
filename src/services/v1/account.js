@@ -9,6 +9,8 @@ const UserPurchaseRepository = require('../../repositories/mysql/user_purchase')
 const ConfigRepository = require('../../repositories/mysql/config');
 const Response = require('../../utils/response');
 const Config = require('../../configs/config');
+const sendResetPasswordEmail = require('../../utils/sendEmail.js'); 
+const generateResetPasswordToken = require('../../utils/tokenUtils');
 
 const generateToken = (account) => {
     const now = Math.floor(Date.now() / 1000); // Waktu saat ini dalam detik
@@ -111,7 +113,19 @@ const login = async (input, opts = {}) => {
 
     const tokenGenerated = generateToken(account);
 
-    return Response.formatServiceReturn(true, 200, { token: tokenGenerated }, null);
+    // Pastikan account berupa plain object (bukan instance sequelize)
+    const userData = account.toJSON ? account.toJSON() : account;
+
+    return Response.formatServiceReturn(true, 200, {
+        token: tokenGenerated,
+        user: {
+            id: userData.id,
+            uuid: userData.uuid,
+            fullName: userData.fullName,
+            email: userData.email,
+            role: userData.role
+        }
+    }, null);
 };
 
 const verifyTokenAndGetUserData = async (token) => {
@@ -183,11 +197,62 @@ const resetPasswordToDefaultPassword = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, null, null);
 };
 
+const forgotPassword = async (input, opts = {}) => {
+  const language = opts.lang;
+
+  const account = await UserRepository.findOne({ email: input.email });
+
+  if (!account) {
+      return Response.formatServiceReturn(false, 404, null, language.EMAIL_NOT_FOUND);
+  }
+
+  const resetToken = generateResetPasswordToken();
+  const expiresAt = Moment().add(1, 'hour').toDate();
+
+
+  await UserRepository.update({ id: account.id }, {
+      resetPasswordToken: resetToken,
+      resetPasswordTokenExpires: expiresAt,
+  });
+
+  await sendResetPasswordEmail(account.email, resetToken);
+
+  return Response.formatServiceReturn(true, 200, null, language.RESET_PASSWORD_EMAIL_SENT);
+};
+
+const resetPassword = async (input, opts = {}) => {
+  const language = opts.lang;
+
+  const account = await UserRepository.findOne({ resetPasswordToken: input.token });
+
+  if (!account) {
+      return Response.formatServiceReturn(false, 404, null, language.TOKEN_INVALID_OR_EXPIRED);
+  }
+
+  const now = new Date();
+  if (account.resetPasswordTokenExpires < now) {
+      return Response.formatServiceReturn(false, 400, null, language.TOKEN_EXPIRED);
+  }
+
+  const salt = await Bcrypt.genSalt(Config.saltRound);
+  const password = await Bcrypt.hash(input.newPassword, salt);
+
+  await UserRepository.update({ id: account.id }, {
+      password,
+      resetPasswordToken: null,
+      resetPasswordTokenExpires: null,
+  });
+
+  return Response.formatServiceReturn(true, 200, null, language.PASSWORD_RESET_SUCCESS);
+};
+
 exports.register = register;
 exports.login = login;
 exports.verifyTokenAndGetUserData = verifyTokenAndGetUserData;
 exports.resetPasswordToDefaultPassword = resetPasswordToDefaultPassword;
 exports.updatePassword = updatePassword;
 exports.getProfileAccount = getProfileAccount;
+exports.forgotPassword = forgotPassword;
+exports.resetPassword = resetPassword;
 
 module.exports = exports;

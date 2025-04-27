@@ -19,7 +19,8 @@ exports.item = (data) => {
         questions: questions.map((q) => {
             q.isFinishedExam = isFinishedExam;
             return QuestionTransformer.item(q);
-        })
+        }),
+        resources: data.resources || []
     };
 
     return responseData;
