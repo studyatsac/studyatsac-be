@@ -45,6 +45,16 @@ exports.findAllWithUserAnswer = function (where, opts = {}, trx = null) {
             where: {
                 userExamId
             }
+        },
+        {
+            model: Models.Resources,
+            as: 'resource',
+            required: false
+        },
+        {
+            model: Models.Section,
+            as: 'section',
+            required: false
         }
     ];
 
