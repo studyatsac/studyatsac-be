@@ -207,12 +207,12 @@ const forgotPassword = async (input, opts = {}) => {
   }
 
   const resetToken = generateResetPasswordToken();
-  const expiresAt = Moment().add(1, 'hour').toDate();
+  const expiresAt = Moment().add(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
 
 
   await UserRepository.update({ id: account.id }, {
-      resetPasswordToken: resetToken,
-      resetPasswordTokenExpires: expiresAt,
+    reset_password_token: resetToken,
+    reset_password_token_expires: expiresAt,
   });
 
   await sendResetPasswordEmail(account.email, resetToken);
@@ -220,30 +220,26 @@ const forgotPassword = async (input, opts = {}) => {
   return Response.formatServiceReturn(true, 200, null, language.RESET_PASSWORD_EMAIL_SENT);
 };
 
-const resetPassword = async (input, opts = {}) => {
-  const language = opts.lang;
-
-  const account = await UserRepository.findOne({ resetPasswordToken: input.token });
-
-  if (!account) {
-      return Response.formatServiceReturn(false, 404, null, language.TOKEN_INVALID_OR_EXPIRED);
+const resetPassword = async ({ token, newPassword }) => {
+  const user = await UserRepository.findOne({ reset_password_token: token });
+  if (!user) {
+    return { status: false, code: 404, message: 'Token invalid or expired' };
+  }
+  // Optional: cek expired token jika ada field expire
+  if (user.reset_password_token_expires && new Date(user.reset_password_token_expires) < new Date()) {
+    return { status: false, code: 400, message: 'Token expired' };
   }
 
-  const now = new Date();
-  if (account.resetPasswordTokenExpires < now) {
-      return Response.formatServiceReturn(false, 400, null, language.TOKEN_EXPIRED);
-  }
+  const salt = await Bcrypt.genSalt(10);
+  const password = await Bcrypt.hash(newPassword, salt);
 
-  const salt = await Bcrypt.genSalt(Config.saltRound);
-  const password = await Bcrypt.hash(input.newPassword, salt);
-
-  await UserRepository.update({ id: account.id }, {
-      password,
-      resetPasswordToken: null,
-      resetPasswordTokenExpires: null,
+  await UserRepository.update({ id: user.id }, {
+    password,
+    reset_password_token: null,
+    reset_password_token_expires: null,
   });
 
-  return Response.formatServiceReturn(true, 200, null, language.PASSWORD_RESET_SUCCESS);
+  return { status: true, code: 200, message: 'Password reset success' };
 };
 
 exports.register = register;

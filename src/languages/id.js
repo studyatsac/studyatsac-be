@@ -48,4 +48,9 @@ module.exports = Object.freeze({
   EMAIL_INVALID: "Format email tidak valid",
   EMAIL_REQUIRED: "Email wajib diisi",
   INTERNAL_SERVER_ERROR: "Terjadi kesalahan server",
+  RESET_PASSWORD_EMAIL_SENT: "Email reset password telah terkirim, silahkan cek di email anda",
+  PASSWORD_RESET_SUCCESS:"Reset Password Sukses",
+  TOKEN_IS_REQUIRED: "Token wajib diisi",
+  PASSWORD_IS_REQUIRED: "Password wajib diisi",
+  PASSWORD_TOO_SHORT: "Password terlalu pendek"
 });

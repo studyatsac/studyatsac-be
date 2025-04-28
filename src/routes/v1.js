@@ -56,6 +56,11 @@ router.post(
   require("../methods/v1/account/forgot_password").postForgotPassword
 );
 router.post(
+  "/reset-password",
+  [],
+  require("../methods/v1/account/reset_password").resetPassword
+);
+router.post(
   "/account/update-password",
   [tokenMiddleware],
   require("../methods/v1/account/update_password").updatePassword

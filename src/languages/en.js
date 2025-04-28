@@ -49,5 +49,11 @@ module.exports = Object.freeze({
     INSTITUTION_NAME_CANNOT_BE_BLANK: 'Institution name cannot be blank',
     EMAIL_INVALID: 'Email format is invalid',
     EMAIL_REQUIRED: 'Email is required',
-    INTERNAL_SERVER_ERROR: 'Something went wrong'
+    INTERNAL_SERVER_ERROR: 'Something went wrong',
+    RESET_PASSWORD_EMAIL_SENT: 'Email has been sended to your email, please check the email',
+    PASSWORD_RESET_SUCCESS:"Reset Password Succes",
+    PASSWORD_REQUIRED: "Password required",
+    TOKEN_IS_REQUIRED: "Token is required",
+    PASSWORD_IS_REQUIRED: "Password is required",
+    PASSWORD_TOO_SHORT: "Password too short"
 });
