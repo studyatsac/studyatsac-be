@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
         resource_id: {
             type: DataTypes.INTEGER().UNSIGNED,
             allowNull: true
+        },
+        section_id: {
+            type: DataTypes.INTEGER().UNSIGNED,
+            allowNull: true
         }
     };
 

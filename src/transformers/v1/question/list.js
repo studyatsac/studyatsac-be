@@ -11,7 +11,8 @@ exports.item = (data) => {
         question: data.question,
         answerOption: data.answerOption?.options || data.answerOption || [],
         userAnswer: userAnswer?.answer || null,
-        resource_id: data.resource_id || null
+        resource_id: data.resource_id || null,
+        section_id: data.section_id || null
     };
 
     if (data.isFinishedExam) {
