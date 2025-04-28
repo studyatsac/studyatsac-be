@@ -83,15 +83,6 @@ const startExam = async (input, opts = {}) => {
         { order: [['question_number', 'asc']] }
     );
 
-    // Ambil semua resource yang terkait dengan questions (langsung dari tabel Resources)
-    const resourceIds = questions.map(q => q.resource_id).filter(Boolean);
-    let resources = [];
-    if (resourceIds.length > 0) {
-        resources = await require('../../models/mysql').Resources.findAll({
-            where: { id: resourceIds }
-        });
-    }
-
     const userExamPayload = {
         userId: input.user.id,
         examId: exam.id,
@@ -101,14 +92,25 @@ const startExam = async (input, opts = {}) => {
 
     const userExamCreated = await UserExamRepository.create(userExamPayload);
 
-    // Ambil semua section yang terkait dengan questions
-    const sectionIds = questions.map(q => q.section_id).filter(Boolean);
-    let sections = [];
-    if (sectionIds.length > 0) {
-        sections = await require('../../models/mysql').Section.findAll({
-            where: { id: sectionIds }
-        });
-    }
+    // Ambil resources unik dari questions
+    const resources = [];
+    const resourceIds = new Set();
+    questions.forEach(q => {
+        if (q.resource && q.resource.id && !resourceIds.has(q.resource.id)) {
+            resources.push(q.resource);
+            resourceIds.add(q.resource.id);
+        }
+    });
+
+    // Ambil sections unik dari questions
+    const sections = [];
+    const sectionIds = new Set();
+    questions.forEach(q => {
+        if (q.section && q.section.id && !sectionIds.has(q.section.id)) {
+            sections.push(q.section);
+            sectionIds.add(q.section.id);
+        }
+    });
 
     const data = {
         userExam: userExamCreated,
@@ -144,23 +146,25 @@ const getUserExamWithQuestionAndAnswer = async (input, opts = {}) => {
         examId: userExam.examId
     });
 
-    // Ambil semua resource yang terkait dengan questions (langsung dari tabel Resources)
-    const resourceIds = questions.map(q => q.resource_id).filter(Boolean);
-    let resources = [];
-    if (resourceIds.length > 0) {
-        resources = await require('../../models/mysql').Resources.findAll({
-            where: { id: resourceIds }
-        });
-    }
+    // Ambil resources unik dari questions
+    const resources = [];
+    const resourceIds = new Set();
+    questions.forEach(q => {
+        if (q.resource && q.resource.id && !resourceIds.has(q.resource.id)) {
+            resources.push(q.resource);
+            resourceIds.add(q.resource.id);
+        }
+    });
 
-    // Ambil semua section yang terkait dengan questions
-    const sectionIds = questions.map(q => q.section_id).filter(Boolean);
-    let sections = [];
-    if (sectionIds.length > 0) {
-        sections = await require('../../models/mysql').Section.findAll({
-            where: { id: sectionIds }
-        });
-    }
+    // Ambil sections unik dari questions
+    const sections = [];
+    const sectionIds = new Set();
+    questions.forEach(q => {
+        if (q.section && q.section.id && !sectionIds.has(q.section.id)) {
+            sections.push(q.section);
+            sectionIds.add(q.section.id);
+        }
+    });
 
     const data = {
         exam,

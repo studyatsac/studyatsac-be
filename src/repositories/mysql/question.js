@@ -1,6 +1,18 @@
 const Models = require('../../models/mysql');
 
 exports.findAll = function (where, opts = {}, trx = null) {
+    const include = opts.include || [];
+    include.push({
+        model: Models.Resources,
+        as: 'resource',
+        required: false
+    });
+    include.push({
+        model: Models.Section,
+        as: 'section',
+        required: false
+    });
+    opts.include = include;
     return Models.Question.findAll({ where, ...opts, transaction: trx });
 };
 
@@ -9,6 +21,11 @@ exports.findOne = function (where, opts = {}, trx = null) {
     include.push({
         model: Models.Resources,
         as: 'resource', // pastikan as sama dengan di model
+        required: false
+    });
+    include.push({
+        model: Models.Section,
+        as: 'section',
         required: false
     });
     opts.include = include;
