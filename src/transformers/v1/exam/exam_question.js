@@ -20,7 +20,8 @@ exports.item = (data) => {
             q.isFinishedExam = isFinishedExam;
             return QuestionTransformer.item(q);
         }),
-        resources: data.resources || []
+        resources: data.resources || [],
+        sections: data.sections || []
     };
 
     return responseData;
