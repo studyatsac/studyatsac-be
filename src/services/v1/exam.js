@@ -101,11 +101,21 @@ const startExam = async (input, opts = {}) => {
 
     const userExamCreated = await UserExamRepository.create(userExamPayload);
 
+    // Ambil semua section yang terkait dengan questions
+    const sectionIds = questions.map(q => q.section_id).filter(Boolean);
+    let sections = [];
+    if (sectionIds.length > 0) {
+        sections = await require('../../models/mysql').Section.findAll({
+            where: { id: sectionIds }
+        });
+    }
+
     const data = {
         userExam: userExamCreated,
         exam,
         questions,
-        resources
+        resources,
+        sections
     };
 
     return Response.formatServiceReturn(true, 200, data, null);
@@ -134,10 +144,30 @@ const getUserExamWithQuestionAndAnswer = async (input, opts = {}) => {
         examId: userExam.examId
     });
 
+    // Ambil semua resource yang terkait dengan questions (langsung dari tabel Resources)
+    const resourceIds = questions.map(q => q.resource_id).filter(Boolean);
+    let resources = [];
+    if (resourceIds.length > 0) {
+        resources = await require('../../models/mysql').Resources.findAll({
+            where: { id: resourceIds }
+        });
+    }
+
+    // Ambil semua section yang terkait dengan questions
+    const sectionIds = questions.map(q => q.section_id).filter(Boolean);
+    let sections = [];
+    if (sectionIds.length > 0) {
+        sections = await require('../../models/mysql').Section.findAll({
+            where: { id: sectionIds }
+        });
+    }
+
     const data = {
         exam,
         userExam,
-        questions
+        questions,
+        resources,
+        sections
     };
 
     return Response.formatServiceReturn(true, 200, data, null);
