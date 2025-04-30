@@ -4,7 +4,7 @@ exports.item = (data) => ({
         id: data.user.id,
         fullName: data.user.fullName,
         email: data.user.email,
-        role: data.user.role
+        roles: data.user.roles
     } : undefined
 });
 

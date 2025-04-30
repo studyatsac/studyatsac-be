@@ -60,4 +60,8 @@ exports.findOneExcludeExpired = function (where, opts = {}, trx = null) {
 exports.create = function (payload, trx = null) {
     return Models.UserPurchase.create(payload, { transaction: trx });
 };
+exports.countByExamPackageId = function (examPackageId, trx = null) {
+    return Models.UserPurchase.count({ where: { exam_package_id: examPackageId }, transaction: trx });
+};
+
 module.exports = exports;

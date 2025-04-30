@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         imageUrl: {
             type: DataTypes.STRING(255),
-            allowNull: false
+            allowNull: true
         },
         price: {
             type: DataTypes.DECIMAL(20, 2),

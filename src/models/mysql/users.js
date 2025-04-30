@@ -49,12 +49,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             unique: true
         },
-        role: {
-            type: DataTypes.STRING(255),
-            allowNull: false,
-            defaultValue: 'user',
-            unique: false
-        }
     };
 
     const options = {
@@ -71,6 +65,11 @@ module.exports = (sequelize, DataTypes) => {
         User.hasOne(models.IeltsScore, {
             sourceKey: 'id',
             foreignKey: 'user_id'
+        });
+        User.belongsToMany(models.Role, {
+            through: models.RoleUser,
+            foreignKey: 'user_id',
+            otherKey: 'role_id'
         });
     };
 

@@ -99,7 +99,8 @@ const register = async (input, opts = {}) => {
 const login = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const account = await UserRepository.findOne({ email: input.email });
+    // Ambil user beserta roles
+    const account = await UserRepository.findOne({ email: input.email }, { includeRoles: true });
 
     if (!account) {
         return Response.formatServiceReturn(false, 404, null, language.EMAIL_OR_PASSWORD_INVALID);
@@ -115,6 +116,7 @@ const login = async (input, opts = {}) => {
 
     // Pastikan account berupa plain object (bukan instance sequelize)
     const userData = account.toJSON ? account.toJSON() : account;
+    userData.roles = "user"
 
     return Response.formatServiceReturn(true, 200, {
         token: tokenGenerated,
@@ -123,7 +125,7 @@ const login = async (input, opts = {}) => {
             uuid: userData.uuid,
             fullName: userData.fullName,
             email: userData.email,
-            role: userData.role
+            roles: userData.roles
         }
     }, null);
 };
@@ -136,13 +138,26 @@ const verifyTokenAndGetUserData = async (token) => {
     const secretKey = Config.jwt.secretKey;
     const decodedToken = JWT.verify(token, secretKey, verifyOptions);
 
-    const account = await UserRepository.findOne({ uuid: decodedToken.userId });
+    // Ambil user beserta roles
+    const account = await UserRepository.findOne({ uuid: decodedToken.userId }, { includeRoles: true });
 
     if (!account) {
         throw new Error('Authentication token not valid');
     }
 
-    return account.toJSON();
+    const userData = account.toJSON ? account.toJSON() : account;
+    userData.roles = userData.Roles ? userData.Roles.map(role => ({
+        id: role.id,
+        uuid: role.uuid,
+        name: role.name,
+        description: role.description
+    })) : [];
+    // Jika user tidak punya role, set default role 'user'
+    if (!userData.roles || userData.roles.length === 0) {
+        userData.roles = [{ name: 'user' }];
+    }
+
+    return userData;
 };
 
 const updatePassword = async (input, opts = {}) => {

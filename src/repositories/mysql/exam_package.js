@@ -81,4 +81,19 @@ exports.findOne = function (where, opts = {}, trx = null) {
     });
 };
 
+// Tambah fungsi update
+exports.update = function (where, payload, trx = null) {
+    return Models.ExamPackage.update(payload, { where, transaction: trx });
+};
+
+// Tambah fungsi create
+exports.create = function (payload, trx = null) {
+    return Models.ExamPackage.create(payload, { transaction: trx });
+};
+
+// Tambah fungsi delete
+exports.delete = function (where, trx = null) {
+    return Models.ExamPackage.destroy({ where, transaction: trx });
+};
+
 module.exports = exports;

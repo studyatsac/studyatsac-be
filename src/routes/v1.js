@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const usersController = require("../methods/v1/resources/users");
 const adminOnly = require("../middlewares/admin_only");
 const tokenMiddleware = require("../middlewares/token_middleware");
 const tokenParserMiddleware = require("../middlewares/token_parser_middleware");
@@ -11,32 +10,150 @@ router.get("/ping", (req, res) =>
   res.status(200).json({ message: "PONG", date: new Date() })
 );
 
-// Endpoint admin untuk mengambil semua data user
+// Endpoint admin untuk mengambil total peserta beli paket exam tertentu
+router.get(
+  "/admin/exam-package/participant-count",
+  [tokenMiddleware],
+  require("../methods/v1/exam-package/participant_count").getParticipantCount
+);
+
+// Endpoint admin untuk statistik user per bulan
+router.get(
+  "/admin/user-stat-per-month",
+  [tokenMiddleware],
+  require("../methods/v1/user/stat_per_month").getUserStatPerMonth
+);
+
+// Endpoint admin untuk mengambil total user
+router.get(
+  "/admin/user-count",
+  [tokenMiddleware],
+  require("../methods/v1/user/count").getUserCount
+);
+
+
+// Endpoint admin untuk hapus exam_package by id
+router.delete(
+  "/admin/exam-package/:id",
+  [tokenMiddleware],
+  require("../methods/v1/exam-package/admin_delete").deleteExamPackage
+);
+
+// Endpoint admin untuk update exam_package by id
+router.put(
+  "/admin/exam-package/:id",
+  [tokenMiddleware],
+  require("../methods/v1/exam-package/admin_update").updateExamPackage
+);
+
+// Endpoint admin untuk mengambil detail exam_package by id
+router.get(
+  "/admin/exam-package/:id",
+  [tokenMiddleware],
+  require("../methods/v1/exam-package/admin_detail").getExamPackageDetail
+);
+
+// Endpoint admin untuk membuat exam_package baru
+router.post(
+  "/admin/exam-package",
+  [tokenMiddleware],
+  require("../methods/v1/exam-package/admin_create").createExamPackage
+);
+
+// Endpoint admin untuk mengambil detail user by id
+router.get(
+  "/admin/users/:id",
+  [tokenMiddleware],
+  require("../methods/v1/user/admin_detail").getUserDetail
+);
+
+// Endpoint admin untuk mengambil semua user (pagination)
 router.get(
   "/admin/users",
-  [tokenMiddleware, adminOnly],
-  usersController.getAllUsers
+  [tokenMiddleware],
+  require("../methods/v1/user/admin_list").getListUser
+);
+
+// Endpoint admin untuk mengambil semua exam_package
+router.get(
+  "/admin/exam-packages",
+  [tokenMiddleware],
+  require("../methods/v1/exam-package/admin_list").getListExamPackage
+);
+
+// Endpoint admin untuk mengambil semua exam (pagination)
+router.get(
+  "/admin/exams",
+  [tokenMiddleware],
+  require("../methods/v1/exam/admin_list").getListExam
+);
+
+// Endpoint admin untuk mengambil detail exam by id
+router.get(
+  "/admin/exams/:id",
+  [tokenMiddleware],
+  require("../methods/v1/exam/admin_detail").getExamDetail
+);
+
+// Endpoint admin untuk membuat exam baru
+router.post(
+  "/admin/exams",
+  [tokenMiddleware],
+  require("../methods/v1/exam/admin_create").createExam
+);
+
+// Endpoint admin untuk update exam by id
+router.put(
+  "/admin/exams/:id",
+  [tokenMiddleware],
+  require("../methods/v1/exam/admin_update").updateExam
+);
+
+// Endpoint admin untuk hapus exam by id
+router.delete(
+  "/admin/exams/:id",
+  [tokenMiddleware],
+  require("../methods/v1/exam/admin_delete").deleteExam
 );
 
 // Endpoint admin untuk menambah user
 router.post(
   "/admin/users",
-  [tokenMiddleware, adminOnly],
-  usersController.createUser
+  [tokenMiddleware],
+  require("../methods/v1/user/admin_create").createUser
+);
+
+// Endpoint admin untuk update user
+router.put(
+  "/admin/users/:id",
+  [tokenMiddleware],
+  require("../methods/v1/user/admin_update").updateUser
 );
 
 // Endpoint admin untuk menghapus user
 router.delete(
   "/admin/users/:id",
-  [tokenMiddleware, adminOnly],
-  usersController.deleteUser
+  [tokenMiddleware],
+  require("../methods/v1/user/admin_delete").deleteUser
 );
 
 // Endpoint admin untuk bulk delete user
 router.post(
   "/admin/users/bulk-delete",
-  [tokenMiddleware, adminOnly],
-  usersController.bulkDeleteUsers
+  [tokenMiddleware],
+  require("../methods/v1/user/admin_bulk_delete").bulkDeleteUsers
+);
+
+router.get(
+  "/account/roles",
+  [tokenMiddleware],
+  require("../methods/v1/roles/user_roles").getUserRoles
+);
+
+router.get(
+  "/roles",
+  [],
+  require("../methods/v1/roles/get_all").getAll
 );
 
 router.post(

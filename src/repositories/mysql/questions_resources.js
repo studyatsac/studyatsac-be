@@ -1,7 +1,7 @@
 const Models = require('../../models/mysql'); // Sesuaikan path Models kamu
 
 exports.findResourcesByQuestion = function (questionId, opts = {}, trx = null) {
-  return Models.Resource.findAll({
+  return Models.ResourcesQuestion.findAll({
     include: [
       {
         model: Models.ResourcesQuestion,

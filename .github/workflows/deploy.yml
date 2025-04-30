@@ -3,7 +3,7 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - main  # Ganti jika branch production kamu berbeda
+      - main
 
 jobs:
   deploy:
@@ -20,7 +20,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/user/app  # Ganti dengan path project di server
+            cd /api.studyatsac.cloud/
             git pull origin main
             npm install
             npx sequelize-cli db:migrate
