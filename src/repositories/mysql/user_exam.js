@@ -44,4 +44,8 @@ exports.update = function (where, payload, trx = null) {
     return Models.UserExam.update(payload, { where, transaction: trx });
 };
 
+exports.delete = function (where, trx = null) {
+    return Models.UserExam.destroy({ where, transaction: trx });
+};
+
 module.exports = exports;

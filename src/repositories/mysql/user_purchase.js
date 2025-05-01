@@ -60,6 +60,19 @@ exports.findOneExcludeExpired = function (where, opts = {}, trx = null) {
 exports.create = function (payload, trx = null) {
     return Models.UserPurchase.create(payload, { transaction: trx });
 };
+
+exports.update = function (payload, where, trx = null) {
+    return Models.UserPurchase.update(payload, { where, transaction: trx });
+};
+
+exports.findOne = function (where, opts = {}, trx = null) {
+    return Models.UserPurchase.findOne({ where, ...opts, transaction: trx });
+};
+
+exports.delete = function (where, trx = null) {
+    return Models.UserPurchase.destroy({ where, transaction: trx });
+};
+
 exports.countByExamPackageId = function (examPackageId, trx = null) {
     return Models.UserPurchase.count({ where: { exam_package_id: examPackageId }, transaction: trx });
 };

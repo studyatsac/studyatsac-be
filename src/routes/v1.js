@@ -88,6 +88,146 @@ router.get(
   require("../methods/v1/exam/admin_list").getListExam
 );
 
+// Endpoint admin untuk mengambil semua user_purchases (pagination)
+router.get(
+  "/admin/user-purchases",
+  [tokenMiddleware],
+  require("../methods/v1/user-purchase/admin_list").getListUserPurchase
+);
+
+// Endpoint admin untuk mengambil semua user_exam (pagination)
+router.get(
+  "/admin/user-exams",
+  [tokenMiddleware],
+  require("../methods/v1/user-exam/admin_list").getListUserExam
+);
+
+// Endpoint admin untuk mengambil semua ielts_score (pagination)
+router.get(
+  "/admin/ielts-scores",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-score/admin_list").getListIeltsScore
+);
+
+// Endpoint admin untuk mengambil semua ielts_writing_submission (pagination)
+router.get(
+  "/admin/ielts-writing-submissions",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-writing-submission/admin_list").getListIeltsWritingSubmission
+);
+
+// Endpoint admin untuk mengambil detail ielts_writing_submission by id
+router.get(
+  "/admin/ielts-writing-submissions/:id",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-writing-submission/admin_detail").getIeltsWritingSubmissionDetail
+);
+
+// Endpoint admin untuk membuat ielts_writing_submission baru
+router.post(
+  "/admin/ielts-writing-submissions",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-writing-submission/admin_create").createIeltsWritingSubmission
+);
+
+// Endpoint admin untuk update ielts_writing_submission by id
+router.put(
+  "/admin/ielts-writing-submissions/:id",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-writing-submission/admin_update").updateIeltsWritingSubmission
+);
+
+// Endpoint admin untuk hapus ielts_writing_submission by id
+router.delete(
+  "/admin/ielts-writing-submissions/:id",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-writing-submission/admin_delete").deleteIeltsWritingSubmission
+);
+
+// Endpoint admin untuk mengambil detail ielts_score by id
+router.get(
+  "/admin/ielts-scores/:id",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-score/admin_detail").getIeltsScoreDetail
+);
+
+// Endpoint admin untuk membuat ielts_score baru
+router.post(
+  "/admin/ielts-scores",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-score/admin_create").createIeltsScore
+);
+
+// Endpoint admin untuk update ielts_score by id
+router.put(
+  "/admin/ielts-scores/:id",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-score/admin_update").updateIeltsScore
+);
+
+// Endpoint admin untuk hapus ielts_score by id
+router.delete(
+  "/admin/ielts-scores/:id",
+  [tokenMiddleware],
+  require("../methods/v1/ielts-score/admin_delete").deleteIeltsScore
+);
+
+// Endpoint admin untuk mengambil detail user_exam by id
+router.get(
+  "/admin/user-exams/:id",
+  [tokenMiddleware],
+  require("../methods/v1/user-exam/admin_detail").getUserExamDetail
+);
+
+// Endpoint admin untuk membuat user_exam baru
+router.post(
+  "/admin/user-exams",
+  [tokenMiddleware],
+  require("../methods/v1/user-exam/admin_create").createUserExam
+);
+
+// Endpoint admin untuk update user_exam by id
+router.put(
+  "/admin/user-exams/:id",
+  [tokenMiddleware],
+  require("../methods/v1/user-exam/admin_update").updateUserExam
+);
+
+// Endpoint admin untuk hapus user_exam by id
+router.delete(
+  "/admin/user-exams/:id",
+  [tokenMiddleware],
+  require("../methods/v1/user-exam/admin_delete").deleteUserExam
+);
+
+// Endpoint admin untuk mengambil detail user_purchase by id
+router.get(
+  "/admin/user-purchases/:id",
+  [tokenMiddleware],
+  require("../methods/v1/user-purchase/admin_detail").getUserPurchaseDetail
+);
+
+// Endpoint admin untuk membuat user_purchase baru
+router.post(
+  "/admin/user-purchases",
+  [tokenMiddleware],
+  require("../methods/v1/user-purchase/admin_create").createUserPurchase
+);
+
+// Endpoint admin untuk update user_purchase by id
+router.put(
+  "/admin/user-purchases/:id",
+  [tokenMiddleware],
+  require("../methods/v1/user-purchase/admin_update").updateUserPurchase
+);
+
+// Endpoint admin untuk hapus user_purchase by id
+router.delete(
+  "/admin/user-purchases/:id",
+  [tokenMiddleware],
+  require("../methods/v1/user-purchase/admin_delete").deleteUserPurchase
+);
+
 // Endpoint admin untuk mengambil detail exam by id
 router.get(
   "/admin/exams/:id",

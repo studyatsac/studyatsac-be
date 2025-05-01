@@ -12,4 +12,12 @@ exports.create = function (payload, trx = null) {
     return Models.IeltsScore.create(payload, { transaction: trx });
 };
 
+exports.update = function (where, payload, trx = null) {
+    return Models.IeltsScore.update(payload, { where, transaction: trx });
+};
+
+exports.delete = function (where, trx = null) {
+    return Models.IeltsScore.destroy({ where, transaction: trx });
+};
+
 module.exports = exports;
