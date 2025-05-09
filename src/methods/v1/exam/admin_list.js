@@ -1,10 +1,11 @@
 const ExamRepository = require('../../../repositories/mysql/exam');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
+const { Op } = require('sequelize');
 
 exports.getListExam = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
+        const { page = 1, limit = 10, search } = req.query;
         const lang = Language.getLanguage(req.locale);
 
         // Validasi sederhana
@@ -12,8 +13,17 @@ exports.getListExam = async (req, res) => {
         const limitInt = parseInt(limit, 10) || 10;
         const offset = (pageInt - 1) * limitInt;
 
+        // Buat where clause untuk search
         const whereClause = {};
+        if (search) {
+            whereClause[Op.or] = [
+                { title: { [Op.like]: `%${search}%` } },
+                { description: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
         const optionsClause = {
+            where: whereClause,
             order: [['created_at', 'desc']],
             limit: limitInt,
             offset: offset

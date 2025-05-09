@@ -50,5 +50,12 @@ module.exports = (sequelize, DataTypes) => {
 
     const IeltsWritingSubmission = sequelize.define('IeltsWritingSubmission', attributes, options);
 
+    IeltsWritingSubmission.associate = (models) => {
+        IeltsWritingSubmission.belongsTo(models.User, {
+            targetKey: 'id',
+            foreignKey: 'user_id'
+        });
+    };
+
     return IeltsWritingSubmission;
 };

@@ -31,7 +31,7 @@ exports.postUserPurchase = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'postUserPurchase',
+            function_name: 'postUserPurchase',
             message: err.message
         });
 

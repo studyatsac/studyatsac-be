@@ -3,15 +3,15 @@ const UserPurchaseRepository = require('../../../repositories/mysql/user_purchas
 exports.updateUserPurchase = async (req, res) => {
     try {
         const id = req.params.id;
-        const updateData = req.body;
+        const update_data = req.body;
         if (!id) {
             return res.status(400).json({ message: 'UserPurchase id is required' });
         }
-        const userPurchase = await UserPurchaseRepository.findOne({ id });
-        if (!userPurchase) {
+        const user_purchase = await UserPurchaseRepository.findOne({ id });
+        if (!user_purchase) {
             return res.status(404).json({ message: 'UserPurchase not found' });
         }
-        await UserPurchaseRepository.update({ id }, updateData);
+        await UserPurchaseRepository.update({ id }, update_data);
         const updatedUserPurchase = await UserPurchaseRepository.findOne({ id });
         return res.status(200).json({ data: updatedUserPurchase });
     } catch (err) {

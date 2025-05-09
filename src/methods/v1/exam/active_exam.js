@@ -22,7 +22,7 @@ exports.getActiveExam = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getActiveExam',
+            function_name: 'getActiveExam',
             message: err.message
         });
 

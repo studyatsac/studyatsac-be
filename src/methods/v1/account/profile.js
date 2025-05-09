@@ -24,7 +24,7 @@ exports.getAccountProfile = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getAccountProfile',
+            function_name: 'getAccountProfile',
             message: err.message
         });
 

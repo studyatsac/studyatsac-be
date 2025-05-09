@@ -55,5 +55,16 @@ module.exports = (sequelize, DataTypes) => {
 
     const UserExam = sequelize.define('UserExam', attributes, options);
 
+    UserExam.associate = (models) => {
+        UserExam.belongsTo(models.User, {
+            targetKey: 'id',
+            foreignKey: 'user_id'
+        });
+        UserExam.belongsTo(models.Exam, {
+            targetKey: 'id',
+            foreignKey: 'exam_id'
+        });
+    };
+
     return UserExam;
 };

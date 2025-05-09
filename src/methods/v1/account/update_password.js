@@ -32,7 +32,7 @@ exports.updatePassword = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'updatePassword',
+            function_name: 'updatePassword',
             message: err.message
         });
 

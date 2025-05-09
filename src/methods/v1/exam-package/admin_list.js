@@ -3,6 +3,7 @@ const ExamPackageRepository = require('../../../repositories/mysql/exam_package'
 const ExamPackageAdminTransformer = require('../../../transformers/v1/exam-package/admin_list');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
+const { Op } = require('sequelize');
 
 let lang;
 
@@ -18,29 +19,38 @@ exports.getListExamPackage = async (req, res) => {
         }
 
         // Untuk admin: tidak perlu filter user, purchased, free, dsb
-        const whereClause = {};
-        const optionsClause = {
+        const where_clause = {};
+        if (input.search) {
+            where_clause[Op.or] = [
+                { title: { [Op.like]: `%${input.search}%` } },
+                { description: { [Op.like]: `%${input.search}%` } },
+                { price: { [Op.like]: `%${input.search}%` } }
+            ];
+        }
+
+        const options_clause = {
+            where: where_clause,
             order: [['created_at', 'desc']],
             limit: input.limit,
             offset: (input.page - 1) * input.limit
         };
 
         // Ambil semua exam_package
-        const examPackages = await ExamPackageRepository.findAndCountAll(whereClause, optionsClause);
-        const data = { rows: examPackages.rows, count: examPackages.count };
+        const exam_packages = await ExamPackageRepository.findAndCountAll(where_clause, options_clause);
+        const data = { rows: exam_packages.rows, count: exam_packages.count };
 
         return res.status(200).json({
             data: data.rows.map(ExamPackageAdminTransformer.item),
             meta: {
                 page: input.page,
                 limit: input.limit,
-                totalData: data.count,
-                totalPage: Math.ceil(data.count / input.limit)
+                total_data: data.count,
+                total_page: Math.ceil(data.count / input.limit)
             }
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'admin_getListExamPackage',
+            function_name: 'admin_getListExamPackage',
             message: err.message
         });
         return res.status(500).json({ message: lang.INTERNAL_SERVER_ERROR });

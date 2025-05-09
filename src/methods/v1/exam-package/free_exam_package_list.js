@@ -27,7 +27,7 @@ exports.getListFreeExamPackage = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getListFreeExamPackage',
+            function_name: 'getListFreeExamPackage',
             message: err.message
         });
 

@@ -35,7 +35,7 @@ exports.getMyExam = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getMyExam',
+            function_name: 'getMyExam',
             message: err.message
         });
 

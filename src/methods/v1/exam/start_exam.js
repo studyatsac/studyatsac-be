@@ -33,7 +33,7 @@ exports.postStartExam = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'postStartExam',
+            function_name: 'postStartExam',
             message: err.message
         });
 

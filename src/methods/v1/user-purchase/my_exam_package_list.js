@@ -30,7 +30,7 @@ exports.getMyExamPackage = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getMyExamPackage',
+            function_name: 'getMyExamPackage',
             message: err.message
         });
 

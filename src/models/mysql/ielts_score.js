@@ -46,5 +46,12 @@ module.exports = (sequelize, DataTypes) => {
 
     const IeltsScore = sequelize.define('IeltsScore', attributes, options);
 
+    IeltsScore.associate = (models) => {
+        IeltsScore.belongsTo(models.User, {
+            targetKey: 'id',
+            foreignKey: 'user_id'
+        });
+    };
+
     return IeltsScore;
 };

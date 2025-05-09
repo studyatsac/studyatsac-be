@@ -22,7 +22,7 @@ exports.getSelectionTimeline = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getSelectionTimeline',
+            function_name: 'getSelectionTimeline',
             message: err.message
         });
 

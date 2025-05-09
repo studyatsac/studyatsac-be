@@ -31,7 +31,7 @@ exports.postLogin = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'postLogin',
+            function_name: 'postLogin',
             message: err.message
         });
 

@@ -36,13 +36,13 @@ exports.getExamHistory = async (req, res) => {
             meta: {
                 page: input.page,
                 limit: input.limit,
-                totalData: data.count,
-                totalPage: Math.ceil(data.count / input.limit)
+                total_data: data.count,
+                total_page: Math.ceil(data.count / input.limit)
             }
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getExamHistory',
+            function_name: 'getExamHistory',
             message: err.message
         });
 

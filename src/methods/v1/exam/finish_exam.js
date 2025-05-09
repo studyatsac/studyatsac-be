@@ -33,7 +33,7 @@ exports.postFinishExam = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'postFinishExam',
+            function_name: 'postFinishExam',
             message: err.message
         });
 

@@ -32,7 +32,7 @@ exports.postIeltsWriting = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'postIeltsWriting',
+            function_name: 'postIeltsWriting',
             message: err.message
         });
 

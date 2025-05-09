@@ -2,9 +2,9 @@ const IeltsWritingSubmissionRepository = require('../../../repositories/mysql/ie
 
 exports.createIeltsWritingSubmission = async (req, res) => {
     try {
-        const createData = req.body;
+        const create_data = req.body;
         // Validasi field sesuai kebutuhan
-        const submission = await IeltsWritingSubmissionRepository.create(createData);
+        const submission = await IeltsWritingSubmissionRepository.create(create_data);
         return res.status(201).json({ data: submission });
     } catch (err) {
         return res.status(500).json({ message: err.message });

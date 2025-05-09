@@ -40,6 +40,10 @@ module.exports = (sequelize, DataTypes) => {
             targetKey: 'id',
             foreignKey: 'exam_package_id'
         });
+        UserPurchase.belongsTo(models.User, {
+            targetKey: 'id',
+            foreignKey: 'user_id'
+        });
     };
 
     return UserPurchase;

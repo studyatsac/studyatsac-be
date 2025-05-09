@@ -30,7 +30,7 @@ exports.postResetPassword = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'postResetPassword',
+            function_name: 'postResetPassword',
             message: err.message
         });
 

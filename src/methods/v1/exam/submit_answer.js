@@ -32,7 +32,7 @@ exports.postAnswer = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'postAnswer',
+            function_name: 'postAnswer',
             message: err.message
         });
 

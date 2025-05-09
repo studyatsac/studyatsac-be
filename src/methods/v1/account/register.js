@@ -31,7 +31,7 @@ exports.postRegister = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'postRegister',
+            function_name: 'postRegister',
             message: err.message,
             error: err
         });
