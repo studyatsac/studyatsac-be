@@ -12,6 +12,10 @@ exports.getListUserExam = async (req, res) => {
         const limitInt = parseInt(limit, 10) || 10;
         const offset = (pageInt - 1) * limitInt;
 
+        // Ambil orderBy dan order langsung dari req.query tanpa validasi
+        const orderBy = req.query.orderBy || 'created_at';
+        const order = req.query.order || 'desc';
+
         // Buat where clause untuk search
         const whereClause = {};
         if (search) {
@@ -23,7 +27,7 @@ exports.getListUserExam = async (req, res) => {
 
         const optionsClause = {
             where: whereClause,
-            order: [['created_at', 'desc']],
+            order: [[orderBy, order]],
             limit: limitInt,
             offset: offset,
             include: [

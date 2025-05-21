@@ -18,9 +18,13 @@ exports.getListIeltsWritingSubmission = async (req, res) => {
             ];
         }
 
+        // Ambil orderBy dan order langsung dari req.query tanpa validasi
+        const orderBy = req.query.orderBy || 'created_at';
+        const order = req.query.order || 'desc';
+
         const optionsClause = {
             where: whereClause,
-            order: [['created_at', 'desc']],
+            order: [[orderBy, order]],
             limit: limitInt,
             offset: offset,
             include: [{

@@ -18,6 +18,10 @@ exports.getListExamPackage = async (req, res) => {
             return res.status(400).json({ message: err.message });
         }
 
+        // Ambil orderBy dan order langsung dari req.query tanpa validasi
+        const orderBy = req.query.orderBy || 'created_at';
+        const order = req.query.order || 'desc';
+
         // Untuk admin: tidak perlu filter user, purchased, free, dsb
         const where_clause = {};
         if (input.search) {
@@ -30,7 +34,7 @@ exports.getListExamPackage = async (req, res) => {
 
         const options_clause = {
             where: where_clause,
-            order: [['created_at', 'desc']],
+            order: [[orderBy, order]],
             limit: input.limit,
             offset: (input.page - 1) * input.limit
         };

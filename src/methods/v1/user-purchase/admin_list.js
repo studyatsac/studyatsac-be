@@ -6,11 +6,19 @@ const { Op } = require('sequelize');
 
 exports.getListUserPurchase = async (req, res) => {
     try {
-        const { page = 1, limit = 10, search } = req.query;
+        const { 
+            page = 1, 
+            limit = 10, 
+            search,
+        } = req.query;
         const lang = Language.getLanguage(req.locale);
         const pageInt = parseInt(page, 10) || 1;
         const limitInt = parseInt(limit, 10) || 10;
         const offset = (pageInt - 1) * limitInt;
+
+        // Ambil orderBy dan order langsung dari req.query tanpa validasi
+        const orderBy = req.query.orderBy || 'created_at';
+        const order = req.query.order || 'desc';
 
         // Buat where clause untuk search
         const whereClause = {};
@@ -24,7 +32,7 @@ exports.getListUserPurchase = async (req, res) => {
         // Ambil semua user_purchases dengan data user dan exam_package
         const { count, rows } = await Models.UserPurchase.findAndCountAll({
             where: whereClause,
-            order: [['created_at', 'desc']],
+            order: [[orderBy, order]],
             limit: limitInt,
             offset: offset,
             include: [
