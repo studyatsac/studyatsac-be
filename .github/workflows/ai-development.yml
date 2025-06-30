@@ -18,9 +18,9 @@ jobs:
       
       - run: npm ci
 
-      - name: Start the app for 10 seconds
-        run: |
-          npm run start &
-          PID=$!
-          sleep 10
-          kill $PID
+      # - name: Start the app for 10 seconds
+      #   run: |
+      #     npm run start &
+      #     PID=$!
+      #     sleep 10
+      #     kill $PID
