@@ -29,6 +29,7 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@ariga/atlas-provider-sequelize": "^0.3.3",
     "eslint": "^7.4.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.0",

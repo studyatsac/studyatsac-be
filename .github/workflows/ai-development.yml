@@ -1,0 +1,26 @@
+name: AI Development Trial
+
+on:
+  pull_request:
+    branches:
+      - ai-development
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.20.8
+          cache: 'npm'
+      
+      - run: npm ci
+
+      # - name: Start the app for 10 seconds
+      #   run: |
+      #     npm run start &
+      #     PID=$!
+      #     sleep 10
+      #     kill $PID
