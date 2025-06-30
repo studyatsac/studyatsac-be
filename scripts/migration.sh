@@ -6,11 +6,13 @@ if [ -z "$1" ]; then
   echo -e "\tstatus"
   echo -e "\tapply"
   echo -e "\thash"
+  echo -e "\tother"
 
   exit 1
 fi
 
 command=""
+another_command=""
 
 case "$1" in
     generate)
@@ -25,12 +27,16 @@ case "$1" in
     hash)
         command="hash"
         ;;
+    other)
+        shift
+        another_command="$@"
+        ;;
 esac
 
-if [ "$command" = "" ]; then
+if [ "$command" = "" ] && [ "$another_command" = "" ]; then
     echo "Invalid command!"
 
     exit 1
 fi
 
-export $(grep -v '^#' .env | xargs) && atlas migrate $command --config file://database/atlas.hcl --env sequelize
+export $(grep -v '^#' .env | xargs) && atlas migrate $command $another_command --config file://database/atlas.hcl --env sequelize
