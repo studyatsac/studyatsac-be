@@ -469,8 +469,13 @@ router.get(
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/essay/all_essay').getAllEssay
 );
+router.post(
+    '/essays',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/essay/create_essay').createEssay
+);
 router.get(
-    '/essays/active',
+    '/active-essays',
     [tokenMiddleware],
     require('../methods/v1/essay/all_active_essay').getAllActiveEssay
 );

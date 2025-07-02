@@ -52,5 +52,20 @@ module.exports = Object.freeze({
     TOKEN_IS_REQUIRED: 'Token wajib diisi',
     PASSWORD_IS_REQUIRED: 'Password wajib diisi',
     PASSWORD_TOO_SHORT: 'Password terlalu pendek',
-    ESSAY_NOT_FOUND: 'Esai tidak ditemukan'
+    ESSAY: {
+        NOT_FOUND: 'Esai tidak ditemukan',
+        TITLE_NOT_VALID: 'Judul tidak valid',
+        DESCRIPTION_NOT_VALID: 'Deskripsi tidak valid',
+        IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
+        ESSAY_ITEMS_NOT_VALID: 'Item Esai tidak valid',
+        CREATE_FAILED: 'Gagal membuat Esai'
+    },
+    ESSAY_ITEM: {
+        NOT_FOUND: 'Item Esai tidak ditemukan',
+        NUMBER_NOT_VALID: 'Urutan tidak valid',
+        TOPIC_NOT_VALID: 'Topik tidak valid',
+        DESCRIPTION_NOT_VALID: 'Deskripsi tidak valid',
+        SYSTEM_PROMPT_NOT_VALID: 'AI prompt tidak valid',
+        CREATE_FAILED: 'Gagal membuat Item Esai'
+    }
 });

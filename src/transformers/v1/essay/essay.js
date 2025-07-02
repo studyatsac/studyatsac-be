@@ -1,4 +1,4 @@
-exports.item = (data) => {
+exports.essayItem = (data) => {
     if (!data) return null;
 
     return {
@@ -9,10 +9,10 @@ exports.item = (data) => {
     };
 };
 
-exports.list = (data) => {
+exports.essayList = (data) => {
     if (!data || !Array.isArray(data)) return null;
 
-    return data.map(exports.item);
+    return data.map(exports.essayItem);
 };
 
 module.exports = exports;

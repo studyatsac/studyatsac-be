@@ -54,5 +54,20 @@ module.exports = Object.freeze({
     TOKEN_IS_REQUIRED: 'Token is required',
     PASSWORD_IS_REQUIRED: 'Password is required',
     PASSWORD_TOO_SHORT: 'Password too short',
-    ESSAY_NOT_FOUND: 'Essay not found'
+    ESSAY: {
+        NOT_FOUND: 'Essay not found',
+        TITLE_NOT_VALID: 'Title not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        IS_ACTIVE_NOT_VALID: 'Active status not valid',
+        ESSAY_ITEMS_NOT_VALID: 'Essay items not valid',
+        CREATE_FAILED: 'Failed to create essay'
+    },
+    ESSAY_ITEM: {
+        NOT_FOUND: 'Essay item not found',
+        NUMBER_NOT_VALID: 'Number not valid',
+        TOPIC_NOT_VALID: 'Topic not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        SYSTEM_PROMPT_NOT_VALID: 'AI prompt not valid',
+        CREATE_FAILED: 'Failed to create essay item'
+    }
 });
