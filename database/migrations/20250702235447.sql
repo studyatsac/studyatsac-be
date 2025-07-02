@@ -4,6 +4,7 @@ CREATE TABLE `essays` (
   `uuid` char(36) NOT NULL COLLATE utf8mb4_bin,
   `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
+  `is_active` bool NOT NULL DEFAULT 1,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime NULL,
