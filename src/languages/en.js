@@ -13,7 +13,6 @@ module.exports = Object.freeze({
     EXAM_UUID_NOT_VALID: 'Exam UUID not valid',
     IMAGE_URL_NOT_VALID: 'Image URL not valid',
     DESCRIPTION_NOT_VALID: 'Description not valid',
-    INTERNAL_SERVER_ERROR: 'Internal server error',
     DUPLICATE_DATA: 'Data duplicate',
     PHONE_NUMBER_NOT_VALID: 'Phone number not valid',
     ADDRESS_NOT_VALID: 'Address not valid',
@@ -51,9 +50,9 @@ module.exports = Object.freeze({
     EMAIL_REQUIRED: 'Email is required',
     INTERNAL_SERVER_ERROR: 'Something went wrong',
     RESET_PASSWORD_EMAIL_SENT: 'Email has been sended to your email, please check the email',
-    PASSWORD_RESET_SUCCESS:"Reset Password Succes",
-    PASSWORD_REQUIRED: "Password required",
-    TOKEN_IS_REQUIRED: "Token is required",
-    PASSWORD_IS_REQUIRED: "Password is required",
-    PASSWORD_TOO_SHORT: "Password too short"
+    PASSWORD_RESET_SUCCESS: 'Reset Password Succes',
+    TOKEN_IS_REQUIRED: 'Token is required',
+    PASSWORD_IS_REQUIRED: 'Password is required',
+    PASSWORD_TOO_SHORT: 'Password too short',
+    ESSAY_NOT_FOUND: 'Essay not found'
 });

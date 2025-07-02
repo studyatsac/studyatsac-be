@@ -5,8 +5,8 @@ exports.userHasRole = async function (userId, roleName) {
         where: { user_id: userId },
         include: [{
             model: Models.Role,
-            where: { name: roleName },
-        }],
+            where: { name: roleName }
+        }]
     });
     return !!roleUser;
 };
