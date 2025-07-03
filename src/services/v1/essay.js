@@ -48,7 +48,7 @@ const createEssay = async (input, opts = {}) => {
                     topic: item.topic,
                     description: item.description,
                     systemPrompt: item.systemPrompt
-                })));
+                })), trx);
                 if (!essayItems) throw new Error();
 
                 essay.essayItems = essayItems;
@@ -116,7 +116,7 @@ const updateEssay = async (input, opts = {}) => {
                     if (deletedEssayItems.length) {
                         const deleteCount = await EssayItemRepository.delete({
                             id: { [sequelize.sequelize.Op.in]: deletedEssayItems.map((item) => item.id) }
-                        });
+                        }, trx);
                         // eslint-disable-next-line max-depth
                         if (!deleteCount) throw new Error();
                     }
@@ -135,7 +135,7 @@ const updateEssay = async (input, opts = {}) => {
                         description: item.description,
                         systemPrompt: item.systemPrompt,
                         id: item.id
-                    });
+                    }, trx);
                     if (!updatedItem) throw new Error();
                 });
 
