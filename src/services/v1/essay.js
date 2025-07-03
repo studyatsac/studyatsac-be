@@ -9,7 +9,7 @@ const getEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
     const essay = await EssayRepository.findOne(
-        { uuid: input.uuid },
+        input,
         { include: { model: Models.EssayItem, as: 'essayItems' } }
     );
     if (!essay) {

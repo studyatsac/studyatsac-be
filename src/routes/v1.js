@@ -467,7 +467,7 @@ router.get(
 router.get(
     '/admin/essays',
     [tokenMiddleware, adminOnlyMiddleware],
-    require('../methods/v1/essay/all_essay').getAllEssay
+    require('../methods/v1/essay/essay_list').getEssayList
 );
 router.post(
     '/admin/essays',
@@ -492,12 +492,28 @@ router.delete(
 router.get(
     '/essays',
     [tokenMiddleware],
-    require('../methods/v1/essay/all_active_essay').getAllActiveEssay
+    require('../methods/v1/essay/active_essay_list').getActiveEssayList
 );
 router.get(
     '/essays/:uuid',
     [tokenMiddleware],
     require('../methods/v1/essay/restricted_essay').getRestrictedEssay
+);
+
+router.get(
+    '/admin/user-essays',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-essay/user_essay_list').getUserEssayList
+);
+router.get(
+    '/user-essays',
+    [tokenMiddleware],
+    require('../methods/v1/user-essay/specific_user_essay_list').getSpecificUserEssayList
+);
+router.get(
+    '/user-essays/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/user-essay/user_essay').getUserEssay
 );
 
 /**

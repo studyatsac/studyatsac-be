@@ -5,11 +5,11 @@ const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.getAllEssay = async (req, res) => {
+exports.getActiveEssayList = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const result = await EssayService.getAllEssay(null, { lang });
+        const result = await EssayService.getAllEssay({ isActive: true }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
@@ -18,7 +18,7 @@ exports.getAllEssay = async (req, res) => {
         return res.status(200).json({ data: EssayTransformer.essayList(result.data), message: '' });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getAllEssay',
+            functionName: 'getActiveEssayList',
             message: err.message
         });
 
