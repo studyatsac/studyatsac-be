@@ -13,7 +13,6 @@ module.exports = Object.freeze({
     EXAM_UUID_NOT_VALID: 'Exam UUID not valid',
     IMAGE_URL_NOT_VALID: 'Image URL not valid',
     DESCRIPTION_NOT_VALID: 'Description not valid',
-    INTERNAL_SERVER_ERROR: 'Internal server error',
     DUPLICATE_DATA: 'Data duplicate',
     PHONE_NUMBER_NOT_VALID: 'Phone number not valid',
     ADDRESS_NOT_VALID: 'Address not valid',
@@ -51,9 +50,30 @@ module.exports = Object.freeze({
     EMAIL_REQUIRED: 'Email is required',
     INTERNAL_SERVER_ERROR: 'Something went wrong',
     RESET_PASSWORD_EMAIL_SENT: 'Email has been sended to your email, please check the email',
-    PASSWORD_RESET_SUCCESS:"Reset Password Succes",
-    PASSWORD_REQUIRED: "Password required",
-    TOKEN_IS_REQUIRED: "Token is required",
-    PASSWORD_IS_REQUIRED: "Password is required",
-    PASSWORD_TOO_SHORT: "Password too short"
+    PASSWORD_RESET_SUCCESS: 'Reset Password Succes',
+    TOKEN_IS_REQUIRED: 'Token is required',
+    PASSWORD_IS_REQUIRED: 'Password is required',
+    PASSWORD_TOO_SHORT: 'Password too short',
+    ESSAY: {
+        NOT_FOUND: 'Essay not found',
+        TITLE_NOT_VALID: 'Title not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        IS_ACTIVE_NOT_VALID: 'Active status not valid',
+        ESSAY_ITEMS_NOT_VALID: 'Essay items not valid',
+        CREATE_SUCCESS: 'Success to create essay',
+        CREATE_FAILED: 'Failed to create essay',
+        UPDATE_SUCCESS: 'Success to update essay',
+        UPDATE_FAILED: 'Failed to update essay',
+        DELETE_SUCCESS: 'Success to delete essay',
+        DELETE_FAILED: 'Failed to delete essay'
+    },
+    ESSAY_ITEM: {
+        NOT_FOUND: 'Essay item not found',
+        UUID_NOT_VALID: 'ID not valid',
+        NUMBER_NOT_VALID: 'Number not valid',
+        TOPIC_NOT_VALID: 'Topic not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        SYSTEM_PROMPT_NOT_VALID: 'AI prompt not valid',
+        CREATE_FAILED: 'Failed to create essay item'
+    }
 });

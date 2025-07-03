@@ -48,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true,
             unique: true
-        },
+        }
     };
 
     const options = {
