@@ -8,8 +8,8 @@ exports.creatOrUpdate = function (payload, trx = null) {
     return Models.EssayItem.upsert(payload, { transaction: trx });
 };
 
-exports.delete = function (where, trx = null) {
-    return Models.EssayItem.destroy({ where, transaction: trx });
+exports.delete = function (where, trx = null, force) {
+    return Models.EssayItem.destroy({ where, force, transaction: trx });
 };
 
 module.exports = exports;

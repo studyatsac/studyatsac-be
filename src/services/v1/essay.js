@@ -84,12 +84,9 @@ const deleteEssay = async (input, opts = {}) => {
 const updateEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
-    let essay = await EssayRepository.findOne(
+    const essay = await EssayRepository.findOne(
         { uuid: input.uuid },
-        {
-            attributes: ['id'],
-            include: { model: Models.EssayItem, attributes: ['id', 'uuid'], as: 'essayItems' }
-        }
+        { include: { model: Models.EssayItem, attributes: ['id', 'uuid'], as: 'essayItems' } }
     );
 
     if (!essay) {
@@ -98,7 +95,7 @@ const updateEssay = async (input, opts = {}) => {
 
     try {
         const result = await sequelize.sequelize.transaction(async (trx) => {
-            essay = await EssayRepository.update(
+            const updatedItem = await EssayRepository.update(
                 {
                     title: input.title,
                     description: input.description,
@@ -107,7 +104,7 @@ const updateEssay = async (input, opts = {}) => {
                 { id: essay.id },
                 trx
             );
-            if (!essay) throw new Error();
+            if (!updatedItem) throw new Error();
 
             if (input.essayItems && Array.isArray(input.essayItems)) {
                 let essayItemInputs = input.essayItems;
@@ -116,21 +113,26 @@ const updateEssay = async (input, opts = {}) => {
                         (item) => !input.essayItems.find((i) => i.uuid === item.uuid)
                     );
                     if (deletedEssayItems.length) {
-                        const deleteCount = await EssayItemRepository.delete({
-                            id: { [sequelize.sequelize.Op.in]: deletedEssayItems.map((item) => item.id) }
-                        }, trx);
+                        const deleteCount = await EssayItemRepository.delete(
+                            { id: deletedEssayItems.map((item) => item.id) },
+                            trx,
+                            true
+                        );
                         // eslint-disable-next-line max-depth
                         if (!deleteCount) throw new Error();
                     }
 
-                    essayItemInputs = essayItemInputs.map((item) => ({
-                        ...(essay.essayItems.find((i) => i.uuid === item.uuid) || {}),
-                        ...item
-                    }));
+                    essayItemInputs = essayItemInputs.map((item) => {
+                        const essayItem = essay.essayItems.find((i) => i.uuid === item.uuid);
+                        return ({
+                            ...item,
+                            ...(essayItem && { id: essayItem.id })
+                        });
+                    });
                 }
 
                 const updatingEssayItems = essayItemInputs.map(async (item) => {
-                    const updatedItem = await EssayItemRepository.creatOrUpdate({
+                    const updatedEssayItem = await EssayItemRepository.creatOrUpdate({
                         essayId: essay.id,
                         number: item.number,
                         topic: item.topic,
@@ -138,7 +140,7 @@ const updateEssay = async (input, opts = {}) => {
                         systemPrompt: item.systemPrompt,
                         id: item.id
                     }, trx);
-                    if (!updatedItem) throw new Error();
+                    if (!updatedEssayItem) throw new Error();
                 });
 
                 await Promise.all(updatingEssayItems);
