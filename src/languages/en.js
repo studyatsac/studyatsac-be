@@ -60,10 +60,16 @@ module.exports = Object.freeze({
         DESCRIPTION_NOT_VALID: 'Description not valid',
         IS_ACTIVE_NOT_VALID: 'Active status not valid',
         ESSAY_ITEMS_NOT_VALID: 'Essay items not valid',
-        CREATE_FAILED: 'Failed to create essay'
+        CREATE_SUCCESS: 'Success to create essay',
+        CREATE_FAILED: 'Failed to create essay',
+        UPDATE_SUCCESS: 'Success to update essay',
+        UPDATE_FAILED: 'Failed to update essay',
+        DELETE_SUCCESS: 'Success to delete essay',
+        DELETE_FAILED: 'Failed to delete essay'
     },
     ESSAY_ITEM: {
         NOT_FOUND: 'Essay item not found',
+        UUID_NOT_VALID: 'ID not valid',
         NUMBER_NOT_VALID: 'Number not valid',
         TOPIC_NOT_VALID: 'Topic not valid',
         DESCRIPTION_NOT_VALID: 'Description not valid',

@@ -2,7 +2,7 @@ const RoleUserRepository = require('../repositories/mysql/role_users');
 
 module.exports = async function (req, res, next) {
     try {
-        const userId = req.user && req.user.id;
+        const userId = req.session && req.session.id;
         if (!userId) {
             return res.status(401).json({ message: 'Unauthorized: No user id' });
         }

@@ -9,13 +9,13 @@ exports.getAllActiveEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const result = await EssayService.getAllActiveEssay(null, { lang });
+        const result = await EssayService.getAllEssay({ isActive: true }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({ data: EssayTransformer.essayList(result.data) });
+        return res.status(200).json({ data: EssayTransformer.essayList(result.data), message: '' });
     } catch (err) {
         LogUtils.loggingError({
             functionName: 'getAllActiveEssay',

@@ -58,10 +58,16 @@ module.exports = Object.freeze({
         DESCRIPTION_NOT_VALID: 'Deskripsi tidak valid',
         IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
         ESSAY_ITEMS_NOT_VALID: 'Item Esai tidak valid',
-        CREATE_FAILED: 'Gagal membuat Esai'
+        CREATE_SUCCESS: 'Berhasil membuat Esai',
+        CREATE_FAILED: 'Gagal membuat Esai',
+        UPDATE_SUCCESS: 'Berhasil memperbarui Esai',
+        UPDATE_FAILED: 'Gagal memperbarui Esai',
+        DELETE_SUCCESS: 'Berhasil menghapus Esai',
+        DELETE_FAILED: 'Gagal menghapus Esai'
     },
     ESSAY_ITEM: {
         NOT_FOUND: 'Item Esai tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
         NUMBER_NOT_VALID: 'Urutan tidak valid',
         TOPIC_NOT_VALID: 'Topik tidak valid',
         DESCRIPTION_NOT_VALID: 'Deskripsi tidak valid',

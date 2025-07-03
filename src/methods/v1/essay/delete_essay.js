@@ -1,24 +1,25 @@
 const EssayService = require('../../../services/v1/essay');
-const EssayTransformer = require('../../../transformers/v1/essay/essay');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.getAllEssay = async (req, res) => {
+exports.deleteEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const result = await EssayService.getAllEssay(null, { lang });
+        const { id } = req.params;
+
+        const result = await EssayService.deleteEssay(id, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({ data: EssayTransformer.essayList(result.data), message: '' });
+        return res.status(200).json({ message: lang.ESSAY.DELETE_SUCCESS });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getAllEssay',
+            functionName: 'deleteEssay',
             message: err.message
         });
 

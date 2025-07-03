@@ -24,7 +24,7 @@ CREATE TABLE `essay_items` (
   `deleted_at` datetime NULL,
   PRIMARY KEY (`id`),
   INDEX `essay_id` (`essay_id`),
-  CONSTRAINT `essay_items_ibfk_1` FOREIGN KEY (`essay_id`) REFERENCES `essays` (`id`) ON UPDATE CASCADE ON DELETE SET NULL
+  CONSTRAINT `essay_items_ibfk_1` FOREIGN KEY (`essay_id`) REFERENCES `essays` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 -- Create "user_essays" table
 CREATE TABLE `user_essays` (
@@ -56,6 +56,6 @@ CREATE TABLE `user_essay_items` (
   PRIMARY KEY (`id`),
   INDEX `essay_item_id` (`essay_item_id`),
   INDEX `user_essay_id` (`user_essay_id`),
-  CONSTRAINT `user_essay_items_ibfk_1` FOREIGN KEY (`user_essay_id`) REFERENCES `user_essays` (`id`) ON UPDATE CASCADE ON DELETE SET NULL,
+  CONSTRAINT `user_essay_items_ibfk_1` FOREIGN KEY (`user_essay_id`) REFERENCES `user_essays` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT `user_essay_items_ibfk_2` FOREIGN KEY (`essay_item_id`) REFERENCES `essay_items` (`id`) ON UPDATE CASCADE ON DELETE SET NULL
 ) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;

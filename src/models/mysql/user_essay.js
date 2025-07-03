@@ -45,7 +45,8 @@ module.exports = (sequelize, DataTypes) => {
         });
         UserEssay.hasMany(models.UserEssayItem, {
             sourceKey: 'id',
-            foreignKey: 'user_essay_id'
+            foreignKey: 'user_essay_id',
+            onDelete: 'CASCADE'
         });
     };
 

@@ -38,7 +38,8 @@ module.exports = (sequelize, DataTypes) => {
     Essay.associate = (models) => {
         Essay.hasMany(models.EssayItem, {
             sourceKey: 'id',
-            foreignKey: 'essay_id'
+            foreignKey: 'essay_id',
+            onDelete: 'CASCADE'
         });
     };
 

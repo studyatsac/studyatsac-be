@@ -2,23 +2,30 @@ const EssayService = require('../../../services/v1/essay');
 const EssayTransformer = require('../../../transformers/v1/essay/essay');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
+const EssayItemTransformer = require('../../../transformers/v1/essay/essay_item');
 
 let lang;
 
-exports.getAllEssay = async (req, res) => {
+exports.getEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const result = await EssayService.getAllEssay(null, { lang });
+        const result = await EssayService.getEssay(req.params, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({ data: EssayTransformer.essayList(result.data), message: '' });
+        return res.status(200).json({
+            data: {
+                ...EssayTransformer.essayItem(result.data),
+                essayItems: EssayItemTransformer.essayItemList(result.data.essayItems)
+            },
+            message: ''
+        });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getAllEssay',
+            functionName: 'getEssay',
             message: err.message
         });
 

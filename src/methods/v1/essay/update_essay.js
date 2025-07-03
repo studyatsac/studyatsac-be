@@ -7,7 +7,7 @@ const EssayValidation = require('../../../validations/v1/essay/essay');
 
 let lang;
 
-exports.createEssay = async (req, res) => {
+exports.updateEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
@@ -18,7 +18,10 @@ exports.createEssay = async (req, res) => {
             return res.status(400).json({ message: err.message });
         }
 
-        const result = await EssayService.createEssay(input, { lang });
+        const { id } = req.params;
+        input.id = id;
+
+        const result = await EssayService.updateEssay(input, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
@@ -29,11 +32,11 @@ exports.createEssay = async (req, res) => {
                 ...EssayTransformer.essayItem(result.data),
                 essayItems: EssayItemTransformer.essayItemList(result.data.essayItems)
             },
-            message: lang.ESSAY.CREATE_SUCCESS
+            message: lang.ESSAY.UPDATE_SUCCESS
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'createEssay',
+            functionName: 'updateEssay',
             message: err.message
         });
 
