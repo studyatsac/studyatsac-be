@@ -8,13 +8,15 @@ const Models = require('../../models/mysql');
 const getEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const allEssay = await EssayRepository.findOne({ id: input.id }, { include: Models.EssayItem });
-
-    if (!allEssay) {
+    const essay = await EssayRepository.findOne(
+        { uuid: input.uuid },
+        { include: { model: Models.EssayItem, as: 'essayItems' } }
+    );
+    if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
     }
 
-    return Response.formatServiceReturn(true, 200, allEssay, null);
+    return Response.formatServiceReturn(true, 200, essay, null);
 };
 
 const getAllEssay = async (input, opts = {}) => {
@@ -68,13 +70,13 @@ const createEssay = async (input, opts = {}) => {
 const deleteEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await EssayRepository.findOne({ id: input.id });
+    const essay = await EssayRepository.findOne({ uuid: input.uuid });
 
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
     }
 
-    await EssayRepository.delete({ id: input.id });
+    await EssayRepository.delete({ uuid: input.uuid });
 
     return Response.formatServiceReturn(true, 200, null, language.ESSAY.DELETE_SUCCESS);
 };
@@ -83,10 +85,10 @@ const updateEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
     let essay = await EssayRepository.findOne(
-        { id: input.id },
+        { uuid: input.uuid },
         {
             attributes: ['id'],
-            include: { model: Models.EssayItem, attributes: ['id', 'uuid'] }
+            include: { model: Models.EssayItem, attributes: ['id', 'uuid'], as: 'essayItems' }
         }
     );
 
@@ -102,7 +104,7 @@ const updateEssay = async (input, opts = {}) => {
                     description: input.description,
                     isActive: input.isActive
                 },
-                { id: input.id },
+                { id: essay.id },
                 trx
             );
             if (!essay) throw new Error();

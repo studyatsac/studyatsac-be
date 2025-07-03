@@ -10,8 +10,8 @@ exports.getRestrictedEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const { id } = req.params;
-        const result = await EssayService.getEssay({ id, isActive: true }, { lang });
+        const { uuid } = req.params;
+        const result = await EssayService.getEssay({ uuid, isActive: true }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

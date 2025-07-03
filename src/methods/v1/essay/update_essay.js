@@ -18,8 +18,8 @@ exports.updateEssay = async (req, res) => {
             return res.status(400).json({ message: err.message });
         }
 
-        const { id } = req.params;
-        input.id = id;
+        const { uuid } = req.params;
+        input.uuid = uuid;
 
         const result = await EssayService.updateEssay(input, { lang });
 
