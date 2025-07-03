@@ -73,7 +73,19 @@ module.exports = Object.freeze({
         NUMBER_NOT_VALID: 'Number not valid',
         TOPIC_NOT_VALID: 'Topic not valid',
         DESCRIPTION_NOT_VALID: 'Description not valid',
-        SYSTEM_PROMPT_NOT_VALID: 'AI prompt not valid',
-        CREATE_FAILED: 'Failed to create essay item'
+        SYSTEM_PROMPT_NOT_VALID: 'AI prompt not valid'
+    },
+    USER_ESSAY: {
+        NOT_FOUND: 'User essay not found',
+        ESSAY_UUID_NOT_VALID: 'Essay ID not valid',
+        ESSAY_ITEMS_NOT_VALID: 'Essay item not valid',
+        OVERALL_REVIEW_NOT_VALID: 'Review not valid'
+    },
+    USER_ESSAY_ITEM: {
+        NOT_FOUND: 'User essay item not found',
+        UUID_NOT_VALID: 'ID not valid',
+        ESSAY_ITEM_UUID_NOT_VALID: 'Essay item ID not valid',
+        ANSWER_NOT_VALID: 'Answer not valid',
+        REVIEW_NOT_VALID: 'Review not valid'
     }
 });

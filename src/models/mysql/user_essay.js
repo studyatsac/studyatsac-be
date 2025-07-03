@@ -37,11 +37,13 @@ module.exports = (sequelize, DataTypes) => {
     UserEssay.associate = (models) => {
         UserEssay.belongsTo(models.User, {
             targetKey: 'id',
-            foreignKey: 'user_id'
+            foreignKey: 'user_id',
+            as: 'user'
         });
         UserEssay.belongsTo(models.Essay, {
             targetKey: 'id',
-            foreignKey: 'essay_id'
+            foreignKey: 'essay_id',
+            as: 'essay'
         });
         UserEssay.hasMany(models.UserEssayItem, {
             sourceKey: 'id',
