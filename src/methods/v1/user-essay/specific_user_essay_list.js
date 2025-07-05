@@ -10,17 +10,23 @@ exports.getSpecificUserEssayList = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        let input;
+        let params;
         try {
-            input = await UserEssayListValidation(lang).validateAsync(req.query);
+            params = await UserEssayListValidation(lang).validateAsync(req.query);
         } catch (err) {
             return res.status(400).json({ message: err.message });
         }
 
-        const result = await UserEssayService.getAllUserEssayAndCount(
-            { userId: req.session.id, ...(input.essayUuid && { essayUuid: input.essayUuid }) },
-            { lang, params: input }
-        );
+        const input = { userId: req.session.id };
+        if (!input.userId) {
+            return res.status(404).json({ message: lang.USER_NOT_FOUND });
+        }
+
+        if (params.essayUuid) {
+            input.essayUuid = params.essayUuid;
+        }
+
+        const result = await UserEssayService.getAllUserEssayAndCount(input, { lang, params });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
@@ -30,10 +36,10 @@ exports.getSpecificUserEssayList = async (req, res) => {
             data: UserEssayTransformer.userEssayList(result.rows),
             message: '',
             meta: {
-                page: input.page,
-                limit: input.limit,
+                page: params.page,
+                limit: params.limit,
                 totalData: result.count,
-                totalPage: Math.ceil(result.count / input.limit)
+                totalPage: Math.ceil(result.count / params.limit)
             }
         });
     } catch (err) {

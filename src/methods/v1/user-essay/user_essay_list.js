@@ -10,17 +10,19 @@ exports.getUserEssayList = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        let input;
+        let params;
         try {
-            input = await UserEssayListValidation(lang).validateAsync(req.query);
+            params = await UserEssayListValidation(lang).validateAsync(req.query);
         } catch (err) {
             return res.status(400).json({ message: err.message });
         }
 
-        const result = await UserEssayService.getAllUserEssayAndCount(
-            input.essayUuid ? { essayUuid: input.essayUuid } : null,
-            { lang, params: input }
-        );
+        let input;
+        if (params.essayUuid) {
+            input = { essayUuid: params.essayUuid };
+        }
+
+        const result = await UserEssayService.getAllUserEssayAndCount(input, { lang, params });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
@@ -30,10 +32,10 @@ exports.getUserEssayList = async (req, res) => {
             data: UserEssayTransformer.userEssayList(result.rows),
             message: '',
             meta: {
-                page: input.page,
-                limit: input.limit,
+                page: params.page,
+                limit: params.limit,
                 totalData: result.count,
-                totalPage: Math.ceil(result.count / input.limit)
+                totalPage: Math.ceil(result.count / params.limit)
             }
         });
     } catch (err) {

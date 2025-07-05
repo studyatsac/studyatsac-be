@@ -74,6 +74,7 @@ const createUserEssay = async (input, opts = {}, isRestricted = false) => {
         const result = await sequelize.sequelize.transaction(async (trx) => {
             const userEssay = await UserEssayRepository.create(
                 {
+                    userId: input.userId,
                     essayId: essay.id,
                     ...(!isRestricted ? { overallReview: input.overallReview } : {})
                 },
@@ -114,7 +115,7 @@ const updateUserEssay = async (input, opts = {}, isRestricted = false) => {
     const language = opts.lang;
 
     const userEssay = await UserEssayRepository.findOne(
-        { uuid: input.uuid },
+        { uuid: input.uuid, ...(input.userId ? { userId: input.userId } : {}) },
         { include: { model: Models.UserEssayItem, attributes: ['id', 'uuid'], as: 'essayItems' } }
     );
 
@@ -203,13 +204,28 @@ const updateUserEssay = async (input, opts = {}, isRestricted = false) => {
     } catch (err) {
         LogUtils.loggingError({ functionName: 'createEssay', message: err.message });
 
-        return Response.formatServiceReturn(false, 500, null, language.ESSAY.UPDATE_FAILED);
+        return Response.formatServiceReturn(false, 500, null, language.USER_ESSAY.UPDATE_FAILED);
     }
+};
+
+const deleteUserEssay = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    const essay = await UserEssayRepository.findOne({ uuid: input.uuid });
+
+    if (!essay) {
+        return Response.formatServiceReturn(false, 404, null, language.USER_ESSAY.NOT_FOUND);
+    }
+
+    await UserEssayRepository.delete({ uuid: input.uuid });
+
+    return Response.formatServiceReturn(true, 200, null, language.USER_ESSAY.DELETE_SUCCESS);
 };
 
 exports.getUserEssay = getUserEssay;
 exports.getAllUserEssayAndCount = getAllUserEssayAndCount;
 exports.createUserEssay = createUserEssay;
 exports.updateUserEssay = updateUserEssay;
+exports.deleteUserEssay = deleteUserEssay;
 
 module.exports = exports;
