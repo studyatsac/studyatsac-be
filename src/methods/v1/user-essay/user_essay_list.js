@@ -29,13 +29,13 @@ exports.getUserEssayList = async (req, res) => {
         }
 
         return res.status(200).json({
-            data: UserEssayTransformer.userEssayList(result.rows),
+            data: UserEssayTransformer.userEssayList(result.data.rows),
             message: '',
             meta: {
                 page: params.page,
                 limit: params.limit,
-                totalData: result.count,
-                totalPage: Math.ceil(result.count / params.limit)
+                totalData: result.data.count,
+                totalPage: Math.ceil(result.data.count / params.limit)
             }
         });
     } catch (err) {
