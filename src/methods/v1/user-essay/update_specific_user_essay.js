@@ -25,7 +25,7 @@ exports.updateSpecificUserEssay = async (req, res) => {
 
         input.uuid = req.params.uuid;
 
-        const result = await UserEssayService.updateUserEssay(input, { lang }, true);
+        const result = await UserEssayService.updateUserEssay(input, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

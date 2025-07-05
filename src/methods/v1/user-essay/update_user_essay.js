@@ -20,7 +20,7 @@ exports.updateUserEssay = async (req, res) => {
 
         input.uuid = req.params.uuid;
 
-        const result = await UserEssayService.updateUserEssay(input, { lang });
+        const result = await UserEssayService.updateUserEssay(input, { lang }, false);
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
@@ -29,7 +29,7 @@ exports.updateUserEssay = async (req, res) => {
         return res.status(200).json({
             data: {
                 ...UserEssayTransformer.userEssayItem(result.data),
-                essayItems: UserEssayItemTransformer.userEssayItemList(result.data.essayItems)
+                essayItems: UserEssayItemTransformer.userEssayItemList(result.data.essayItems, false)
             },
             message: lang.USER_ESSAY.UPDATE_SUCCESS
         });

@@ -30,10 +30,16 @@ const getUserEssay = async (input, opts = {}) => {
 const getAllUserEssayAndCount = async (input, opts = {}) => {
     const language = opts.lang;
 
+    let essayUuid;
+    if ('essayUuid' in input) {
+        essayUuid = input.essayUuid;
+        delete input.essayUuid;
+    }
+
     const allUserEssay = await UserEssayRepository.findAndCountAll(input, {
         include: [
             { model: Models.User, as: 'user' },
-            { model: Models.Essay, as: 'essay' }
+            { model: Models.Essay, as: 'essay', where: { uuid: essayUuid } }
         ],
         order: [['created_at', 'desc']],
         limit: input.limit,
@@ -47,7 +53,7 @@ const getAllUserEssayAndCount = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, allUserEssay, null);
 };
 
-const createUserEssay = async (input, opts = {}, isRestricted = false) => {
+const createUserEssay = async (input, opts = {}, isRestricted = true) => {
     const language = opts.lang;
 
     const essay = await EssayRepository.findOne(
@@ -111,7 +117,7 @@ const createUserEssay = async (input, opts = {}, isRestricted = false) => {
     }
 };
 
-const updateUserEssay = async (input, opts = {}, isRestricted = false) => {
+const updateUserEssay = async (input, opts = {}, isRestricted = true) => {
     const language = opts.lang;
 
     const userEssay = await UserEssayRepository.findOne(

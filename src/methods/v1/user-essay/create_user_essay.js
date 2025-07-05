@@ -23,7 +23,7 @@ exports.createUserEssay = async (req, res) => {
             return res.status(404).json({ message: lang.USER_NOT_FOUND });
         }
 
-        const result = await UserEssayService.createUserEssay(input, { lang }, true);
+        const result = await UserEssayService.createUserEssay(input, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
