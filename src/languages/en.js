@@ -79,7 +79,13 @@ module.exports = Object.freeze({
         NOT_FOUND: 'User essay not found',
         ESSAY_UUID_NOT_VALID: 'Essay ID not valid',
         ESSAY_ITEMS_NOT_VALID: 'Essay item not valid',
-        OVERALL_REVIEW_NOT_VALID: 'Review not valid'
+        OVERALL_REVIEW_NOT_VALID: 'Review not valid',
+        CREATE_SUCCESS: 'Success to create user essay',
+        CREATE_FAILED: 'Failed to create user essay',
+        UPDATE_SUCCESS: 'Success to update user essay',
+        UPDATE_FAILED: 'Failed to update user essay',
+        DELETE_SUCCESS: 'Success to delete user essay',
+        DELETE_FAILED: 'Failed to delete user essay'
     },
     USER_ESSAY_ITEM: {
         NOT_FOUND: 'User essay item not found',

@@ -77,7 +77,13 @@ module.exports = Object.freeze({
         NOT_FOUND: 'Esai pengguna tidak ditemukan',
         ESSAY_UUID_NOT_VALID: 'ID esai tidak valid',
         ESSAY_ITEMS_NOT_VALID: 'Item esai tidak valid',
-        OVERALL_REVIEW_NOT_VALID: 'Review tidak valid'
+        OVERALL_REVIEW_NOT_VALID: 'Review tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat esai pengguna',
+        CREATE_FAILED: 'Gagal membuat esai pengguna',
+        UPDATE_SUCCESS: 'Berhasil memperbarui esai pengguna',
+        UPDATE_FAILED: 'Gagal memperbarui esai pengguna',
+        DELETE_SUCCESS: 'Berhasil menghapus esai pengguna',
+        DELETE_FAILED: 'Gagal menghapus esai pengguna'
     },
     USER_ESSAY_ITEM: {
         NOT_FOUND: 'Item esai pengguna tidak ditemukan',
