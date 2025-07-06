@@ -505,6 +505,11 @@ router.get(
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/user-essay/user_essay_list').getUserEssayList
 );
+router.get(
+    '/admin/user-essays/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-essay/detailed_user_essay').getDetailedUserEssay
+);
 router.put(
     '/admin/user-essays/:uuid',
     [tokenMiddleware, adminOnlyMiddleware],
@@ -525,15 +530,15 @@ router.post(
     [tokenMiddleware],
     require('../methods/v1/user-essay/create_user_essay').createUserEssay
 );
-router.put(
-    '/user-essays/:uuid',
-    [tokenMiddleware],
-    require('../methods/v1/user-essay/update_specific_user_essay').updateSpecificUserEssay
-);
 router.get(
     '/user-essays/:uuid',
     [tokenMiddleware],
     require('../methods/v1/user-essay/user_essay').getUserEssay
+);
+router.put(
+    '/user-essays/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/user-essay/update_specific_user_essay').updateSpecificUserEssay
 );
 
 /**

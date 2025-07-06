@@ -7,7 +7,7 @@ const Helpers = require('../../utils/helpers');
 const sequelize = require('../../models/mysql');
 const LogUtils = require('../../utils/logger');
 
-const getUserEssay = async (input, opts = {}) => {
+const getUserEssay = async (input, opts = {}, isDetailed = false) => {
     const language = opts.lang;
 
     const essay = await UserEssayRepository.findOne(
@@ -15,7 +15,11 @@ const getUserEssay = async (input, opts = {}) => {
         {
             include: [
                 { model: Models.User, as: 'user' },
-                { model: Models.Essay, as: 'essay' },
+                {
+                    model: Models.Essay,
+                    as: 'essay',
+                    ...(isDetailed ? { include: { model: Models.EssayItem, as: 'essayItems' } } : {})
+                },
                 {
                     model: Models.UserEssayItem,
                     as: 'essayItems',
@@ -33,17 +37,34 @@ const getUserEssay = async (input, opts = {}) => {
 
 const getAllUserEssayAndCount = async (input, opts = {}) => {
     const language = opts.lang;
+    const params = opts.params;
 
     let essayUuid;
-    if ('essayUuid' in input) {
+    if (input && 'essayUuid' in input) {
         essayUuid = input.essayUuid;
         delete input.essayUuid;
     }
 
-    const allUserEssay = await UserEssayRepository.findAndCountAll(input, {
+    const allUserEssay = await UserEssayRepository.findAndCountAll({
+        ...input,
+        ...(params.search ? {
+            [sequelize.Op.or]: [
+                {
+                    '$user.full_name$': {
+                        [sequelize.Op.like]: `%${params.search}%`
+                    }
+                },
+                {
+                    '$essay.title$': {
+                        [sequelize.Op.like]: `%${params.search}%`
+                    }
+                }
+            ]
+        } : {})
+    }, {
         include: [
             { model: Models.User, as: 'user' },
-            { model: Models.Essay, as: 'essay', where: { uuid: essayUuid } },
+            { model: Models.Essay, as: 'essay', where: essayUuid ? { uuid: essayUuid } : undefined },
             // TODO: Optimize this query
             {
                 model: Models.UserEssayItem,
@@ -51,9 +72,22 @@ const getAllUserEssayAndCount = async (input, opts = {}) => {
                 attributes: ['id']
             }
         ],
+        attributes: {
+            include: [
+                [
+                    sequelize.sequelize.literal(`(
+                        SELECT COUNT(*)
+                        FROM user_essay_items AS item
+                        WHERE item.user_essay_id = UserEssay.id
+                    )`),
+                    'essayItemCount'
+                ]
+            ]
+        },
         order: [['created_at', 'desc']],
-        limit: input.limit,
-        offset: Helpers.setOffset(input.page, input.limit)
+        limit: params.limit,
+        offset: Helpers.setOffset(params.page, params.limit),
+        subQuery: false
     });
 
     if (!allUserEssay) {

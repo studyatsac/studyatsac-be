@@ -1,4 +1,5 @@
 const EssayTransformer = require('../essay/essay');
+const EssayItemTransformer = require('../essay/essay_item');
 
 exports.userEssayItem = (data) => {
     if (!data) return null;
@@ -11,10 +12,14 @@ exports.userEssayItem = (data) => {
             institutionName: data.user.institutionName,
             faculty: data.user.faculty
         },
-        essay: data.essay && EssayTransformer.essayItem(data.essay),
+        essay: data.essay && {
+            ...EssayTransformer.essayItem(data.essay),
+            essayItems: EssayItemTransformer.essayItemList(data.essay.essayItems)
+
+        },
         overallReview: data.overallReview,
         createdAt: data.created_at,
-        essayItemCount: data.essayItems && Array.isArray(data.essayItems) && data.essayItems.length
+        essayItemCount: data.essayItemCount ?? data?.dataValues?.essayItemCount
     };
 };
 
