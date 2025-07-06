@@ -12,7 +12,9 @@ exports.userEssayItem = (data) => {
             faculty: data.user.faculty
         },
         essay: data.essay && EssayTransformer.essayItem(data.essay),
-        overallReview: data.overallReview
+        overallReview: data.overallReview,
+        createdAt: data.created_at,
+        essayItemCount: data.essayItems && Array.isArray(data.essayItems) && data.essayItems.length
     };
 };
 

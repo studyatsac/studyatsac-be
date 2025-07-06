@@ -16,7 +16,11 @@ const getUserEssay = async (input, opts = {}) => {
             include: [
                 { model: Models.User, as: 'user' },
                 { model: Models.Essay, as: 'essay' },
-                { model: Models.UserEssayItem, as: 'essayItems' }
+                {
+                    model: Models.UserEssayItem,
+                    as: 'essayItems',
+                    include: { model: Models.EssayItem, as: 'essayItem' }
+                }
             ]
         }
     );
@@ -39,7 +43,13 @@ const getAllUserEssayAndCount = async (input, opts = {}) => {
     const allUserEssay = await UserEssayRepository.findAndCountAll(input, {
         include: [
             { model: Models.User, as: 'user' },
-            { model: Models.Essay, as: 'essay', where: { uuid: essayUuid } }
+            { model: Models.Essay, as: 'essay', where: { uuid: essayUuid } },
+            // TODO: Optimize this query
+            {
+                model: Models.UserEssayItem,
+                as: 'essayItems',
+                attributes: ['id']
+            }
         ],
         order: [['created_at', 'desc']],
         limit: input.limit,

@@ -19,7 +19,7 @@ exports.getUserEssay = async (req, res) => {
         return res.status(200).json({
             data: {
                 ...UserEssayTransformer.userEssayItem(result.data),
-                essayItems: UserEssayItemTransformer.userEssayItemList(result.data.userEssayItems)
+                essayItems: UserEssayItemTransformer.userEssayItemList(result.data.essayItems)
             },
             message: ''
         });
