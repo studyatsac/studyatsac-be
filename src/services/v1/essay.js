@@ -9,7 +9,7 @@ const getEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
     const essay = await EssayRepository.findOne(
-        { uuid: input.uuid },
+        input,
         { include: { model: Models.EssayItem, as: 'essayItems' } }
     );
     if (!essay) {
@@ -67,20 +67,6 @@ const createEssay = async (input, opts = {}) => {
     }
 };
 
-const deleteEssay = async (input, opts = {}) => {
-    const language = opts.lang;
-
-    const essay = await EssayRepository.findOne({ uuid: input.uuid });
-
-    if (!essay) {
-        return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
-    }
-
-    await EssayRepository.delete({ uuid: input.uuid });
-
-    return Response.formatServiceReturn(true, 200, null, language.ESSAY.DELETE_SUCCESS);
-};
-
 const updateEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
@@ -107,7 +93,7 @@ const updateEssay = async (input, opts = {}) => {
             if (!updatedItem) throw new Error();
 
             if (input.essayItems && Array.isArray(input.essayItems)) {
-                let essayItemInputs = input.essayItems;
+                let inputEssayItems = input.essayItems;
                 if (essay.essayItems && Array.isArray(essay.essayItems)) {
                     const deletedEssayItems = essay.essayItems.filter(
                         (item) => !input.essayItems.find((i) => i.uuid === item.uuid)
@@ -122,7 +108,7 @@ const updateEssay = async (input, opts = {}) => {
                         if (!deleteCount) throw new Error();
                     }
 
-                    essayItemInputs = essayItemInputs.map((item) => {
+                    inputEssayItems = inputEssayItems.map((item) => {
                         const essayItem = essay.essayItems.find((i) => i.uuid === item.uuid);
                         return ({
                             ...item,
@@ -131,21 +117,21 @@ const updateEssay = async (input, opts = {}) => {
                     });
                 }
 
-                const updatingEssayItems = essayItemInputs.map(async (item) => {
+                const updatingEssayItems = inputEssayItems.map(async (item) => {
                     const updatedEssayItem = await EssayItemRepository.creatOrUpdate({
+                        id: item.id,
                         essayId: essay.id,
                         number: item.number,
                         topic: item.topic,
                         description: item.description,
-                        systemPrompt: item.systemPrompt,
-                        id: item.id
+                        systemPrompt: item.systemPrompt
                     }, trx);
                     if (!updatedEssayItem) throw new Error();
                 });
 
                 await Promise.all(updatingEssayItems);
 
-                essay.essayItems = essayItemInputs;
+                essay.essayItems = inputEssayItems;
             }
 
             return essay;
@@ -159,10 +145,24 @@ const updateEssay = async (input, opts = {}) => {
     }
 };
 
+const deleteEssay = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    const essay = await EssayRepository.findOne({ uuid: input.uuid });
+
+    if (!essay) {
+        return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
+    }
+
+    await EssayRepository.delete({ uuid: input.uuid });
+
+    return Response.formatServiceReturn(true, 200, null, language.ESSAY.DELETE_SUCCESS);
+};
+
 exports.getEssay = getEssay;
 exports.getAllEssay = getAllEssay;
 exports.createEssay = createEssay;
-exports.deleteEssay = deleteEssay;
 exports.updateEssay = updateEssay;
+exports.deleteEssay = deleteEssay;
 
 module.exports = exports;

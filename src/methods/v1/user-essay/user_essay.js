@@ -1,17 +1,16 @@
-const EssayService = require('../../../services/v1/essay');
-const EssayTransformer = require('../../../transformers/v1/essay/essay');
+const UserEssayService = require('../../../services/v1/user_essay');
+const UserEssayTransformer = require('../../../transformers/v1/user-essay/user_essay');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
-const EssayItemTransformer = require('../../../transformers/v1/essay/essay_item');
+const UserEssayItemTransformer = require('../../../transformers/v1/user-essay/user_essay_item');
 
 let lang;
 
-exports.getEssay = async (req, res) => {
+exports.getUserEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const { uuid } = req.params;
-        const result = await EssayService.getEssay({ uuid }, { lang });
+        const result = await UserEssayService.getUserEssay(req.params, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
@@ -19,14 +18,14 @@ exports.getEssay = async (req, res) => {
 
         return res.status(200).json({
             data: {
-                ...EssayTransformer.essayItem(result.data),
-                essayItems: EssayItemTransformer.essayItemList(result.data.essayItems)
+                ...UserEssayTransformer.userEssayItem(result.data),
+                essayItems: UserEssayItemTransformer.userEssayItemList(result.data.essayItems)
             },
             message: ''
         });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getEssay',
+            functionName: 'getUserEssay',
             message: err.message
         });
 

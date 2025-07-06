@@ -5,7 +5,7 @@ const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.getAllActiveEssay = async (req, res) => {
+exports.getActiveEssayList = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
@@ -18,7 +18,7 @@ exports.getAllActiveEssay = async (req, res) => {
         return res.status(200).json({ data: EssayTransformer.essayList(result.data), message: '' });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getAllActiveEssay',
+            functionName: 'getActiveEssayList',
             message: err.message
         });
 

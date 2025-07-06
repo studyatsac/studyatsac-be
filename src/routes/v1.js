@@ -467,7 +467,7 @@ router.get(
 router.get(
     '/admin/essays',
     [tokenMiddleware, adminOnlyMiddleware],
-    require('../methods/v1/essay/all_essay').getAllEssay
+    require('../methods/v1/essay/essay_list').getEssayList
 );
 router.post(
     '/admin/essays',
@@ -492,12 +492,53 @@ router.delete(
 router.get(
     '/essays',
     [tokenMiddleware],
-    require('../methods/v1/essay/all_active_essay').getAllActiveEssay
+    require('../methods/v1/essay/active_essay_list').getActiveEssayList
 );
 router.get(
     '/essays/:uuid',
     [tokenMiddleware],
     require('../methods/v1/essay/restricted_essay').getRestrictedEssay
+);
+
+router.get(
+    '/admin/user-essays',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-essay/user_essay_list').getUserEssayList
+);
+router.get(
+    '/admin/user-essays/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-essay/detailed_user_essay').getDetailedUserEssay
+);
+router.put(
+    '/admin/user-essays/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-essay/update_user_essay').updateUserEssay
+);
+router.delete(
+    '/admin/user-essays/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-essay/delete_user_essay').deleteUserEssay
+);
+router.get(
+    '/user-essays',
+    [tokenMiddleware],
+    require('../methods/v1/user-essay/specific_user_essay_list').getSpecificUserEssayList
+);
+router.post(
+    '/user-essays',
+    [tokenMiddleware],
+    require('../methods/v1/user-essay/create_user_essay').createUserEssay
+);
+router.get(
+    '/user-essays/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/user-essay/user_essay').getUserEssay
+);
+router.put(
+    '/user-essays/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/user-essay/update_specific_user_essay').updateSpecificUserEssay
 );
 
 /**

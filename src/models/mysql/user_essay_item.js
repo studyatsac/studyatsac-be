@@ -45,7 +45,8 @@ module.exports = (sequelize, DataTypes) => {
         });
         UserEssayItem.belongsTo(models.EssayItem, {
             targetKey: 'id',
-            foreignKey: 'essay_item_id'
+            foreignKey: 'essay_item_id',
+            as: 'essayItem'
         });
     };
 
