@@ -1,4 +1,4 @@
-const EssayReviewConstants = require('../../constants/essay_review');
+const UserEssayConstants = require('../../constants/user_essay');
 
 module.exports = (sequelize, DataTypes) => {
     const attributes = {
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         reviewStatus: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: EssayReviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserEssayConstants.STATUS.NOT_STARTED
         }
     };
 

@@ -9,4 +9,14 @@ const STATUS = {
     CANCELLED: 'cancelled'
 };
 
-module.exports = { STATUS };
+const LANGUAGE = {
+    ENGLISH: 'en',
+    INDONESIAN: 'id'
+};
+
+const LANGUAGE_LABELS = {
+    [LANGUAGE.ENGLISH]: 'English',
+    [LANGUAGE.INDONESIAN]: 'Indonesia'
+};
+
+module.exports = { LANGUAGE, STATUS, LANGUAGE_LABELS };

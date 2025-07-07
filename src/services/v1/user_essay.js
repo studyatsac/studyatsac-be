@@ -6,7 +6,7 @@ const Models = require('../../models/mysql');
 const Helpers = require('../../utils/helpers');
 const LogUtils = require('../../utils/logger');
 const Queues = require('../../queues/redis');
-const EssayReviewConstants = require('../../constants/essay_review');
+const UserEssayConstants = require('../../constants/user_essay');
 
 const getUserEssay = async (input, opts = {}) => {
     const language = opts.lang;
@@ -131,11 +131,12 @@ const createUserEssay = async (input, opts = {}) => {
                 {
                     userId: input.userId,
                     essayId: essay.id,
+                    ...(input.language != null ? { language: input.language } : {}),
                     ...(opts.withReview ? ({
                         ...(hasEssayItems ? ({
-                            itemReviewStatus: EssayReviewConstants.STATUS.PENDING
+                            itemReviewStatus: UserEssayConstants.STATUS.PENDING
                         }) : {}),
-                        overallReviewStatus: EssayReviewConstants.STATUS.PENDING
+                        overallReviewStatus: UserEssayConstants.STATUS.PENDING
                     }) : {}),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },
@@ -150,7 +151,7 @@ const createUserEssay = async (input, opts = {}) => {
                         essayItemId: item.essayItemId,
                         answer: item.answer,
                         ...(opts.withReview ? ({
-                            reviewStatus: EssayReviewConstants.STATUS.PENDING
+                            reviewStatus: UserEssayConstants.STATUS.PENDING
                         }) : {}),
                         ...(!opts.isRestricted ? { review: item.review } : {})
                     })),
@@ -245,16 +246,17 @@ const updateUserEssay = async (input, opts = {}) => {
             const updatedItem = await UserEssayRepository.update(
                 {
                     essayId: essay.id,
+                    ...(input.language != null ? { language: input.language } : {}),
                     ...(opts.withReview ? ({
                         ...(hasEssayItems ? ({
-                            itemReviewStatus: EssayReviewConstants.STATUS.PENDING
+                            itemReviewStatus: UserEssayConstants.STATUS.PENDING
                         }) : {}),
-                        overallReviewStatus: EssayReviewConstants.STATUS.PENDING
+                        overallReviewStatus: UserEssayConstants.STATUS.PENDING
                     }) : {
                         ...(hasEssayItems ? ({
-                            itemReviewStatus: EssayReviewConstants.STATUS.NEED_REVIEW
+                            itemReviewStatus: UserEssayConstants.STATUS.NEED_REVIEW
                         }) : {}),
-                        overallReviewStatus: EssayReviewConstants.STATUS.NEED_REVIEW
+                        overallReviewStatus: UserEssayConstants.STATUS.NEED_REVIEW
                     }),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },
@@ -271,9 +273,9 @@ const updateUserEssay = async (input, opts = {}) => {
                         essayItemId: item.essayItemId,
                         answer: item.answer,
                         ...(opts.withReview ? ({
-                            reviewStatus: EssayReviewConstants.STATUS.PENDING
+                            reviewStatus: UserEssayConstants.STATUS.PENDING
                         }) : {
-                            reviewStatus: EssayReviewConstants.STATUS.NEED_REVIEW
+                            reviewStatus: UserEssayConstants.STATUS.NEED_REVIEW
                         }),
                         ...(!opts.isRestricted ? { review: item.review } : {})
                     }, trx);

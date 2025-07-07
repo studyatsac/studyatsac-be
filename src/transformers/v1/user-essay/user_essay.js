@@ -19,6 +19,7 @@ exports.userEssayItem = (data) => {
         overallReview: data.overallReview,
         itemReviewStatus: data.itemReviewStatus,
         overallReviewStatus: data.overallReviewStatus,
+        language: data.language,
         essayItemCount: data.essayItemCount ?? data?.dataValues?.essayItemCount,
         createdAt: data.created_at
     };

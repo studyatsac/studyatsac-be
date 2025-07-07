@@ -3,10 +3,10 @@ const LogUtils = require('../../utils/logger');
 const PromptUtils = require('../../utils/prompt');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
 const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
-const EssayReviewConstants = require('../../constants/essay_review');
+const UserEssayConstants = require('../../constants/user_essay');
 const Models = require('../../models/mysql');
 
-async function callApiReview(content, topic = 'Overall Essay', criteria, language = 'English') {
+async function callApiReview(content, topic = 'Overall Essay', criteria, language) {
     const baseUrl = process.env.OPENAI_API_URL;
     const key = process.env.OPENAI_API_KEY;
 
@@ -17,7 +17,14 @@ async function callApiReview(content, topic = 'Overall Essay', criteria, languag
         body: JSON.stringify({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: PromptUtils.getReviewSystemPrompt(topic, criteria, language) },
+                {
+                    role: 'system',
+                    content: PromptUtils.getReviewSystemPrompt(
+                        topic,
+                        criteria,
+                        UserEssayConstants.LANGUAGE_LABELS[language] || 'English'
+                    )
+                },
                 { role: 'user', content }
             ],
             temperature: 0.3,
@@ -53,14 +60,14 @@ async function processEssayReviewJob(job) {
     );
     if (
         !userEssay
-        || userEssay.itemReviewStatus !== EssayReviewConstants.STATUS.PENDING
-        || userEssay.overallReviewStatus !== EssayReviewConstants.STATUS.PENDING
+        || userEssay.itemReviewStatus !== UserEssayConstants.STATUS.PENDING
+        || userEssay.overallReviewStatus !== UserEssayConstants.STATUS.PENDING
     ) {
         return;
     }
 
     const pendingEssayItems = userEssay.essayItems.filter(
-        (item) => item.reviewStatus === EssayReviewConstants.STATUS.PENDING
+        (item) => item.reviewStatus === UserEssayConstants.STATUS.PENDING
     );
     const completedPendingEssayIds = [];
     let isItemReviewCompleted = false;
@@ -68,13 +75,13 @@ async function processEssayReviewJob(job) {
     try {
         if (pendingEssayItems.length) {
             await UserEssayRepository.update(
-                { itemReviewStatus: EssayReviewConstants.STATUS.IN_PROGRESS },
+                { itemReviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
                 { id: userEssay.id }
             );
 
             const pendingPromises = pendingEssayItems.map(async (essayItem) => {
                 await UserEssayItemRepository.update(
-                    { reviewStatus: EssayReviewConstants.STATUS.IN_PROGRESS },
+                    { reviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
                     { id: essayItem.id }
                 );
 
@@ -83,11 +90,12 @@ async function processEssayReviewJob(job) {
                     const review = await callApiReview(
                         essayItem.answer,
                         essayItem.essayItem.topic,
-                        essayItem.essayItem.systemPrompt
+                        essayItem.essayItem.systemPrompt,
+                        userEssay.language
                     );
 
                     await UserEssayItemRepository.update(
-                        { review, reviewStatus: EssayReviewConstants.STATUS.COMPLETED },
+                        { review, reviewStatus: UserEssayConstants.STATUS.COMPLETED },
                         { id: essayItem.id }
                     );
 
@@ -96,7 +104,7 @@ async function processEssayReviewJob(job) {
                     LogUtils.loggingError({ functionName: 'processEssayReviewJob Inner Item', message: err.message });
 
                     await UserEssayItemRepository.update(
-                        { reviewStatus: EssayReviewConstants.STATUS.FAILED },
+                        { reviewStatus: UserEssayConstants.STATUS.FAILED },
                         { id: essayItem.id }
                     );
 
@@ -110,11 +118,11 @@ async function processEssayReviewJob(job) {
 
             const pendingResults = await Promise.all(pendingPromises);
 
-            let itemReviewStatus = EssayReviewConstants.STATUS.FAILED;
+            let itemReviewStatus = UserEssayConstants.STATUS.FAILED;
             if (pendingResults && Array.isArray(pendingResults)) {
                 itemReviewStatus = pendingResults.every(Boolean)
-                    ? EssayReviewConstants.STATUS.COMPLETED
-                    : EssayReviewConstants.STATUS.PARTIALLY_COMPLETED;
+                    ? UserEssayConstants.STATUS.COMPLETED
+                    : UserEssayConstants.STATUS.PARTIALLY_COMPLETED;
             }
             await UserEssayRepository.update(
                 { itemReviewStatus },
@@ -131,17 +139,17 @@ async function processEssayReviewJob(job) {
                 ${item.answer}\n=====`, ''
             );
 
-            const overallReview = await callApiReview(overallContent);
+            const overallReview = await callApiReview(overallContent, 'Overall Essay', '', userEssay.language);
 
             await UserEssayRepository.update(
-                { overallReviewStatus: EssayReviewConstants.STATUS.COMPLETED, overallReview },
+                { overallReviewStatus: UserEssayConstants.STATUS.COMPLETED, overallReview },
                 { id: userEssay.id }
             );
         } catch (err) {
             LogUtils.loggingError({ functionName: 'processEssayReviewJob Inner', message: err.message });
 
             await UserEssayRepository.update(
-                { overallReviewStatus: EssayReviewConstants.STATUS.FAILED },
+                { overallReviewStatus: UserEssayConstants.STATUS.FAILED },
                 { id: userEssay.id }
             );
         }
@@ -155,11 +163,11 @@ async function processEssayReviewJob(job) {
 
         if (!isItemReviewCompleted) {
             shouldUpdate = true;
-            dataToUpdate.itemReviewStatus = EssayReviewConstants.STATUS.FAILED;
+            dataToUpdate.itemReviewStatus = UserEssayConstants.STATUS.FAILED;
         }
         if (!isOverallReviewCompleted) {
             shouldUpdate = true;
-            dataToUpdate.overallReviewStatus = EssayReviewConstants.STATUS.FAILED;
+            dataToUpdate.overallReviewStatus = UserEssayConstants.STATUS.FAILED;
         }
 
         if (shouldUpdate) await UserEssayRepository.update(dataToUpdate, { id: userEssay.id });
@@ -169,7 +177,7 @@ async function processEssayReviewJob(job) {
         );
         if (errorPendingEssayItems.length) {
             await UserEssayItemRepository.update(
-                { reviewStatus: EssayReviewConstants.STATUS.FAILED },
+                { reviewStatus: UserEssayConstants.STATUS.FAILED },
                 { id: errorPendingEssayItems.map((item) => item.id) }
             );
         }
