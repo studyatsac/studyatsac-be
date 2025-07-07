@@ -15,7 +15,6 @@ exports.userEssayItem = (data) => {
         essay: data.essay && {
             ...EssayTransformer.essayItem(data.essay),
             essayItems: EssayItemTransformer.essayItemList(data.essay.essayItems)
-
         },
         overallReview: data.overallReview,
         createdAt: data.created_at,

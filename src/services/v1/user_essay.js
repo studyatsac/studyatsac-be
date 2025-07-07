@@ -4,10 +4,11 @@ const UserEssayItemRepository = require('../../repositories/mysql/user_essay_ite
 const Response = require('../../utils/response');
 const Models = require('../../models/mysql');
 const Helpers = require('../../utils/helpers');
-const sequelize = require('../../models/mysql');
 const LogUtils = require('../../utils/logger');
+const Queues = require('../../queues/redis');
+const EssayReviewConstants = require('../../constants/essay_review');
 
-const getUserEssay = async (input, opts = {}, isDetailed = false) => {
+const getUserEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
     const essay = await UserEssayRepository.findOne(
@@ -18,7 +19,7 @@ const getUserEssay = async (input, opts = {}, isDetailed = false) => {
                 {
                     model: Models.Essay,
                     as: 'essay',
-                    ...(isDetailed ? { include: { model: Models.EssayItem, as: 'essayItems' } } : {})
+                    ...(opts.isDetailed ? { include: { model: Models.EssayItem, as: 'essayItems' } } : {})
                 },
                 {
                     model: Models.UserEssayItem,
@@ -48,15 +49,15 @@ const getAllUserEssayAndCount = async (input, opts = {}) => {
     const allUserEssay = await UserEssayRepository.findAndCountAll({
         ...input,
         ...(params.search ? {
-            [sequelize.Op.or]: [
+            [Models.Op.or]: [
                 {
                     '$user.full_name$': {
-                        [sequelize.Op.like]: `%${params.search}%`
+                        [Models.Op.like]: `%${params.search}%`
                     }
                 },
                 {
                     '$essay.title$': {
-                        [sequelize.Op.like]: `%${params.search}%`
+                        [Models.Op.like]: `%${params.search}%`
                     }
                 }
             ]
@@ -75,7 +76,7 @@ const getAllUserEssayAndCount = async (input, opts = {}) => {
         attributes: {
             include: [
                 [
-                    sequelize.sequelize.literal(`(
+                    Models.sequelize.literal(`(
                         SELECT COUNT(*)
                         FROM user_essay_items AS item
                         WHERE item.user_essay_id = UserEssay.id
@@ -97,7 +98,7 @@ const getAllUserEssayAndCount = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, allUserEssay, null);
 };
 
-const createUserEssay = async (input, opts = {}, isRestricted = true) => {
+const createUserEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
     const essay = await EssayRepository.findOne(
@@ -121,24 +122,37 @@ const createUserEssay = async (input, opts = {}, isRestricted = true) => {
     }
 
     try {
-        const result = await sequelize.sequelize.transaction(async (trx) => {
+        const result = await Models.sequelize.transaction(async (trx) => {
+            const hasEssayItems = input.essayItems
+                && Array.isArray(input.essayItems)
+                && !!input.essayItems.length;
+
             const userEssay = await UserEssayRepository.create(
                 {
                     userId: input.userId,
                     essayId: essay.id,
-                    ...(!isRestricted ? { overallReview: input.overallReview } : {})
+                    ...(opts.withReview ? ({
+                        ...(hasEssayItems ? ({
+                            itemReviewStatus: EssayReviewConstants.STATUS.PENDING
+                        }) : {}),
+                        overallReviewStatus: EssayReviewConstants.STATUS.PENDING
+                    }) : {}),
+                    ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },
                 trx
             );
             if (!essay) throw new Error();
 
-            if (input.essayItems && Array.isArray(input.essayItems)) {
+            if (hasEssayItems) {
                 const essayItems = await UserEssayItemRepository.createMany(
                     inputEssayItems.map((item) => ({
                         userEssayId: userEssay.id,
                         essayItemId: item.essayItemId,
                         answer: item.answer,
-                        ...(!isRestricted ? { review: item.review } : {})
+                        ...(opts.withReview ? ({
+                            reviewStatus: EssayReviewConstants.STATUS.PENDING
+                        }) : {}),
+                        ...(!opts.isRestricted ? { review: item.review } : {})
                     })),
                     trx
                 );
@@ -149,6 +163,8 @@ const createUserEssay = async (input, opts = {}, isRestricted = true) => {
 
             return userEssay;
         });
+
+        if (result && opts.withReview) Queues.EssayReview.addJob(result);
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
@@ -161,7 +177,7 @@ const createUserEssay = async (input, opts = {}, isRestricted = true) => {
     }
 };
 
-const updateUserEssay = async (input, opts = {}, isRestricted = true) => {
+const updateUserEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
     const userEssay = await UserEssayRepository.findOne(
@@ -196,18 +212,10 @@ const updateUserEssay = async (input, opts = {}, isRestricted = true) => {
     }
 
     try {
-        const result = await sequelize.sequelize.transaction(async (trx) => {
-            const updatedItem = await UserEssayRepository.update(
-                {
-                    essayId: essay.id,
-                    ...(!isRestricted ? { overallReview: input.overallReview } : {})
-                },
-                { id: userEssay.id },
-                trx
-            );
-            if (!updatedItem) throw new Error();
+        const result = await Models.sequelize.transaction(async (trx) => {
+            let hasEssayItems = input.essayItems && Array.isArray(input.essayItems);
 
-            if (input.essayItems && Array.isArray(input.essayItems)) {
+            if (hasEssayItems) {
                 if (userEssay.essayItems && Array.isArray(userEssay.essayItems)) {
                     const deletedEssayItems = userEssay.essayItems.filter(
                         (item) => !inputEssayItems.find((i) => i.uuid === item.uuid)
@@ -215,8 +223,8 @@ const updateUserEssay = async (input, opts = {}, isRestricted = true) => {
                     if (deletedEssayItems.length) {
                         const deleteCount = await UserEssayItemRepository.delete(
                             { id: deletedEssayItems.map((item) => item.id) },
-                            trx,
-                            true
+                            { force: true },
+                            trx
                         );
                         // eslint-disable-next-line max-depth
                         if (!deleteCount) throw new Error();
@@ -230,14 +238,44 @@ const updateUserEssay = async (input, opts = {}, isRestricted = true) => {
                         });
                     });
                 }
+            }
 
+            hasEssayItems = hasEssayItems && !!inputEssayItems.length;
+
+            const updatedItem = await UserEssayRepository.update(
+                {
+                    essayId: essay.id,
+                    ...(opts.withReview ? ({
+                        ...(hasEssayItems ? ({
+                            itemReviewStatus: EssayReviewConstants.STATUS.PENDING
+                        }) : {}),
+                        overallReviewStatus: EssayReviewConstants.STATUS.PENDING
+                    }) : {
+                        ...(hasEssayItems ? ({
+                            itemReviewStatus: EssayReviewConstants.STATUS.NEED_REVIEW
+                        }) : {}),
+                        overallReviewStatus: EssayReviewConstants.STATUS.NEED_REVIEW
+                    }),
+                    ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
+                },
+                { id: userEssay.id },
+                trx
+            );
+            if (!updatedItem) throw new Error();
+
+            if (hasEssayItems) {
                 const updatingEssayItems = inputEssayItems.map(async (item) => {
                     const updatedEssayItem = await UserEssayItemRepository.creatOrUpdate({
                         id: item.id,
                         userEssayId: userEssay.id,
                         essayItemId: item.essayItemId,
                         answer: item.answer,
-                        ...(!isRestricted ? { review: item.review } : {})
+                        ...(opts.withReview ? ({
+                            reviewStatus: EssayReviewConstants.STATUS.PENDING
+                        }) : {
+                            reviewStatus: EssayReviewConstants.STATUS.NEED_REVIEW
+                        }),
+                        ...(!opts.isRestricted ? { review: item.review } : {})
                     }, trx);
                     if (!updatedEssayItem) throw new Error();
                 });
@@ -249,6 +287,8 @@ const updateUserEssay = async (input, opts = {}, isRestricted = true) => {
 
             return userEssay;
         });
+
+        if (result && opts.withReview) Queues.EssayReview.addJob(result);
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {

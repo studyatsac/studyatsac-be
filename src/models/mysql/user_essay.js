@@ -1,3 +1,5 @@
+const EssayReviewConstants = require('../../constants/essay_review');
+
 module.exports = (sequelize, DataTypes) => {
     const attributes = {
         id: {
@@ -22,6 +24,16 @@ module.exports = (sequelize, DataTypes) => {
         overallReview: {
             type: DataTypes.TEXT,
             allowNull: true
+        },
+        itemReviewStatus: {
+            type: DataTypes.STRING(30),
+            allowNull: false,
+            defaultValue: EssayReviewConstants.STATUS.NOT_STARTED
+        },
+        overallReviewStatus: {
+            type: DataTypes.STRING(30),
+            allowNull: false,
+            defaultValue: EssayReviewConstants.STATUS.NOT_STARTED
         }
     };
 

@@ -20,7 +20,13 @@ exports.updateUserEssay = async (req, res) => {
 
         input.uuid = req.params.uuid;
 
-        const result = await UserEssayService.updateUserEssay(input, { lang }, false);
+        let withReview = false;
+        if (input && input.witReview) {
+            withReview = true;
+            delete input.witReview;
+        }
+
+        const result = await UserEssayService.updateUserEssay(input, { lang, withReview });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
