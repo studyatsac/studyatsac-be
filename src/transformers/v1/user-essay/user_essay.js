@@ -15,11 +15,13 @@ exports.userEssayItem = (data) => {
         essay: data.essay && {
             ...EssayTransformer.essayItem(data.essay),
             essayItems: EssayItemTransformer.essayItemList(data.essay.essayItems)
-
         },
         overallReview: data.overallReview,
-        createdAt: data.created_at,
-        essayItemCount: data.essayItemCount ?? data?.dataValues?.essayItemCount
+        itemReviewStatus: data.itemReviewStatus,
+        overallReviewStatus: data.overallReviewStatus,
+        language: data.language,
+        essayItemCount: data.essayItemCount ?? data?.dataValues?.essayItemCount,
+        createdAt: data.created_at
     };
 };
 

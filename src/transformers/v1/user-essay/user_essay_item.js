@@ -7,7 +7,8 @@ exports.userEssayItemItem = (data, isRestricted = true) => {
         uuid: data.uuid,
         essayItem: data.essayItem && EssayItemTransformer.essayItemItem(data.essayItem, isRestricted),
         answer: data.answer,
-        review: data.review
+        review: data.review,
+        reviewStatus: data.reviewStatus
     };
 };
 

@@ -85,7 +85,9 @@ module.exports = Object.freeze({
         UPDATE_SUCCESS: 'Success to update user essay',
         UPDATE_FAILED: 'Failed to update user essay',
         DELETE_SUCCESS: 'Success to delete user essay',
-        DELETE_FAILED: 'Failed to delete user essay'
+        DELETE_FAILED: 'Failed to delete user essay',
+        WITH_REVIEW_NOT_VALID: 'Review flag not valid',
+        LANGUAGE_NOT_VALID: 'Language not valid'
     },
     USER_ESSAY_ITEM: {
         NOT_FOUND: 'User essay item not found',

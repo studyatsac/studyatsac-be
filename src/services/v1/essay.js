@@ -1,4 +1,3 @@
-const sequelize = require('../../models/mysql');
 const EssayRepository = require('../../repositories/mysql/essay');
 const EssayItemRepository = require('../../repositories/mysql/essay_item');
 const Response = require('../../utils/response');
@@ -35,7 +34,7 @@ const createEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
     try {
-        const result = await sequelize.sequelize.transaction(async (trx) => {
+        const result = await Models.sequelize.transaction(async (trx) => {
             const essay = await EssayRepository.create({
                 title: input.title,
                 description: input.description,
@@ -80,7 +79,7 @@ const updateEssay = async (input, opts = {}) => {
     }
 
     try {
-        const result = await sequelize.sequelize.transaction(async (trx) => {
+        const result = await Models.sequelize.transaction(async (trx) => {
             const updatedItem = await EssayRepository.update(
                 {
                     title: input.title,
@@ -101,8 +100,8 @@ const updateEssay = async (input, opts = {}) => {
                     if (deletedEssayItems.length) {
                         const deleteCount = await EssayItemRepository.delete(
                             { id: deletedEssayItems.map((item) => item.id) },
-                            trx,
-                            true
+                            { force: true },
+                            trx
                         );
                         // eslint-disable-next-line max-depth
                         if (!deleteCount) throw new Error();
