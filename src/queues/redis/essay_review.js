@@ -6,7 +6,7 @@ const UserEssayItemRepository = require('../../repositories/mysql/user_essay_ite
 const EssayReviewConstants = require('../../constants/essay_review');
 const Models = require('../../models/mysql');
 
-async function callApiReview(content, topic = 'Overall Essay', criteria) {
+async function callApiReview(content, topic = 'Overall Essay', criteria, language = 'English') {
     const baseUrl = process.env.OPENAI_API_URL;
     const key = process.env.OPENAI_API_KEY;
 
@@ -17,11 +17,11 @@ async function callApiReview(content, topic = 'Overall Essay', criteria) {
         body: JSON.stringify({
             model: 'gpt-4o-mini',
             messages: [
-                { role: 'system', content: PromptUtils.getReviewSystemPrompt(topic, criteria) },
+                { role: 'system', content: PromptUtils.getReviewSystemPrompt(topic, criteria, language) },
                 { role: 'user', content }
             ],
             temperature: 0.3,
-            max_tokens: 800
+            max_tokens: 16384
         }),
         headers: {
             Authorization: `Bearer ${key}`,
