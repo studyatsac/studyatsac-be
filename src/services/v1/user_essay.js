@@ -126,6 +126,7 @@ const createUserEssay = async (input, opts = {}) => {
             const hasEssayItems = input.essayItems
                 && Array.isArray(input.essayItems)
                 && !!input.essayItems.length;
+            const isSingleEssay = inputEssayItems.length === 1;
 
             const userEssay = await UserEssayRepository.create(
                 {
@@ -136,7 +137,7 @@ const createUserEssay = async (input, opts = {}) => {
                         ...(hasEssayItems ? ({
                             itemReviewStatus: UserEssayConstants.STATUS.PENDING
                         }) : {}),
-                        overallReviewStatus: UserEssayConstants.STATUS.PENDING
+                        ...(!isSingleEssay ? ({ overallReviewStatus: UserEssayConstants.STATUS.PENDING }) : {})
                     }) : {}),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },
@@ -242,6 +243,7 @@ const updateUserEssay = async (input, opts = {}) => {
             }
 
             hasEssayItems = hasEssayItems && !!inputEssayItems.length;
+            const isSingleEssay = inputEssayItems.length === 1;
 
             const updatedItem = await UserEssayRepository.update(
                 {
@@ -251,12 +253,12 @@ const updateUserEssay = async (input, opts = {}) => {
                         ...(hasEssayItems ? ({
                             itemReviewStatus: UserEssayConstants.STATUS.PENDING
                         }) : {}),
-                        overallReviewStatus: UserEssayConstants.STATUS.PENDING
+                        ...(!isSingleEssay ? ({ overallReviewStatus: UserEssayConstants.STATUS.PENDING }) : {})
                     }) : {
                         ...(hasEssayItems ? ({
                             itemReviewStatus: UserEssayConstants.STATUS.NEED_REVIEW
                         }) : {}),
-                        overallReviewStatus: UserEssayConstants.STATUS.NEED_REVIEW
+                        ...(!isSingleEssay ? ({ overallReviewStatus: UserEssayConstants.STATUS.NEED_REVIEW }) : {})
                     }),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },

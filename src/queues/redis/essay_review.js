@@ -58,10 +58,11 @@ async function processEssayReviewJob(job) {
             }
         }
     );
+    const isSingleEssay = userEssay?.essayItems?.length === 1;
     if (
         !userEssay
         || userEssay.itemReviewStatus !== UserEssayConstants.STATUS.PENDING
-        || userEssay.overallReviewStatus !== UserEssayConstants.STATUS.PENDING
+        || (!isSingleEssay && userEssay.overallReviewStatus !== UserEssayConstants.STATUS.PENDING)
     ) {
         return;
     }
@@ -132,26 +133,28 @@ async function processEssayReviewJob(job) {
             isItemReviewCompleted = true;
         }
 
-        try {
-            const overallContent = userEssay.essayItems.reduce(
-                (text, item) => `${text}\n=====
-                ${item.essayItem.topic}\n
-                ${item.answer}\n=====`, ''
-            );
+        if (!isSingleEssay) {
+            try {
+                const overallContent = userEssay.essayItems.reduce(
+                    (text, item) => `${text}\n=====
+                    ${item.essayItem.topic}\n
+                    ${item.answer}\n=====`, ''
+                );
 
-            const overallReview = await callApiReview(overallContent, 'Overall Essay', '', userEssay.language);
+                const overallReview = await callApiReview(overallContent, 'Overall Essay', '', userEssay.language);
 
-            await UserEssayRepository.update(
-                { overallReviewStatus: UserEssayConstants.STATUS.COMPLETED, overallReview },
-                { id: userEssay.id }
-            );
-        } catch (err) {
-            LogUtils.loggingError({ functionName: 'processEssayReviewJob Inner', message: err.message });
+                await UserEssayRepository.update(
+                    { overallReviewStatus: UserEssayConstants.STATUS.COMPLETED, overallReview },
+                    { id: userEssay.id }
+                );
+            } catch (err) {
+                LogUtils.loggingError({ functionName: 'processEssayReviewJob Inner', message: err.message });
 
-            await UserEssayRepository.update(
-                { overallReviewStatus: UserEssayConstants.STATUS.FAILED },
-                { id: userEssay.id }
-            );
+                await UserEssayRepository.update(
+                    { overallReviewStatus: UserEssayConstants.STATUS.FAILED },
+                    { id: userEssay.id }
+                );
+            }
         }
 
         isOverallReviewCompleted = true;
@@ -165,7 +168,7 @@ async function processEssayReviewJob(job) {
             shouldUpdate = true;
             dataToUpdate.itemReviewStatus = UserEssayConstants.STATUS.FAILED;
         }
-        if (!isOverallReviewCompleted) {
+        if (!isOverallReviewCompleted && !isSingleEssay) {
             shouldUpdate = true;
             dataToUpdate.overallReviewStatus = UserEssayConstants.STATUS.FAILED;
         }
