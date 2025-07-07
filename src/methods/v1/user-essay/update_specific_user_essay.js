@@ -25,7 +25,7 @@ exports.updateSpecificUserEssay = async (req, res) => {
 
         input.uuid = req.params.uuid;
 
-        if (input && input.witReview) delete input.witReview;
+        if (input && input.withReview) delete input.withReview;
 
         const result = await UserEssayService.updateUserEssay(
             input,

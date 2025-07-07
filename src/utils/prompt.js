@@ -1,6 +1,4 @@
-const knowledgeBase = `
-Below is a reference guide used for evaluating LPDP scholarship application responses. Each topic contains best practices and criteria for identifying high-quality responses. You should use this as a benchmark to assess the applicant's submission quality.
-`;
+const knowledgeBase = 'Below is a reference guide used for evaluating LPDP scholarship application responses. Each topic contains best practices and criteria for identifying high-quality responses. You should use this as a benchmark to assess the applicant\'s submission quality.';
 
 exports.getReviewSystemPrompt = (topic, criteria, language = 'English') => {
     let basePrompt = `

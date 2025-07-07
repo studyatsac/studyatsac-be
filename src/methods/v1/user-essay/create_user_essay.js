@@ -24,9 +24,9 @@ exports.createUserEssay = async (req, res) => {
         }
 
         let withReview = false;
-        if (input && input.witReview) {
-            withReview = true;
-            delete input.witReview;
+        if (input && input.withReview) {
+            withReview = input.withReview;
+            delete input.withReview;
         }
 
         const result = await UserEssayService.createUserEssay(

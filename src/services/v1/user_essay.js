@@ -164,7 +164,7 @@ const createUserEssay = async (input, opts = {}) => {
             return userEssay;
         });
 
-        if (result && opts.withReview) Queues.EssayReview.addJob(result);
+        if (result.id && opts.withReview) Queues.EssayReview.addDefaultJob(result.id);
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
@@ -288,7 +288,7 @@ const updateUserEssay = async (input, opts = {}) => {
             return userEssay;
         });
 
-        if (result && opts.withReview) Queues.EssayReview.addJob(result);
+        if (result.id && opts.withReview) Queues.EssayReview.addDefaultJob(result.id);
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {

@@ -10,35 +10,31 @@ async function callApiReview(content, topic = 'Overall Essay', criteria) {
     const baseUrl = process.env.OPENAI_API_URL;
     const key = process.env.OPENAI_API_KEY;
 
-    if (!baseUrl || !key) return undefined;
+    if (!baseUrl || !key) return '';
 
-    try {
-        const response = await fetch(`${baseUrl}/v1/chat/completions`, {
-            body: {
-                model: 'gpt-4o-mini',
-                messages: [
-                    { role: 'system', content: PromptUtils.getReviewSystemPrompt(topic, criteria) },
-                    { role: 'user', content }
-                ],
-                temperature: 0.3,
-                max_tokens: 800
-            },
-            headers: {
-                Authorization: `Bearer ${key}`,
-                'Content-Type': 'application/json'
-            }
-        });
+    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+        method: 'POST',
+        body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+                { role: 'system', content: PromptUtils.getReviewSystemPrompt(topic, criteria) },
+                { role: 'user', content }
+            ],
+            temperature: 0.3,
+            max_tokens: 800
+        }),
+        headers: {
+            Authorization: `Bearer ${key}`,
+            'Content-Type': 'application/json'
+        }
+    });
 
-        const data = await response.json();
-
-        return data.choices[0].message.content;
-    } catch (err) {
-        return err;
-    }
+    const data = await response.json();
+    return data.choices[0].message.content;
 }
 
 async function processEssayReviewJob(job) {
-    const dataId = job.data?.id;
+    const dataId = job.data;
 
     if (!dataId) return;
 
@@ -63,11 +59,13 @@ async function processEssayReviewJob(job) {
         return;
     }
 
+    const pendingEssayItems = userEssay.essayItems.filter(
+        (item) => item.reviewStatus === EssayReviewConstants.STATUS.PENDING
+    );
+    const completedPendingEssayIds = [];
+    let isItemReviewCompleted = false;
+    let isOverallReviewCompleted = false;
     try {
-        const pendingEssayItems = userEssay.essayItems.filter(
-            (item) => item.reviewStatus === EssayReviewConstants.STATUS.PENDING
-        );
-
         if (pendingEssayItems.length) {
             await UserEssayRepository.update(
                 { itemReviewStatus: EssayReviewConstants.STATUS.IN_PROGRESS },
@@ -79,6 +77,8 @@ async function processEssayReviewJob(job) {
                     { reviewStatus: EssayReviewConstants.STATUS.IN_PROGRESS },
                     { id: essayItem.id }
                 );
+
+                let reviewStatus = false;
                 try {
                     const review = await callApiReview(
                         essayItem.answer,
@@ -91,15 +91,21 @@ async function processEssayReviewJob(job) {
                         { id: essayItem.id }
                     );
 
-                    return true;
-                } catch {
+                    reviewStatus = true;
+                } catch (err) {
+                    LogUtils.loggingError({ functionName: 'processEssayReviewJob Inner Item', message: err.message });
+
                     await UserEssayItemRepository.update(
                         { reviewStatus: EssayReviewConstants.STATUS.FAILED },
                         { id: essayItem.id }
                     );
 
-                    return false;
+                    reviewStatus = false;
                 }
+
+                completedPendingEssayIds.push(essayItem.id);
+
+                return reviewStatus;
             });
 
             const pendingResults = await Promise.all(pendingPromises);
@@ -114,15 +120,15 @@ async function processEssayReviewJob(job) {
                 { itemReviewStatus },
                 { id: userEssay.id }
             );
+
+            isItemReviewCompleted = true;
         }
 
         try {
             const overallContent = userEssay.essayItems.reduce(
-                (text, item) => `${text}\n
-                =====
+                (text, item) => `${text}\n=====
                 ${item.essayItem.topic}\n
-                ${item.answer}
-                =====`, ''
+                ${item.answer}\n=====`, ''
             );
 
             const overallReview = await callApiReview(overallContent);
@@ -131,14 +137,42 @@ async function processEssayReviewJob(job) {
                 { overallReviewStatus: EssayReviewConstants.STATUS.COMPLETED, overallReview },
                 { id: userEssay.id }
             );
-        } catch {
+        } catch (err) {
+            LogUtils.loggingError({ functionName: 'processEssayReviewJob Inner', message: err.message });
+
             await UserEssayRepository.update(
                 { overallReviewStatus: EssayReviewConstants.STATUS.FAILED },
                 { id: userEssay.id }
             );
         }
+
+        isOverallReviewCompleted = true;
     } catch (err) {
         LogUtils.loggingError({ functionName: 'processEssayReviewJob', message: err.message });
+
+        let shouldUpdate = false;
+        const dataToUpdate = {};
+
+        if (!isItemReviewCompleted) {
+            shouldUpdate = true;
+            dataToUpdate.itemReviewStatus = EssayReviewConstants.STATUS.FAILED;
+        }
+        if (!isOverallReviewCompleted) {
+            shouldUpdate = true;
+            dataToUpdate.overallReviewStatus = EssayReviewConstants.STATUS.FAILED;
+        }
+
+        if (shouldUpdate) await UserEssayRepository.update(dataToUpdate, { id: userEssay.id });
+
+        const errorPendingEssayItems = pendingEssayItems.filter(
+            (item) => !completedPendingEssayIds.includes(item.id)
+        );
+        if (errorPendingEssayItems.length) {
+            await UserEssayItemRepository.update(
+                { reviewStatus: EssayReviewConstants.STATUS.FAILED },
+                { id: errorPendingEssayItems.map((item) => item.id) }
+            );
+        }
     }
 }
 
@@ -161,7 +195,7 @@ module.exports = (redis, defaultJobOptions) => {
         LogUtils.loggingError(`Worker ${queueName} Error: ${err.message}`);
     });
 
-    queue.addJob = (data, opts) => {
+    queue.addDefaultJob = (data, opts) => {
         queue.add('default', data, opts);
     };
 
