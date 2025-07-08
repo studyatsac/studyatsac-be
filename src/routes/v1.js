@@ -541,6 +541,32 @@ router.put(
     require('../methods/v1/user-essay/user_update_specific_user_essay').updateSpecificUserEssay
 );
 
+router.get(
+    '/admin/essay-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/essay-package/admin_essay_package_list').getEssayPackageList
+);
+router.post(
+    '/admin/essay-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/essay-package/admin_create_essay_package').createEssayPackage
+);
+router.get(
+    '/admin/essay-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/essay-package/admin_essay_package').getEssayPackage
+);
+router.put(
+    '/admin/essay-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/essay-package/admin_update_essay_package').updateEssayPackage
+);
+router.delete(
+    '/admin/essay-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/essay-package/admin_delete_essay_package').deleteEssayPackage
+);
+
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
