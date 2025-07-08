@@ -566,6 +566,11 @@ router.delete(
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/essay-package/admin_delete_essay_package').deleteEssayPackage
 );
+router.get(
+    '/essay-packages',
+    [tokenMiddleware],
+    require('../methods/v1/essay-package/user_active_essay_package_list').getActiveEssayPackageList
+);
 
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
