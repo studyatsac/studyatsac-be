@@ -40,6 +40,11 @@ module.exports = (sequelize, DataTypes) => {
             targetKey: 'id',
             foreignKey: 'essay_package_id'
         });
+        EssayPackageMapping.belongsTo(models.Essay, {
+            targetKey: 'id',
+            foreignKey: 'essay_id',
+            as: 'essay'
+        });
     };
 
     return EssayPackageMapping;

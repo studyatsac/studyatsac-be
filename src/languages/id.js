@@ -93,5 +93,27 @@ module.exports = Object.freeze({
         ESSAY_ITEM_UUID_NOT_VALID: 'ID item esai tidak valid',
         ANSWER_NOT_VALID: 'Jwaban tidak valid',
         REVIEW_NOT_VALID: 'Review tidak valid'
+    },
+    ESSAY_PACKAGE: {
+        NOT_FOUND: 'Paket esai tidak ditemukan',
+        TITLE_NOT_VALID: 'Judul tidak valid',
+        DESCRIPTION_NOT_VALID: 'Description tidak valid',
+        ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information tidak valid',
+        TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total maksimal percobaan tidak valid',
+        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Jumlah default maksimal percobaan tidak valid',
+        IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
+        ESSAY_PACKAGE_MAPPINGS_NOT_VALID: 'Item paket esai tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat paket esai',
+        CREATE_FAILED: 'Gagal membuat paket esai',
+        UPDATE_SUCCESS: 'Berhasil memperbarui paket esai',
+        UPDATE_FAILED: 'Gagal memperbarui paket esai',
+        DELETE_SUCCESS: 'Berhasil menghapus paket esai',
+        DELETE_FAILED: 'Gagal menghapus paket esai'
+    },
+    ESSAY_PACKAGE_MAPPING: {
+        NOT_FOUND: 'Item paket esai tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        ESSAY_UUID_NOT_VALID: 'ID esai tidak valid',
+        MAX_ATTEMPT_NOT_VALID: 'Maksimal percobaan tidak valid'
     }
 });

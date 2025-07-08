@@ -95,5 +95,27 @@ module.exports = Object.freeze({
         ESSAY_ITEM_UUID_NOT_VALID: 'Essay item ID not valid',
         ANSWER_NOT_VALID: 'Answer not valid',
         REVIEW_NOT_VALID: 'Review not valid'
+    },
+    ESSAY_PACKAGE: {
+        NOT_FOUND: 'Essay package not found',
+        TITLE_NOT_VALID: 'Title not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information not valid',
+        TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total max attempt not valid',
+        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Default max attempt not valid',
+        IS_ACTIVE_NOT_VALID: 'Active status not valid',
+        ESSAY_PACKAGE_MAPPINGS_NOT_VALID: 'Essay package mapping not valid',
+        CREATE_SUCCESS: 'Success to create essay package',
+        CREATE_FAILED: 'Failed to create essay package',
+        UPDATE_SUCCESS: 'Success to update essay package',
+        UPDATE_FAILED: 'Failed to update essay package',
+        DELETE_SUCCESS: 'Success to delete essay package',
+        DELETE_FAILED: 'Failed to delete essay package'
+    },
+    ESSAY_PACKAGE_MAPPING: {
+        NOT_FOUND: 'Essay package mapping not found',
+        UUID_NOT_VALID: 'ID not valid',
+        ESSAY_UUID_NOT_VALID: 'Essay ID not valid',
+        MAX_ATTEMPT_NOT_VALID: 'Max attempt not valid'
     }
 });
