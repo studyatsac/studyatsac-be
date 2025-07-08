@@ -1,7 +1,7 @@
 const EssayTransformer = require('../essay/essay');
-const EssayItemTransformer = require('../essay/essay_item');
+const UserEssayItemTransformer = require('./user_essay_item');
 
-exports.userEssayItem = (data) => {
+exports.userEssayItem = (data, isRestricted = true) => {
     if (!data) return null;
 
     return {
@@ -12,23 +12,21 @@ exports.userEssayItem = (data) => {
             institutionName: data.user.institutionName,
             faculty: data.user.faculty
         },
-        essay: data.essay && {
-            ...EssayTransformer.essayItem(data.essay),
-            essayItems: EssayItemTransformer.essayItemList(data.essay.essayItems)
-        },
+        essay: data.essay && EssayTransformer.essayItem(data.essay, isRestricted),
         overallReview: data.overallReview,
         itemReviewStatus: data.itemReviewStatus,
         overallReviewStatus: data.overallReviewStatus,
         language: data.language,
-        essayItemCount: data.essayItemCount ?? data?.dataValues?.essayItemCount,
+        essayItemCount: data.essayItemCount ?? data.dataValues?.essayItemCount,
+        essayItems: UserEssayItemTransformer.userEssayItemList(data.essayItems, isRestricted),
         createdAt: data.created_at
     };
 };
 
-exports.userEssayList = (data) => {
+exports.userEssayList = (data, isRestricted = true) => {
     if (!data || !Array.isArray(data)) return null;
 
-    return data.map(exports.userEssayItem);
+    return data.map((item) => exports.userEssayItem(item, isRestricted));
 };
 
 module.exports = exports;

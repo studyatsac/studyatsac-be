@@ -1,6 +1,5 @@
 const EssayService = require('../../../services/v1/essay');
 const EssayTransformer = require('../../../transformers/v1/essay/essay');
-const EssayItemTransformer = require('../../../transformers/v1/essay/essay_item');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 const EssayValidation = require('../../../validations/v1/essay/essay');
@@ -26,13 +25,7 @@ exports.updateEssay = async (req, res) => {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({
-            data: {
-                ...EssayTransformer.essayItem(result.data),
-                essayItems: EssayItemTransformer.essayItemList(result.data.essayItems)
-            },
-            message: lang.ESSAY.UPDATE_SUCCESS
-        });
+        return res.status(200).json({ data: EssayTransformer.essayItem(result.data, false), message: lang.ESSAY.UPDATE_SUCCESS });
     } catch (err) {
         LogUtils.loggingError({
             functionName: 'updateEssay',

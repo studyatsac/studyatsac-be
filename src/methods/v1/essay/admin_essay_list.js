@@ -15,7 +15,7 @@ exports.getEssayList = async (req, res) => {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({ data: EssayTransformer.essayList(result.data), message: '' });
+        return res.status(200).json({ data: EssayTransformer.essayList(result.data, false), message: '' });
     } catch (err) {
         LogUtils.loggingError({
             functionName: 'getEssayList',
