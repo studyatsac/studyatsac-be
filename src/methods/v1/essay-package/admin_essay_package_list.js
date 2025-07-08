@@ -24,7 +24,7 @@ exports.getEssayPackageList = async (req, res) => {
         }
 
         return res.status(200).json({
-            data: EssayPackageTransformer.userEssayList(result.data.rows),
+            data: EssayPackageTransformer.essayPackageList(result.data.rows),
             message: '',
             meta: {
                 page: params.page,

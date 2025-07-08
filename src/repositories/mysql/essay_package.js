@@ -4,8 +4,8 @@ exports.findAll = function (where, opts = {}, trx = null) {
     return Models.EssayPackage.findAll({ where, ...opts, transaction: trx });
 };
 
-exports.findAllAndCountAll = function (where, opts = {}, trx = null) {
-    return Models.EssayPackage.findAllAndCountAll({ where, ...opts, transaction: trx });
+exports.findAndCountAll = function (where, opts = {}, trx = null) {
+    return Models.EssayPackage.findAndCountAll({ where, ...opts, transaction: trx });
 };
 
 exports.findOne = function (where, opts = {}, trx = null) {
