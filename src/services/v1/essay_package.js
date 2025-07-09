@@ -11,7 +11,13 @@ const getEssayPackage = async (input, opts = {}) => {
 
     const essay = await EssayPackageRepository.findOne(
         input,
-        { include: { model: Models.EssayPackageMapping, as: 'essayPackageMappings' } }
+        {
+            include: {
+                model: Models.EssayPackageMapping,
+                as: 'essayPackageMappings',
+                include: { model: Models.Essay, as: 'essay' }
+            }
+        }
     );
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
@@ -70,6 +76,8 @@ const createEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
     let inputEssayPackageMappings = [];
+    let totalMaxAttempt = 0;
+    let defaultItemMaxAttempt = 0;
     if (input.essayPackageMappings && Array.isArray(input.essayPackageMappings)) {
         inputEssayPackageMappings = input.essayPackageMappings;
 
@@ -85,8 +93,14 @@ const createEssayPackage = async (input, opts = {}) => {
                 return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
             }
             inputEssayPackageMappings[index] = { ...inputEssayPackageMappings[index], essayId: essay.id };
+
+            totalMaxAttempt += inputEssayPackageMappings[index].maxAttempt;
+            defaultItemMaxAttempt = inputEssayPackageMappings[index].maxAttempt;
         }
     }
+
+    if (input.totalMaxAttempt != null) totalMaxAttempt = input.totalMaxAttempt;
+    if (input.defaultItemMaxAttempt != null) defaultItemMaxAttempt = input.defaultItemMaxAttempt;
 
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
@@ -95,8 +109,8 @@ const createEssayPackage = async (input, opts = {}) => {
                 description: input.description,
                 additionalInformation: input.additionalInformation,
                 price: input.price,
-                totalMaxAttempt: input.totalMaxAttempt,
-                defaultItemMaxAttempt: input.defaultItemMaxAttempt,
+                totalMaxAttempt,
+                defaultItemMaxAttempt,
                 isActive: input.isActive
             }, trx);
             if (!essayPackage) throw new Error();
@@ -136,6 +150,8 @@ const updateEssayPackage = async (input, opts = {}) => {
     }
 
     let inputEssayPackageMappings = [];
+    let totalMaxAttempt = 0;
+    let defaultItemMaxAttempt = 0;
     const hasEssayPackageMappings = input.essayPackageMappings && Array.isArray(input.essayPackageMappings);
     if (hasEssayPackageMappings) {
         inputEssayPackageMappings = input.essayPackageMappings;
@@ -153,8 +169,14 @@ const updateEssayPackage = async (input, opts = {}) => {
                 return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
             }
             inputEssayPackageMappings[index] = { ...inputEssayPackageMappings[index], essayId: essay.id };
+
+            totalMaxAttempt += inputEssayPackageMappings[index].maxAttempt;
+            defaultItemMaxAttempt = inputEssayPackageMappings[index].maxAttempt;
         }
     }
+
+    if (input.totalMaxAttempt != null) totalMaxAttempt = input.totalMaxAttempt;
+    if (input.defaultItemMaxAttempt != null) defaultItemMaxAttempt = input.defaultItemMaxAttempt;
 
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
@@ -164,8 +186,8 @@ const updateEssayPackage = async (input, opts = {}) => {
                     description: input.description,
                     additionalInformation: input.additionalInformation,
                     price: input.price,
-                    totalMaxAttempt: input.totalMaxAttempt,
-                    defaultItemMaxAttempt: input.defaultItemMaxAttempt,
+                    totalMaxAttempt,
+                    defaultItemMaxAttempt,
                     isActive: input.isActive
                 },
                 { id: essayPackage.id },

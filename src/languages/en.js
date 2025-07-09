@@ -101,6 +101,7 @@ module.exports = Object.freeze({
         TITLE_NOT_VALID: 'Title not valid',
         DESCRIPTION_NOT_VALID: 'Description not valid',
         ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information not valid',
+        PRICE_NOT_VALID: 'Price not valid',
         TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total max attempt not valid',
         DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Default max attempt not valid',
         IS_ACTIVE_NOT_VALID: 'Active status not valid',

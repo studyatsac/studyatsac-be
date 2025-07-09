@@ -99,6 +99,7 @@ module.exports = Object.freeze({
         TITLE_NOT_VALID: 'Judul tidak valid',
         DESCRIPTION_NOT_VALID: 'Description tidak valid',
         ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information tidak valid',
+        PRICE_NOT_VALID: 'Harga tidak valid',
         TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total maksimal percobaan tidak valid',
         DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Jumlah default maksimal percobaan tidak valid',
         IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
