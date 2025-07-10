@@ -489,11 +489,11 @@ router.delete(
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/essay/admin_delete_essay').deleteEssay
 );
-router.get(
-    '/essays',
-    [tokenMiddleware],
-    require('../methods/v1/essay/active_essay_list').getActiveEssayList
-);
+// router.get(
+//     '/essays',
+//     [tokenMiddleware],
+//     require('../methods/v1/essay/active_essay_list').getActiveEssayList
+// );
 router.get(
     '/essays/:uuid',
     [tokenMiddleware],
@@ -577,9 +577,14 @@ router.post(
     require('../methods/v1/essay-package/pay_essay_package').payEssayPackage
 );
 router.get(
-    '/my-essay-packages',
+    '/essay-packages/me',
     [tokenMiddleware],
     require('../methods/v1/essay-package/my_essay_package_list').getMyEssayPackageList
+);
+router.get(
+    '/essay-packages/me/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/essay-package/paid_essay_package').getPaidEssayPackage
 );
 
 /**

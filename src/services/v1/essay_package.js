@@ -26,6 +26,23 @@ const getEssayPackage = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, essay, null);
 };
 
+const getPaidEssayPackage = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    const essay = await EssayPackageRepository.findOneFromUserPurchase(input);
+    if (!essay) {
+        return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
+    }
+
+    let essayPackage = essay;
+    if (Array.isArray(essay)) {
+        essayPackage = essay[0];
+        essayPackage.essayPackageMappings = essay.map((item) => item.essayPackageMappings);
+    }
+
+    return Response.formatServiceReturn(true, 200, essayPackage, null);
+};
+
 const getAllEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
@@ -280,6 +297,7 @@ const deleteEssayPackage = async (input, opts = {}) => {
 };
 
 exports.getEssayPackage = getEssayPackage;
+exports.getPaidEssayPackage = getPaidEssayPackage;
 exports.getAllEssayPackage = getAllEssayPackage;
 exports.getAllEssayPackageAndCount = getAllEssayPackageAndCount;
 exports.getAllMyEssayPackageAndCount = getAllMyEssayPackageAndCount;

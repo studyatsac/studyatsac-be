@@ -27,6 +27,7 @@ exports.delete = function (where, trx = null) {
 exports.findFromUserPurchaseAndCountAll = async function (where, opts = {}, trx = null) {
     const baseQuery = `
 SELECT DISTINCT 
+    EssayPackage.id, 
     EssayPackage.uuid, 
     EssayPackage.title, 
     EssayPackage.description, 
@@ -76,6 +77,78 @@ WHERE
     const count = Number(dataCount.count);
 
     return { rows, count };
+};
+
+exports.findOneFromUserPurchase = async function (where, trx = null) {
+    const query = `
+SELECT 
+    EssayPackage.*, 
+    essayPackageMappings.id AS \`essayPackageMappings.id\`, 
+    essayPackageMappings.uuid AS \`essayPackageMappings.uuid\`, 
+    essayPackageMappings.essay_package_id AS \`essayPackageMappings.essayPackageId\`, 
+    essayPackageMappings.essay_id AS \`essayPackageMappings.essayId\`, 
+    (essayPackageMappings.max_attempt * UserPurchase.count) AS \`essayPackageMappings.maxAttempt\`, 
+    \`essayPackageMappings->essay\`.id AS \`essayPackageMappings.essay.id\`, 
+    \`essayPackageMappings->essay\`.uuid AS \`essayPackageMappings.essay.uuid\`, 
+    \`essayPackageMappings->essay\`.title AS \`essayPackageMappings.essay.title\`, 
+    \`essayPackageMappings->essay\`.description AS \`essayPackageMappings.essay.description\`, 
+    \`essayPackageMappings->essay\`.is_active AS \`essayPackageMappings.essay.isActive\` 
+FROM 
+    ( 
+        SELECT 
+            EssayPackage.id, 
+            EssayPackage.uuid, 
+            EssayPackage.title, 
+            EssayPackage.description, 
+            EssayPackage.additional_information AS additionalInformation, 
+            EssayPackage.price, 
+            EssayPackage.total_max_attempt AS totalMaxAttempt, 
+            EssayPackage.default_item_max_attempt AS defaultItemMaxAttempt, 
+            EssayPackage.payment_url AS paymentUrl, 
+            EssayPackage.is_active AS isActive 
+        FROM 
+            essay_packages AS EssayPackage 
+        WHERE 
+            ( 
+                EssayPackage.deleted_at IS NULL 
+                AND EssayPackage.uuid = :uuid 
+            )  
+        LIMIT 
+            1 
+    ) AS EssayPackage 
+    JOIN essay_package_mappings AS essayPackageMappings ON EssayPackage.id = essayPackageMappings.essay_package_id 
+    AND essayPackageMappings.deleted_at IS NULL 
+    JOIN essays AS \`essayPackageMappings->essay\` ON essayPackageMappings.essay_id = \`essayPackageMappings->essay\`.id 
+    AND \`essayPackageMappings->essay\`.deleted_at IS NULL 
+    JOIN ( 
+        SELECT 
+            user_id, 
+            essay_package_id, 
+            COUNT(*) as count 
+        FROM 
+            user_purchases 
+        WHERE user_purchases.deleted_at IS NULL 
+        GROUP BY 
+            user_id, 
+            essay_package_id 
+    ) AS UserPurchase ON UserPurchase.essay_package_id = EssayPackage.id  
+    AND UserPurchase.user_id = :userId; 
+    `;
+
+    const replacements = {
+        ...where,
+        uuid: where.uuid ?? 'IS NOT NULL',
+        userId: where.userId ?? 'IS NOT NULL',
+        isActive: where.isActive ?? true
+    };
+
+    return Models.sequelize.query(query, {
+        type: Models.sequelize.QueryTypes.SELECT,
+        replacements,
+        raw: true,
+        nest: true,
+        transaction: trx
+    });
 };
 
 module.exports = exports;
