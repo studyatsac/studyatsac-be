@@ -17,6 +17,7 @@ exports.userEssayItem = (data, isRestricted = true) => {
         itemReviewStatus: data.itemReviewStatus,
         overallReviewStatus: data.overallReviewStatus,
         language: data.language,
+        backgroundDescription: data.backgroundDescription,
         essayItemCount: data.essayItemCount ?? data.dataValues?.essayItemCount,
         essayItems: UserEssayItemTransformer.userEssayItemList(data.essayItems, isRestricted),
         createdAt: data.created_at

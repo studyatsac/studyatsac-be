@@ -7,7 +7,7 @@ const UserEssayConstants = require('../../constants/user_essay');
 const Models = require('../../models/mysql');
 const EssayReviewConstants = require('../../constants/essay_review');
 
-async function callApiReview(content, topic = 'Overall Essay', criteria, language) {
+async function callApiReview(content, topic = 'Overall Essay', criteria, language, backgroundDescription) {
     const baseUrl = process.env.OPENAI_API_URL;
     const key = process.env.OPENAI_API_KEY;
 
@@ -16,17 +16,21 @@ async function callApiReview(content, topic = 'Overall Essay', criteria, languag
     const response = await fetch(`${baseUrl}/v1/chat/completions`, {
         method: 'POST',
         body: JSON.stringify({
-            model: 'gpt-4o-mini',
+            model: 'gpt-4o',
             messages: [
                 {
                     role: 'system',
+                    content: PromptUtils.getBasePrompt(backgroundDescription)
+                },
+                {
+                    role: 'user',
                     content: PromptUtils.getReviewSystemPrompt(
                         topic,
                         criteria,
-                        UserEssayConstants.LANGUAGE_LABELS[language] || 'English'
+                        UserEssayConstants.LANGUAGE_LABELS[language] || 'English',
+                        content
                     )
-                },
-                { role: 'user', content }
+                }
             ],
             temperature: 0.3,
             max_tokens: 16384
@@ -126,7 +130,8 @@ async function processEssayReviewItemJob(job) {
             userEssayItem.answer,
             userEssayItem.essayItem.topic,
             userEssayItem.essayItem.systemPrompt,
-            userEssay.language
+            userEssay.language,
+            userEssay.backgroundDescription
         );
 
         await UserEssayItemRepository.update(
