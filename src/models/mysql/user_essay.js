@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
         language: {
             type: DataTypes.STRING(20),
             allowNull: true
+        },
+        backgroundDescription: {
+            type: DataTypes.TEXT,
+            allowNull: true
         }
     };
 

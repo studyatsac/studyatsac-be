@@ -88,6 +88,7 @@ module.exports = Object.freeze({
         DELETE_SUCCESS: 'Success to delete user essay',
         DELETE_FAILED: 'Failed to delete user essay',
         WITH_REVIEW_NOT_VALID: 'Review flag not valid',
+        BACKGROUND_DESCRIPTION_NOT_VALID: 'Background description not valid',
         LANGUAGE_NOT_VALID: 'Language not valid'
     },
     USER_ESSAY_ITEM: {

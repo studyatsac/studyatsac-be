@@ -135,6 +135,7 @@ const createUserEssay = async (input, opts = {}) => {
                     essayId: essay.id,
                     essayPackageId: input.essayPackageId,
                     ...(input.language != null ? { language: input.language } : {}),
+                    backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasEssayItems ? ({
                             itemReviewStatus: UserEssayConstants.STATUS.PENDING
@@ -256,6 +257,7 @@ const updateUserEssay = async (input, opts = {}) => {
                 {
                     essayId: essay.id,
                     ...(input.language != null ? { language: input.language } : {}),
+                    backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasEssayItems ? ({
                             itemReviewStatus: UserEssayConstants.STATUS.PENDING

@@ -86,6 +86,7 @@ module.exports = Object.freeze({
         DELETE_SUCCESS: 'Berhasil menghapus esai pengguna',
         DELETE_FAILED: 'Gagal menghapus esai pengguna',
         WITH_REVIEW_NOT_VALID: 'Penanda review tidak valid',
+        BACKGROUND_DESCRIPTION_NOT_VALID: 'Deskripsi latar belakang tidak valid',
         LANGUAGE_NOT_VALID: 'Bahasa tidak valid'
     },
     USER_ESSAY_ITEM: {
