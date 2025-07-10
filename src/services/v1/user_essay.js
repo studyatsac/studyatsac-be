@@ -66,13 +66,7 @@ const getAllUserEssayAndCount = async (input, opts = {}) => {
     }, {
         include: [
             { model: Models.User, as: 'user' },
-            { model: Models.Essay, as: 'essay', where: essayUuid ? { uuid: essayUuid } : undefined },
-            // TODO: Optimize this query
-            {
-                model: Models.UserEssayItem,
-                as: 'essayItems',
-                attributes: ['id']
-            }
+            { model: Models.Essay, as: 'essay', where: essayUuid ? { uuid: essayUuid } : undefined }
         ],
         attributes: {
             include: [
