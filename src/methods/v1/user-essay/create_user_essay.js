@@ -3,6 +3,7 @@ const UserEssayTransformer = require('../../../transformers/v1/user-essay/user_e
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 const UserEssayValidation = require('../../../validations/v1/user-essay/user_essay');
+const EssayReviewService = require('../../../services/v1/essay_review');
 
 let lang;
 
@@ -21,6 +22,17 @@ exports.createUserEssay = async (req, res) => {
         if (!input.userId) {
             return res.status(404).json({ message: lang.USER_NOT_FOUND });
         }
+
+        const essayPackageResult = await EssayReviewService.getPaidEssayReviewPackage(input, { lang });
+        if (!essayPackageResult.status) {
+            return res.status(essayPackageResult.code).json({ message: essayPackageResult.message });
+        }
+        const essayPackage = essayPackageResult.data;
+        if ((essayPackage.itemMaxAttempt ?? 0) <= (essayPackage.currentAttempt ?? 0)) {
+            return res.status(400).json({ message: lang.ESSAY_REVIEW.EXCEED_MAX_ATTEMPT });
+        }
+
+        input.essayPackageId = essayPackage.id;
 
         let withReview = false;
         if (input && input.withReview) {

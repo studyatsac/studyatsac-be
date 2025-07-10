@@ -6,8 +6,8 @@ exports.essayPackageMappingItem = (data, isRestricted = true) => {
     return {
         uuid: data.uuid,
         maxAttempt: data.maxAttempt,
+        currentAttempt: data.currentAttempt === null ? 0 : (data.currentAttempt || undefined),
         essay: data.essay && EssayTransformer.essayItem(data.essay, isRestricted)
-
     };
 };
 
