@@ -16,7 +16,7 @@ async function callApiReview(content, topic = 'Overall Essay', criteria, languag
     const response = await fetch(`${baseUrl}/v1/chat/completions`, {
         method: 'POST',
         body: JSON.stringify({
-            model: 'gpt-4o',
+            model: 'gpt-4o-mini',
             messages: [
                 {
                     role: 'system',
