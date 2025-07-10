@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: 0
         },
+        paymentUrl: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
         isActive: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
@@ -59,6 +63,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'essay_package_id',
             onDelete: 'CASCADE',
             as: 'essayPackageMappings'
+        });
+        EssayPackage.hasMany(models.UserPurchase, {
+            sourceKey: 'id',
+            foreignKey: 'essay_package_id',
+            as: 'userPurchases'
         });
     };
 

@@ -13,7 +13,7 @@ exports.essayItemItem = (data, isRestricted = true) => {
 exports.essayItemList = (data, isRestricted = true) => {
     if (!data || !Array.isArray(data)) return null;
 
-    return data.map((item) => exports.essayItemItem(item, isRestricted));
+    return data.map((item) => exports.essayItemItem(item, isRestricted)).filter(Boolean);
 };
 
 module.exports = exports;

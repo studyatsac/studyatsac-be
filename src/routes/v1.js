@@ -571,6 +571,16 @@ router.get(
     [tokenMiddleware],
     require('../methods/v1/essay-package/user_active_essay_package_list').getActiveEssayPackageList
 );
+router.post(
+    '/essay-packages/pay',
+    [tokenMiddleware],
+    require('../methods/v1/essay-package/user_pay_essay_package').payEssayPackage
+);
+router.get(
+    '/my-essay-packages',
+    [tokenMiddleware],
+    require('../methods/v1/essay-package/my_essay_package_list').getMyEssayPackageList
+);
 
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam

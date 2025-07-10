@@ -61,8 +61,7 @@ const getAllEssayPackageAndCount = async (input, opts = {}) => {
     }, {
         order: [['created_at', 'desc']],
         limit: params.limit,
-        offset: Helpers.setOffset(params.page, params.limit),
-        subQuery: false
+        offset: Helpers.setOffset(params.page, params.limit)
     });
 
     if (!allEssayPackage) {
@@ -70,6 +69,25 @@ const getAllEssayPackageAndCount = async (input, opts = {}) => {
     }
 
     return Response.formatServiceReturn(true, 200, allEssayPackage, null);
+};
+
+const getAllMyEssayPackageAndCount = async (input, opts = {}) => {
+    const language = opts.lang;
+    const params = opts.params;
+
+    const userPurchased = await EssayPackageRepository.findFromUserPurchaseAndCountAll(
+        { userId: input.userId },
+        {
+            limit: params.limit,
+            offset: Helpers.setOffset(params.page, params.limit)
+        }
+    );
+
+    if (!userPurchased) {
+        return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
+    }
+
+    return Response.formatServiceReturn(true, 200, userPurchased, null);
 };
 
 const createEssayPackage = async (input, opts = {}) => {
@@ -111,6 +129,7 @@ const createEssayPackage = async (input, opts = {}) => {
                 price: input.price,
                 totalMaxAttempt,
                 defaultItemMaxAttempt,
+                paymentUrl: input.paymentUrl,
                 isActive: input.isActive
             }, trx);
             if (!essayPackage) throw new Error();
@@ -188,6 +207,7 @@ const updateEssayPackage = async (input, opts = {}) => {
                     price: input.price,
                     totalMaxAttempt,
                     defaultItemMaxAttempt,
+                    paymentUrl: input.paymentUrl,
                     isActive: input.isActive
                 },
                 { id: essayPackage.id },
@@ -262,6 +282,7 @@ const deleteEssayPackage = async (input, opts = {}) => {
 exports.getEssayPackage = getEssayPackage;
 exports.getAllEssayPackage = getAllEssayPackage;
 exports.getAllEssayPackageAndCount = getAllEssayPackageAndCount;
+exports.getAllMyEssayPackageAndCount = getAllMyEssayPackageAndCount;
 exports.createEssayPackage = createEssayPackage;
 exports.updateEssayPackage = updateEssayPackage;
 exports.deleteEssayPackage = deleteEssayPackage;

@@ -2,6 +2,10 @@ const Moment = require('moment');
 
 const Models = require('../../models/mysql');
 
+exports.findAndCountAll = function (where, opts = {}, trx = null) {
+    return Models.UserPurchase.findAndCountAll({ where, ...opts, transaction: trx });
+};
+
 exports.findAllExcludeExpired = function (where, opts = {}, trx = null) {
     where.expiredAt = {
         [Models.Sequelize.Op.gte]: Moment.utc().format()
@@ -10,7 +14,7 @@ exports.findAllExcludeExpired = function (where, opts = {}, trx = null) {
     return Models.UserPurchase.findAll({ where, ...opts, transaction: trx });
 };
 
-exports.findWithCategoryAndCountAlll = async function (where, opts = {}, trx = null) {
+exports.findWithExamPackageAndCategoryAndCountAll = async function (where, opts = {}, trx = null) {
     const query = `
     SELECT
         ep.id id,
@@ -43,6 +47,7 @@ exports.findWithCategoryAndCountAlll = async function (where, opts = {}, trx = n
 
     const count = await Models.UserPurchase.count({
         userId: where.userId,
+        examPackageId: { [Models.Op.not]: null },
         expiredAt: Moment.utc().format()
     });
 

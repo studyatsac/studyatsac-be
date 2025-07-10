@@ -1,5 +1,4 @@
 const Moment = require('moment');
-
 const UserPurchaseRepository = require('../../repositories/mysql/user_purchase');
 const ProductRepository = require('../../repositories/mysql/product');
 const UserRepository = require('../../repositories/mysql/user');
@@ -18,7 +17,7 @@ const getMyExamPackage = async (input, opts = {}) => {
         limit: 100
     };
 
-    const userPurchase = await UserPurchaseRepository.findWithCategoryAndCountAlll(whereClause, optionsClause);
+    const userPurchase = await UserPurchaseRepository.findWithExamPackageAndCategoryAndCountAll(whereClause, optionsClause);
 
     const userPurchaseMap = new Map();
 

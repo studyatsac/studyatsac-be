@@ -104,6 +104,7 @@ module.exports = Object.freeze({
         PRICE_NOT_VALID: 'Price not valid',
         TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total max attempt not valid',
         DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Default max attempt not valid',
+        PAYMENT_URL_NOT_VALID: 'Payment url not valid',
         IS_ACTIVE_NOT_VALID: 'Active status not valid',
         ESSAY_PACKAGE_MAPPINGS_NOT_VALID: 'Essay package mapping not valid',
         CREATE_SUCCESS: 'Success to create essay package',

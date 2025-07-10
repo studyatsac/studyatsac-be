@@ -14,7 +14,7 @@ exports.essayPackageMappingItem = (data, isRestricted = true) => {
 exports.essayPackageMappingList = (data, isRestricted = true) => {
     if (!data || !Array.isArray(data)) return null;
 
-    return data.map((item) => exports.essayPackageMappingItem(item, isRestricted));
+    return data.map((item) => exports.essayPackageMappingItem(item, isRestricted)).filter(Boolean);
 };
 
 module.exports = exports;

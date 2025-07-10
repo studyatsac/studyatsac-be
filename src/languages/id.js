@@ -102,6 +102,7 @@ module.exports = Object.freeze({
         PRICE_NOT_VALID: 'Harga tidak valid',
         TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total maksimal percobaan tidak valid',
         DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Jumlah default maksimal percobaan tidak valid',
+        PAYMENT_URL_NOT_VALID: 'Link pembayaran tidak valid',
         IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
         ESSAY_PACKAGE_MAPPINGS_NOT_VALID: 'Item paket esai tidak valid',
         CREATE_SUCCESS: 'Berhasil membuat paket esai',

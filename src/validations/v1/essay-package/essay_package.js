@@ -9,6 +9,7 @@ module.exports = function (lang) {
         price: Joi.number().min(0).optional().error(new Error(lang.ESSAY_PACKAGE.PRICE_NOT_VALID)),
         totalMaxAttempt: Joi.number().min(0).optional().error(new Error(lang.ESSAY_PACKAGE.TOTAL_MAX_ATTEMPT_NOT_VALID)),
         defaultItemMaxAttempt: Joi.number().min(0).optional().error(new Error(lang.ESSAY_PACKAGE.DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID)),
+        paymentUrl: Joi.string().max(200).optional().error(new Error(lang.ESSAY_PACKAGE.PAYMENT_URL_NOT_VALID)),
         isActive: Joi.boolean().optional().default(true).error(new Error(lang.ESSAY_PACKAGE.IS_ACTIVE_NOT_VALID)),
         essayPackageMappings: Joi.array().items(EssayPackageMappingValidation(lang)).optional().error(new Error(lang.ESSAY_PACKAGE.ESSAY_PACKAGE_MAPPINGS_NOT_VALID))
     });
