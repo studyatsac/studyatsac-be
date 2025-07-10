@@ -62,6 +62,7 @@ FROM
             user_essays 
         WHERE 
             user_essays.deleted_at IS NULL 
+            AND user_essays.user_id = :userId 
         GROUP BY  
             essay_id, 
             essay_package_id 
