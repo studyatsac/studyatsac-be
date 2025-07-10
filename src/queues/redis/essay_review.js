@@ -1,4 +1,5 @@
 const { Queue, Worker } = require('bullmq');
+const OpenAI = require('openai');
 const LogUtils = require('../../utils/logger');
 const PromptUtils = require('../../utils/prompt');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
@@ -7,42 +8,29 @@ const UserEssayConstants = require('../../constants/user_essay');
 const Models = require('../../models/mysql');
 const EssayReviewConstants = require('../../constants/essay_review');
 
+const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
 async function callApiReview(content, topic = 'Overall Essay', criteria, language, backgroundDescription) {
-    const baseUrl = process.env.OPENAI_API_URL;
-    const key = process.env.OPENAI_API_KEY;
-
-    if (!baseUrl || !key) return '';
-
-    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
-        method: 'POST',
-        body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-                {
-                    role: 'system',
-                    content: PromptUtils.getBasePrompt(backgroundDescription, topic, UserEssayConstants.LANGUAGE_LABELS[language] || 'English')
-                },
-                {
-                    role: 'user',
-                    content: PromptUtils.getReviewSystemPrompt(
-                        criteria,
-                        content
-                    )
-                }
-            ],
-            temperature: 0.3,
-            max_tokens: 16384
-        }),
-        headers: {
-            Authorization: `Bearer ${key}`,
-            'Content-Type': 'application/json'
-        }
+    const response = await openAi.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+            {
+                role: 'system',
+                content: PromptUtils.getBasePrompt(backgroundDescription, topic, UserEssayConstants.LANGUAGE_LABELS[language] || 'English')
+            },
+            {
+                role: 'user',
+                content: PromptUtils.getReviewSystemPrompt(
+                    criteria,
+                    content
+                )
+            }
+        ],
+        temperature: 0.3,
+        max_tokens: 16384
     });
 
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message ?? response.statusText);
-
-    return data.choices[0].message.content;
+    return response.choices[0].message.content;
 }
 
 async function processEssayReviewOverallJob(job) {
