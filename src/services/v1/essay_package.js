@@ -76,7 +76,7 @@ const getAllMyEssayPackageAndCount = async (input, opts = {}) => {
     const params = opts.params;
 
     const userPurchased = await EssayPackageRepository.findFromUserPurchaseAndCountAll(
-        { userId: input.userId },
+        input,
         {
             limit: params.limit,
             offset: Helpers.setOffset(params.page, params.limit)

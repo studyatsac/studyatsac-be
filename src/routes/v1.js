@@ -492,12 +492,12 @@ router.delete(
 router.get(
     '/essays',
     [tokenMiddleware],
-    require('../methods/v1/essay/user_active_essay_list').getActiveEssayList
+    require('../methods/v1/essay/active_essay_list').getActiveEssayList
 );
 router.get(
     '/essays/:uuid',
     [tokenMiddleware],
-    require('../methods/v1/essay/user_restricted_essay').getRestrictedEssay
+    require('../methods/v1/essay/restricted_essay').getRestrictedEssay
 );
 
 router.get(
@@ -523,22 +523,22 @@ router.delete(
 router.get(
     '/user-essays',
     [tokenMiddleware],
-    require('../methods/v1/user-essay/user_specific_user_essay_list').getSpecificUserEssayList
+    require('../methods/v1/user-essay/specific_user_essay_list').getSpecificUserEssayList
 );
 router.post(
     '/user-essays',
     [tokenMiddleware],
-    require('../methods/v1/user-essay/user_create_user_essay').createUserEssay
+    require('../methods/v1/user-essay/create_user_essay').createUserEssay
 );
 router.get(
     '/user-essays/:uuid',
     [tokenMiddleware],
-    require('../methods/v1/user-essay/user_user_essay').getUserEssay
+    require('../methods/v1/user-essay/user_essay').getUserEssay
 );
 router.put(
     '/user-essays/:uuid',
     [tokenMiddleware],
-    require('../methods/v1/user-essay/user_update_specific_user_essay').updateSpecificUserEssay
+    require('../methods/v1/user-essay/update_specific_user_essay').updateSpecificUserEssay
 );
 
 router.get(
@@ -569,12 +569,12 @@ router.delete(
 router.get(
     '/essay-packages',
     [tokenMiddleware],
-    require('../methods/v1/essay-package/user_active_essay_package_list').getActiveEssayPackageList
+    require('../methods/v1/essay-package/active_essay_package_list').getActiveEssayPackageList
 );
 router.post(
     '/essay-packages/pay',
     [tokenMiddleware],
-    require('../methods/v1/essay-package/user_pay_essay_package').payEssayPackage
+    require('../methods/v1/essay-package/pay_essay_package').payEssayPackage
 );
 router.get(
     '/my-essay-packages',

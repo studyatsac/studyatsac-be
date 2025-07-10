@@ -19,7 +19,10 @@ exports.getMyEssayPackageList = async (req, res) => {
 
         const userId = req.session.id;
 
-        const result = await EssayPackageService.getAllMyEssayPackageAndCount({ userId }, { lang, params });
+        const result = await EssayPackageService.getAllMyEssayPackageAndCount(
+            { userId, isActive: true },
+            { lang, params }
+        );
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

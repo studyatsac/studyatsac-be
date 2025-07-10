@@ -43,6 +43,7 @@ FROM
 WHERE 
     ( 
         EssayPackage.deleted_at IS NULL 
+        AND EssayPackage.is_active = :isActive
         AND UserPurchase.deleted_at IS NULL 
         AND UserPurchase.user_id = :userId 
     ) 
@@ -50,6 +51,8 @@ WHERE
 
     const replacements = {
         ...where,
+        userId: where.userId ?? 'IS NOT NULL',
+        isActive: where.isActive ?? true,
         limit: opts.limit,
         offset: opts.offset
     };
