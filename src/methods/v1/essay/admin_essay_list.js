@@ -5,21 +5,20 @@ const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.getRestrictedEssay = async (req, res) => {
+exports.getEssayList = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const { uuid } = req.params;
-        const result = await EssayService.getEssay({ uuid, isActive: true }, { lang });
+        const result = await EssayService.getAllEssay(null, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({ data: EssayTransformer.essayItem(result.data), message: '' });
+        return res.status(200).json({ data: EssayTransformer.essayList(result.data, false), message: '' });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getRestrictedEssay',
+            functionName: 'getEssayList',
             message: err.message
         });
 

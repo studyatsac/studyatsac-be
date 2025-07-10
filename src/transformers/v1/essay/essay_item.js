@@ -1,4 +1,4 @@
-exports.essayItemItem = (data, isRestricted) => {
+exports.essayItemItem = (data, isRestricted = true) => {
     if (!data) return null;
 
     return {
@@ -6,14 +6,14 @@ exports.essayItemItem = (data, isRestricted) => {
         number: data.number,
         topic: data.topic,
         description: data.description,
-        ...(!isRestricted && { systemPrompt: data.systemPrompt })
+        ...(!isRestricted ? { systemPrompt: data.systemPrompt } : {})
     };
 };
 
-exports.essayItemList = (data, isRestricted) => {
+exports.essayItemList = (data, isRestricted = true) => {
     if (!data || !Array.isArray(data)) return null;
 
-    return data.map((item) => exports.essayItemItem(item, isRestricted));
+    return data.map((item) => exports.essayItemItem(item, isRestricted)).filter(Boolean);
 };
 
 module.exports = exports;

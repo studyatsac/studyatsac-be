@@ -1,13 +1,12 @@
 const EssayService = require('../../../services/v1/essay');
 const EssayTransformer = require('../../../transformers/v1/essay/essay');
-const EssayItemTransformer = require('../../../transformers/v1/essay/essay_item');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 const EssayValidation = require('../../../validations/v1/essay/essay');
 
 let lang;
 
-exports.updateEssay = async (req, res) => {
+exports.createEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
@@ -18,24 +17,16 @@ exports.updateEssay = async (req, res) => {
             return res.status(400).json({ message: err.message });
         }
 
-        input.uuid = req.params.uuid;
-
-        const result = await EssayService.updateEssay(input, { lang });
+        const result = await EssayService.createEssay(input, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({
-            data: {
-                ...EssayTransformer.essayItem(result.data),
-                essayItems: EssayItemTransformer.essayItemList(result.data.essayItems)
-            },
-            message: lang.ESSAY.UPDATE_SUCCESS
-        });
+        return res.status(200).json({ data: EssayTransformer.essayItem(result.data, false), message: lang.ESSAY.CREATE_SUCCESS });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'updateEssay',
+            functionName: 'createEssay',
             message: err.message
         });
 

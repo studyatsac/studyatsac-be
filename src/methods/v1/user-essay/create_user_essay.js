@@ -1,6 +1,5 @@
 const UserEssayService = require('../../../services/v1/user_essay');
 const UserEssayTransformer = require('../../../transformers/v1/user-essay/user_essay');
-const UserEssayItemTransformer = require('../../../transformers/v1/user-essay/user_essay_item');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 const UserEssayValidation = require('../../../validations/v1/user-essay/user_essay');
@@ -38,13 +37,7 @@ exports.createUserEssay = async (req, res) => {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({
-            data: {
-                ...UserEssayTransformer.userEssayItem(result.data),
-                essayItems: UserEssayItemTransformer.userEssayItemList(result.data.essayItems)
-            },
-            message: lang.USER_ESSAY.CREATE_SUCCESS
-        });
+        return res.status(200).json({ data: UserEssayTransformer.userEssayItem(result.data), message: lang.USER_ESSAY.CREATE_SUCCESS });
     } catch (err) {
         LogUtils.loggingError({
             functionName: 'createUserEssay',

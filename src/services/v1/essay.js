@@ -138,7 +138,7 @@ const updateEssay = async (input, opts = {}) => {
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'createEssay', message: err.message });
+        LogUtils.loggingError({ functionName: 'updateEssay', message: err.message });
 
         return Response.formatServiceReturn(false, 500, null, language.ESSAY.UPDATE_FAILED);
     }

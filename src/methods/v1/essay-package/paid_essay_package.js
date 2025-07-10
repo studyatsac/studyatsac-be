@@ -1,25 +1,26 @@
-const EssayService = require('../../../services/v1/essay');
-const EssayTransformer = require('../../../transformers/v1/essay/essay');
+const EssayPackageService = require('../../../services/v1/essay_package');
+const EssayPackageTransformer = require('../../../transformers/v1/essay-package/essay_package');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.getRestrictedEssay = async (req, res) => {
+exports.getPaidEssayPackage = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
         const { uuid } = req.params;
-        const result = await EssayService.getEssay({ uuid, isActive: true }, { lang });
+        const userId = req.session.id;
+        const result = await EssayPackageService.getPaidEssayPackage({ uuid, userId }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({ data: EssayTransformer.essayItem(result.data), message: '' });
+        return res.status(200).json({ data: EssayPackageTransformer.essayPackageItem(result.data, false), message: '' });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getRestrictedEssay',
+            functionName: 'getPaidEssayPackage',
             message: err.message
         });
 

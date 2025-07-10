@@ -42,6 +42,11 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'CASCADE',
             as: 'essayItems'
         });
+        Essay.hasMany(models.EssayPackageMapping, {
+            sourceKey: 'id',
+            foreignKey: 'essay_id',
+            as: 'essayPackageMappings'
+        });
     };
 
     return Essay;
