@@ -20,14 +20,12 @@ async function callApiReview(content, topic = 'Overall Essay', criteria, languag
             messages: [
                 {
                     role: 'system',
-                    content: PromptUtils.getBasePrompt(backgroundDescription)
+                    content: PromptUtils.getBasePrompt(backgroundDescription, topic, UserEssayConstants.LANGUAGE_LABELS[language] || 'English')
                 },
                 {
                     role: 'user',
                     content: PromptUtils.getReviewSystemPrompt(
-                        topic,
                         criteria,
-                        UserEssayConstants.LANGUAGE_LABELS[language] || 'English',
                         content
                     )
                 }
