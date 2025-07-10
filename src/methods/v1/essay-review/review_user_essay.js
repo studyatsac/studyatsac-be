@@ -2,18 +2,18 @@ const UserEssayService = require('../../../services/v1/user_essay');
 const UserEssayTransformer = require('../../../transformers/v1/user-essay/user_essay');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
-const UserEssayValidation = require('../../../validations/v1/user-essay/user_essay');
+const EssayReviewValidation = require('../../../validations/v1/essay-review/essay_review');
 const EssayReviewService = require('../../../services/v1/essay_review');
 
 let lang;
 
-exports.createUserEssay = async (req, res) => {
+exports.reviewUserEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
         let input;
         try {
-            input = await UserEssayValidation(lang).validateAsync(req.body);
+            input = await EssayReviewValidation(lang).validateAsync(req.body);
         } catch (err) {
             return res.status(400).json({ message: err.message });
         }

@@ -525,11 +525,6 @@ router.get(
     [tokenMiddleware],
     require('../methods/v1/user-essay/specific_user_essay_list').getSpecificUserEssayList
 );
-router.post(
-    '/user-essays',
-    [tokenMiddleware],
-    require('../methods/v1/user-essay/create_user_essay').createUserEssay
-);
 router.get(
     '/user-essays/:uuid',
     [tokenMiddleware],
@@ -585,6 +580,12 @@ router.get(
     '/essay-packages/me/:uuid',
     [tokenMiddleware],
     require('../methods/v1/essay-package/paid_essay_package').getPaidEssayPackage
+);
+
+router.post(
+    '/essay-review',
+    [tokenMiddleware],
+    require('../methods/v1/essay-review/review_user_essay').reviewUserEssay
 );
 
 /**
