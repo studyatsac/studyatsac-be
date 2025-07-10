@@ -69,6 +69,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'essay_package_id',
             as: 'userPurchases'
         });
+        EssayPackage.hasMany(models.UserEssay, {
+            sourceKey: 'id',
+            foreignKey: 'essay_package_id',
+            as: 'userEssays'
+        });
     };
 
     return EssayPackage;

@@ -7,6 +7,7 @@ const Helpers = require('../../utils/helpers');
 const LogUtils = require('../../utils/logger');
 const Queues = require('../../queues/redis');
 const UserEssayConstants = require('../../constants/user_essay');
+const EssayReviewConstants = require('../../constants/essay_review');
 
 const getUserEssay = async (input, opts = {}) => {
     const language = opts.lang;
@@ -132,6 +133,7 @@ const createUserEssay = async (input, opts = {}) => {
                 {
                     userId: input.userId,
                     essayId: essay.id,
+                    essayPackageId: input.essayPackageId,
                     ...(input.language != null ? { language: input.language } : {}),
                     ...(opts.withReview ? ({
                         ...(hasEssayItems ? ({
@@ -166,7 +168,12 @@ const createUserEssay = async (input, opts = {}) => {
             return userEssay;
         });
 
-        if (result.id && opts.withReview) Queues.EssayReview.addDefaultJob(result.id);
+        if (result.id && opts.withReview) {
+            Queues.EssayReviewEntry.add(
+                EssayReviewConstants.JOB_NAME.ENTRY,
+                JSON.stringify({ userEssayId: result.id })
+            );
+        }
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
@@ -292,7 +299,12 @@ const updateUserEssay = async (input, opts = {}) => {
             return userEssay;
         });
 
-        if (result.id && opts.withReview) Queues.EssayReview.addDefaultJob(result.id);
+        if (result.id && opts.withReview) {
+            Queues.EssayReviewEntry.add(
+                EssayReviewConstants.JOB_NAME.ENTRY,
+                JSON.stringify({ userEssayId: result.id })
+            );
+        }
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {

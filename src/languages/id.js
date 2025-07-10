@@ -75,6 +75,7 @@ module.exports = Object.freeze({
     },
     USER_ESSAY: {
         NOT_FOUND: 'Esai pengguna tidak ditemukan',
+        ESSAY_PACKAGE_UUID_NOT_VALID: 'ID paket esai tidak valid',
         ESSAY_UUID_NOT_VALID: 'ID esai tidak valid',
         ESSAY_ITEMS_NOT_VALID: 'Item esai tidak valid',
         OVERALL_REVIEW_NOT_VALID: 'Review tidak valid',
@@ -117,5 +118,8 @@ module.exports = Object.freeze({
         UUID_NOT_VALID: 'ID tidak valid',
         ESSAY_UUID_NOT_VALID: 'ID esai tidak valid',
         MAX_ATTEMPT_NOT_VALID: 'Maksimal percobaan tidak valid'
+    },
+    ESSAY_REVIEW: {
+        EXCEED_MAX_ATTEMPT: 'Percobaan telah habis'
     }
 });

@@ -77,6 +77,7 @@ module.exports = Object.freeze({
     },
     USER_ESSAY: {
         NOT_FOUND: 'User essay not found',
+        ESSAY_PACKAGE_UUID_NOT_VALID: 'Essay package ID not valid',
         ESSAY_UUID_NOT_VALID: 'Essay ID not valid',
         ESSAY_ITEMS_NOT_VALID: 'Essay item not valid',
         OVERALL_REVIEW_NOT_VALID: 'Review not valid',
@@ -119,5 +120,8 @@ module.exports = Object.freeze({
         UUID_NOT_VALID: 'ID not valid',
         ESSAY_UUID_NOT_VALID: 'Essay ID not valid',
         MAX_ATTEMPT_NOT_VALID: 'Max attempt not valid'
+    },
+    ESSAY_REVIEW: {
+        EXCEED_MAX_ATTEMPT: 'Trial is over'
     }
 });

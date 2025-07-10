@@ -1,5 +1,13 @@
 const Models = require('../../models/mysql');
 
+exports.findAll = function (where, opts = {}, trx = null) {
+    return Models.UserEssayItem.findAll({ where, ...opts, transaction: trx });
+};
+
+exports.findOne = function (where, opts = {}, trx = null) {
+    return Models.UserEssayItem.findOne({ where, ...opts, transaction: trx });
+};
+
 exports.createMany = function (payload, trx = null) {
     return Models.UserEssayItem.bulkCreate(payload, { transaction: trx });
 };

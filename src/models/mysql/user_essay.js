@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
+        essayPackageId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true
+        },
         overallReview: {
             type: DataTypes.TEXT,
             allowNull: true
@@ -66,6 +70,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'user_essay_id',
             onDelete: 'CASCADE',
             as: 'essayItems'
+        });
+        UserEssay.belongsTo(models.EssayPackage, {
+            targetKey: 'id',
+            foreignKey: 'essay_package_id',
+            as: 'essayPackage'
         });
     };
 
