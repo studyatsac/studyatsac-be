@@ -166,15 +166,15 @@ const createUserEssay = async (input, opts = {}) => {
                 userEssay.essayItems = essayItems;
             }
 
+            if (userEssay.id && opts.withReview) {
+                Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    JSON.stringify({ userEssayId: userEssay.id })
+                );
+            }
+
             return userEssay;
         });
-
-        if (result.id && opts.withReview) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: result.id })
-            );
-        }
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
@@ -298,15 +298,15 @@ const updateUserEssay = async (input, opts = {}) => {
                 userEssay.essayItems = inputEssayItems;
             }
 
+            if (userEssay.id && opts.withReview) {
+                Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    JSON.stringify({ userEssayId: userEssay.id })
+                );
+            }
+
             return userEssay;
         });
-
-        if (result.id && opts.withReview) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: result.id })
-            );
-        }
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {

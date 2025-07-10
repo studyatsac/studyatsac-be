@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const Redis = require('ioredis');
 
+const redisPath = process.env.REDIS_PATH;
 const host = process.env.REDIS_HOST;
 const port = process.env.REDIS_PORT;
 
@@ -9,7 +10,7 @@ const queue = {};
 const basename = 'index.js';
 const dirname = `${__dirname}`;
 
-const config = { host, port };
+const config = path ? { path: redisPath } : { host, port };
 const defaultJobOptions = {
     removeOnComplete: true,
     removeOnFail: { age: 3600 },
@@ -17,7 +18,7 @@ const defaultJobOptions = {
     backoff: { type: 'fixed', delay: 3000 }
 };
 
-if (host && port && Object.keys(queue).length === 0) {
+if ((redisPath || (host && port)) && Object.keys(queue).length === 0) {
     const redisQueue = new Redis(config);
     const redisWorker = new Redis({ ...config, maxRetriesPerRequest: null });
 
