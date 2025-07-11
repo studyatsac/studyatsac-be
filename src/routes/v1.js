@@ -8,6 +8,12 @@ const upload = require('../middlewares/upload_file');
 
 router.get('/ping', (req, res) => res.status(200).json({ message: 'PONG', date: new Date() }));
 
+router.get(
+    '/admin/user-purchases/essay-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_user_purchase_essay_package_list').getUserPurchaseEssayPackageList
+);
+
 // Endpoint admin untuk mengambil total peserta beli paket exam tertentu
 router.get(
     '/admin/exam-package/participant-count',

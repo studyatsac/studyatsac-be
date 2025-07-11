@@ -147,13 +147,13 @@ const updateEssay = async (input, opts = {}) => {
 const deleteEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await EssayRepository.findOne({ uuid: input.uuid });
+    const essay = await EssayRepository.findOne(input);
 
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
     }
 
-    await EssayRepository.delete({ uuid: input.uuid });
+    await EssayRepository.delete({ id: essay.id });
 
     return Response.formatServiceReturn(true, 200, null, language.ESSAY.DELETE_SUCCESS);
 };

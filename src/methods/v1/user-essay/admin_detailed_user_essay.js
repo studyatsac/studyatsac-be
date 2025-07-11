@@ -9,10 +9,8 @@ exports.getDetailedUserEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const result = await UserEssayService.getUserEssay(
-            req.params,
-            { lang, isDetailed: true }
-        );
+        const { uuid } = req.params;
+        const result = await UserEssayService.getUserEssay({ uuid }, { lang, isDetailed: true });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

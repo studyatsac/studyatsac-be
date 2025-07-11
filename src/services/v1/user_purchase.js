@@ -6,6 +6,8 @@ const ExamPackageRepository = require('../../repositories/mysql/exam_package');
 const MasterCategoryRepository = require('../../repositories/mysql/master_category');
 const ExamPackageMappingRepository = require('../../repositories/mysql/exam_package_mapping');
 const Response = require('../../utils/response');
+const Models = require('../../models/mysql');
+const Helpers = require('../../utils/helpers');
 
 const getMyExamPackage = async (input, opts = {}) => {
     const whereClause = {
@@ -98,6 +100,43 @@ const getMyExam = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, examPackageMappings, null);
 };
 
+const getUserPurchaseEssayPackageList = async (input, opts = {}) => {
+    const language = opts.lang;
+    const params = opts.params;
+
+    const allEssayPackage = await UserPurchaseRepository.findAndCountAll({
+        ...input,
+        ...(params.search ? {
+            [Models.Op.or]: [
+                {
+                    '$User.full_name$': {
+                        [Models.Op.like]: `%${params.search}%`
+                    }
+                },
+                {
+                    '$essayPackage.title$': {
+                        [Models.Op.like]: `%${params.search}%`
+                    }
+                }
+            ]
+        } : {})
+    }, {
+        include: [
+            { model: Models.User },
+            { model: Models.EssayPackage, as: 'essayPackage' }
+        ],
+        order: [['created_at', 'desc']],
+        limit: params.limit,
+        offset: Helpers.setOffset(params.page, params.limit)
+    });
+
+    if (!allEssayPackage) {
+        return Response.formatServiceReturn(false, 404, null, language.USER_PURCHASE.NOT_FOUND);
+    }
+
+    return Response.formatServiceReturn(true, 200, allEssayPackage, null);
+};
+
 const injectUserPurchase = async (input, opts = {}) => {
     const user = await UserRepository.findOne({ email: input.email });
 
@@ -144,6 +183,7 @@ const injectUserPurchase = async (input, opts = {}) => {
 
 exports.getMyExamPackage = getMyExamPackage;
 exports.getMyExam = getMyExam;
+exports.getUserPurchaseEssayPackageList = getUserPurchaseEssayPackageList;
 exports.injectUserPurchase = injectUserPurchase;
 
 module.exports = exports;

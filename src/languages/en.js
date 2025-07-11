@@ -128,5 +128,8 @@ module.exports = Object.freeze({
     },
     ESSAY_REVIEW: {
         EXCEED_MAX_ATTEMPT: 'Trial is over'
+    },
+    USER_PURCHASE: {
+        NOT_FOUND: 'User purchase not found'
     }
 });

@@ -333,13 +333,13 @@ const updateEssayPackage = async (input, opts = {}) => {
 const deleteEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await EssayPackageRepository.findOne({ uuid: input.uuid });
+    const essay = await EssayPackageRepository.findOne(input);
 
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    await EssayPackageRepository.delete({ uuid: input.uuid });
+    await EssayPackageRepository.delete({ id: essay.id });
 
     return Response.formatServiceReturn(true, 200, null, language.ESSAY_PACKAGE.DELETE_SUCCESS);
 };

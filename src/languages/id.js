@@ -126,5 +126,8 @@ module.exports = Object.freeze({
     },
     ESSAY_REVIEW: {
         EXCEED_MAX_ATTEMPT: 'Percobaan telah habis'
+    },
+    USER_PURCHASE: {
+        NOT_FOUND: 'Pembelian pengguna tidxak ditemukan'
     }
 });
