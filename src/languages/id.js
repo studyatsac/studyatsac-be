@@ -27,6 +27,7 @@ module.exports = Object.freeze({
     END_DATE_NOT_VALID: 'Tanggal selesai tidak valid',
     CATEGORY_NOT_FOUND: 'Kategori tidak ditemukan',
     EXAM_NOT_FOUND: 'Exam tidak ditemukan',
+    EXAM_PACKAGE_NOT_FOUND: 'Paket exam tidak ditemukan',
     USER_NOT_FOUND: 'User tidak ditemukan',
     PRODUCT_NOT_FOUND: 'Product tidak ditemukan',
     ACTIVE_EXAM_EXIST: 'Masih ada soal yang aktif',
@@ -52,6 +53,7 @@ module.exports = Object.freeze({
     TOKEN_IS_REQUIRED: 'Token wajib diisi',
     PASSWORD_IS_REQUIRED: 'Password wajib diisi',
     PASSWORD_TOO_SHORT: 'Password terlalu pendek',
+    PACKAGE_NOT_FOUND: 'Paket tidak ditemukan',
     ESSAY: {
         NOT_FOUND: 'Esai tidak ditemukan',
         TITLE_NOT_VALID: 'Judul tidak valid',
@@ -128,6 +130,17 @@ module.exports = Object.freeze({
         EXCEED_MAX_ATTEMPT: 'Percobaan telah habis'
     },
     USER_PURCHASE: {
-        NOT_FOUND: 'Pembelian pengguna tidxak ditemukan'
+        NOT_FOUND: 'Pembelian pengguna tidxak ditemukan',
+        USER_UUID_NOT_VALID: 'ID pengguna tidak valid',
+        EXAM_PACKAGE_UUID_NOT_VALID: 'ID paket exam tidak valid',
+        ESSAY_PACKAGE_UUID_NOT_VALID: 'ID paket esai tidak valid',
+        EXTERNAL_TRANSACTION_ID_NOT_VALID: 'ID transaksi tidak valid',
+        EXPIRED_AT_NOT_VALID: 'Tanggal kadaluarsa tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat pembelian pengguna',
+        CREATE_FAILED: 'Gagal membuat pembelian pengguna',
+        UPDATE_SUCCESS: 'Berhasil memperbarui pembelian pengguna',
+        UPDATE_FAILED: 'Gagal memperbarui pembelian pengguna',
+        DELETE_SUCCESS: 'Berhasil menghapus pembelian pengguna',
+        DELETE_FAILED: 'Gagal menghapus pembelian pengguna'
     }
 });

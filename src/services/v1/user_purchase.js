@@ -3,6 +3,7 @@ const UserPurchaseRepository = require('../../repositories/mysql/user_purchase')
 const ProductRepository = require('../../repositories/mysql/product');
 const UserRepository = require('../../repositories/mysql/user');
 const ExamPackageRepository = require('../../repositories/mysql/exam_package');
+const EssayPackageRepository = require('../../repositories/mysql/essay_package');
 const MasterCategoryRepository = require('../../repositories/mysql/master_category');
 const ExamPackageMappingRepository = require('../../repositories/mysql/exam_package_mapping');
 const Response = require('../../utils/response');
@@ -181,9 +182,67 @@ const injectUserPurchase = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, userPurchased, null);
 };
 
+const createUserPurchase = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    const user = UserRepository.findOne({ uuid: input.userUuid });
+    if (!user) {
+        return Response.formatServiceReturn(false, 404, null, language.USER_NOT_FOUND);
+    }
+
+    let examPackage;
+    if (input.examPackageUuid) {
+        examPackage = ExamPackageRepository.findOne({ uuid: input.examPackageUuid });
+        if (!examPackage) {
+            return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_NOT_FOUND);
+        }
+    }
+
+    let essayPackage;
+    if (input.essayPackageUuid) {
+        essayPackage = EssayPackageRepository.findOne({ uuid: input.essayPackageUuid });
+        if (!essayPackage) {
+            return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
+        }
+    }
+
+    if (!examPackage && !essayPackage) {
+        return Response.formatServiceReturn(false, 404, null, language.PACKAGE_NOT_FOUND);
+    }
+
+    const userPurchase = await UserPurchaseRepository.create({
+        userId: user.id,
+        examPackageId: examPackage?.id,
+        essayPackageId: essayPackage?.id,
+        externalTransactionId: input.externalTransactionId,
+        expiredAt: input.expiredIn ?? Moment().add(365, 'days').format()
+    });
+    if (!userPurchase) {
+        return Response.formatServiceReturn(false, 500, null, language.USER_PURCHASE.CREATE_FAILED);
+    }
+
+    return Response.formatServiceReturn(true, 200, userPurchase, null);
+};
+
+const deleteUserPurchase = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    const userPurchase = await UserPurchaseRepository.findOne(input);
+
+    if (!userPurchase) {
+        return Response.formatServiceReturn(false, 404, null, language.USER_PURCHASE.NOT_FOUND);
+    }
+
+    await UserPurchaseRepository.delete({ id: userPurchase.id });
+
+    return Response.formatServiceReturn(true, 200, null, language.USER_PURCHASE.DELETE_SUCCESS);
+};
+
 exports.getMyExamPackage = getMyExamPackage;
 exports.getMyExam = getMyExam;
 exports.getUserPurchaseEssayPackageList = getUserPurchaseEssayPackageList;
 exports.injectUserPurchase = injectUserPurchase;
+exports.createUserPurchase = createUserPurchase;
+exports.deleteUserPurchase = deleteUserPurchase;
 
 module.exports = exports;

@@ -13,6 +13,16 @@ router.get(
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/user-purchase/admin_user_purchase_essay_package_list').getUserPurchaseEssayPackageList
 );
+router.post(
+    '/admin/user-purchases/essay-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_create_user_purchase_essay_package').createUserPurchaseEssayPackage
+);
+router.delete(
+    '/admin/user-purchases/essay-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_delete_user_purchase_essay_package').deleteUserPurchaseEssayPackage
+);
 
 // Endpoint admin untuk mengambil total peserta beli paket exam tertentu
 router.get(

@@ -54,6 +54,7 @@ module.exports = Object.freeze({
     TOKEN_IS_REQUIRED: 'Token is required',
     PASSWORD_IS_REQUIRED: 'Password is required',
     PASSWORD_TOO_SHORT: 'Password too short',
+    PACKAGE_NOT_FOUND: 'Package not found',
     ESSAY: {
         NOT_FOUND: 'Essay not found',
         TITLE_NOT_VALID: 'Title not valid',
@@ -130,6 +131,17 @@ module.exports = Object.freeze({
         EXCEED_MAX_ATTEMPT: 'Trial is over'
     },
     USER_PURCHASE: {
-        NOT_FOUND: 'User purchase not found'
+        NOT_FOUND: 'User purchase not found',
+        USER_UUID_NOT_VALID: 'User ID not valid',
+        EXAM_PACKAGE_UUID_NOT_VALID: 'Exam package ID not valid',
+        ESSAY_PACKAGE_UUID_NOT_VALID: 'Essay package ID not valid',
+        EXTERNAL_TRANSACTION_ID_NOT_VALID: 'Transaction ID not valid',
+        EXPIRED_AT_NOT_VALID: 'Expired at not valid',
+        CREATE_SUCCESS: 'Success to create user purchase',
+        CREATE_FAILED: 'Failed to create user purchase',
+        UPDATE_SUCCESS: 'Success to update user purchase',
+        UPDATE_FAILED: 'Failed to update user purchase',
+        DELETE_SUCCESS: 'Success to delete user purchase',
+        DELETE_FAILED: 'Failed to delete user purchase'
     }
 });
