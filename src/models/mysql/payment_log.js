@@ -31,8 +31,24 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(50),
             allowNull: true
         },
+        externalProductName: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        externalTicketId: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
+        externalTicketName: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
         examPackageId: {
             type: DataTypes.INTEGER().UNSIGNED,
+            allowNull: true
+        },
+        essayPackageId: {
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: true
         },
         metadata: {

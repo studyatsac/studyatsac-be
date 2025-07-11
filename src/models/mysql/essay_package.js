@@ -74,6 +74,12 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'essay_package_id',
             as: 'userEssays'
         });
+        EssayPackage.hasOne(models.Product, {
+            sourceKey: 'id',
+            foreignKey: 'essay_package_id',
+            onDelete: 'CASCADE',
+            as: 'product'
+        });
     };
 
     return EssayPackage;

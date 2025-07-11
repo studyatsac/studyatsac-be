@@ -66,6 +66,10 @@ exports.create = function (payload, trx = null) {
     return Models.UserPurchase.create(payload, { transaction: trx });
 };
 
+exports.createMany = function (payload, trx = null) {
+    return Models.UserPurchase.bulkCreate(payload, { transaction: trx });
+};
+
 exports.update = function (payload, where, trx = null) {
     return Models.UserPurchase.update(payload, { where, transaction: trx });
 };

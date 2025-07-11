@@ -1,5 +1,6 @@
 const EssayPackageRepository = require('../../repositories/mysql/essay_package');
 const EssayPackageMappingRepository = require('../../repositories/mysql/essay_package_mapping');
+const ProductRepository = require('../../repositories/mysql/product');
 const Response = require('../../utils/response');
 const LogUtils = require('../../utils/logger');
 const Models = require('../../models/mysql');
@@ -12,11 +13,17 @@ const getEssayPackage = async (input, opts = {}) => {
     const essay = await EssayPackageRepository.findOne(
         input,
         {
-            include: {
-                model: Models.EssayPackageMapping,
-                as: 'essayPackageMappings',
-                include: { model: Models.Essay, as: 'essay' }
-            }
+            include: [
+                {
+                    model: Models.EssayPackageMapping,
+                    as: 'essayPackageMappings',
+                    include: { model: Models.Essay, as: 'essay' }
+                },
+                {
+                    model: Models.Product,
+                    as: 'product'
+                }
+            ]
         }
     );
     if (!essay) {
@@ -92,7 +99,7 @@ const getAllMyEssayPackageAndCount = async (input, opts = {}) => {
     const language = opts.lang;
     const params = opts.params;
 
-    const userPurchased = await EssayPackageRepository.findFromUserPurchaseAndCountAll(
+    const userPurchased = await EssayPackageRepository.findAndCountAllFromUserPurchase(
         input,
         {
             limit: params.limit,
@@ -150,6 +157,23 @@ const createEssayPackage = async (input, opts = {}) => {
                 isActive: input.isActive
             }, trx);
             if (!essayPackage) throw new Error();
+
+            const hasProduct = input.externalProductId
+                || input.externalProductName
+                || input.externalTicketId
+                || input.externalTicketName;
+            if (hasProduct) {
+                const product = await ProductRepository.create({
+                    essayPackageId: essayPackage.id,
+                    externalProductId: input.externalProductId,
+                    externalProductName: input.externalProductName,
+                    externalTicketId: input.externalTicketId,
+                    externalTicketName: input.externalTicketName
+                }, trx);
+                if (!product) throw new Error();
+
+                essayPackage.product = product;
+            }
 
             if (inputEssayPackageMappings.length) {
                 const essayPackageMappings = await EssayPackageMappingRepository.createMany(inputEssayPackageMappings.map((item) => ({
@@ -214,6 +238,16 @@ const updateEssayPackage = async (input, opts = {}) => {
     if (input.totalMaxAttempt != null) totalMaxAttempt = input.totalMaxAttempt;
     if (input.defaultItemMaxAttempt != null) defaultItemMaxAttempt = input.defaultItemMaxAttempt;
 
+    const hasProduct = input.externalProductId
+        || input.externalProductName
+        || input.externalTicketId
+        || input.externalTicketName;
+    let productId;
+    if (hasProduct) {
+        const product = await ProductRepository.findOne({ essayPackageId: essayPackage.id });
+        if (product) productId = product.id;
+    }
+
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
             const updatedItem = await EssayPackageRepository.update(
@@ -231,6 +265,20 @@ const updateEssayPackage = async (input, opts = {}) => {
                 trx
             );
             if (!updatedItem) throw new Error();
+
+            if (hasProduct) {
+                const product = await ProductRepository.creatOrUpdate({
+                    id: productId,
+                    essayPackageId: essayPackage.id,
+                    externalProductId: input.externalProductId,
+                    externalProductName: input.externalProductName,
+                    externalTicketId: input.externalTicketId,
+                    externalTicketName: input.externalTicketName
+                }, trx);
+                if (!product) throw new Error();
+
+                essayPackage.product = product;
+            }
 
             if (hasEssayPackageMappings) {
                 if (essayPackage.essayPackageMappings && Array.isArray(essayPackage.essayPackageMappings)) {
@@ -285,13 +333,13 @@ const updateEssayPackage = async (input, opts = {}) => {
 const deleteEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await EssayPackageRepository.findOne({ uuid: input.uuid });
+    const essay = await EssayPackageRepository.findOne(input);
 
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    await EssayPackageRepository.delete({ uuid: input.uuid });
+    await EssayPackageRepository.delete({ id: essay.id });
 
     return Response.formatServiceReturn(true, 200, null, language.ESSAY_PACKAGE.DELETE_SUCCESS);
 };

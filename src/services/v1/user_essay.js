@@ -13,7 +13,7 @@ const getUserEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
     const essay = await UserEssayRepository.findOne(
-        { uuid: input.uuid },
+        input,
         {
             include: [
                 { model: Models.User, as: 'user' },
@@ -313,13 +313,13 @@ const updateUserEssay = async (input, opts = {}) => {
 const deleteUserEssay = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await UserEssayRepository.findOne({ uuid: input.uuid });
+    const essay = await UserEssayRepository.findOne(input);
 
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.USER_ESSAY.NOT_FOUND);
     }
 
-    await UserEssayRepository.delete({ uuid: input.uuid });
+    await UserEssayRepository.delete({ id: essay.id });
 
     return Response.formatServiceReturn(true, 200, null, language.USER_ESSAY.DELETE_SUCCESS);
 };

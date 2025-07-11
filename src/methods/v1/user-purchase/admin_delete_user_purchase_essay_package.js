@@ -1,24 +1,24 @@
-const EssayService = require('../../../services/v1/essay');
+const UserPurchaseService = require('../../../services/v1/user_purchase');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.deleteEssay = async (req, res) => {
+exports.deleteUserPurchaseEssayPackage = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
         const { uuid } = req.params;
-        const result = await EssayService.deleteEssay({ uuid }, { lang });
+        const result = await UserPurchaseService.deleteUserPurchase({ uuid }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({ message: lang.ESSAY.DELETE_SUCCESS });
+        return res.status(200).json({ message: lang.USER_PURCHASE.DELETE_SUCCESS });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'deleteEssay',
+            function_name: 'deleteUserPurchaseEssayPackage',
             message: err.message
         });
 

@@ -8,6 +8,22 @@ const upload = require('../middlewares/upload_file');
 
 router.get('/ping', (req, res) => res.status(200).json({ message: 'PONG', date: new Date() }));
 
+router.get(
+    '/admin/user-purchases/essay-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_user_purchase_essay_package_list').getUserPurchaseEssayPackageList
+);
+router.post(
+    '/admin/user-purchases/essay-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_create_user_purchase_essay_package').createUserPurchaseEssayPackage
+);
+router.delete(
+    '/admin/user-purchases/essay-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_delete_user_purchase_essay_package').deleteUserPurchaseEssayPackage
+);
+
 // Endpoint admin untuk mengambil total peserta beli paket exam tertentu
 router.get(
     '/admin/exam-package/participant-count',
@@ -567,9 +583,9 @@ router.get(
     require('../methods/v1/essay-package/active_essay_package_list').getActiveEssayPackageList
 );
 router.post(
-    '/essay-packages/pay',
+    '/essay-packages/claim',
     [tokenMiddleware],
-    require('../methods/v1/essay-package/pay_essay_package').payEssayPackage
+    require('../methods/v1/user-purchase/claim_user_purchase_essay_package').claimUserPurchaseEssayPackage
 );
 router.get(
     '/essay-packages/me',

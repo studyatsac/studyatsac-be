@@ -10,7 +10,13 @@ exports.getUserEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const result = await UserEssayService.getUserEssay(req.params, { lang });
+        const { uuid } = req.params;
+        const userId = req.session.id;
+        if (!userId) {
+            return res.status(404).json({ message: lang.USER_NOT_FOUND });
+        }
+
+        const result = await UserEssayService.getUserEssay({ uuid, userId }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

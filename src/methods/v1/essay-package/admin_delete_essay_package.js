@@ -8,7 +8,8 @@ exports.deleteEssayPackage = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const result = await EssayPackageService.deleteEssayPackage(req.params, { lang });
+        const { uuid } = req.params;
+        const result = await EssayPackageService.deleteEssayPackage({ uuid }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

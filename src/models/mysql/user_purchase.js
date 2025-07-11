@@ -11,19 +11,21 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: DataTypes.UUIDV4
         },
+        externalTransactionId: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
         userId: {
             type: DataTypes.INTEGER().UNSIGNED,
             allowNull: false
         },
         examPackageId: {
             type: DataTypes.INTEGER().UNSIGNED,
-            allowNull: true,
-            defaultValue: null
+            allowNull: true
         },
         essayPackageId: {
             type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: true,
-            defaultValue: null
+            allowNull: true
         },
         expiredAt: {
             type: DataTypes.DATE(),

@@ -11,9 +11,16 @@ exports.essayPackageItem = (data, isRestricted = true) => {
         price: data.price,
         totalMaxAttempt: data.totalMaxAttempt,
         defaultItemMaxAttempt: data.defaultItemMaxAttempt,
+        paymentUrl: data.paymentUrl,
         essayPackageMappings: data.essayPackageMappings
             && EssayPackageMappingTransformer.essayPackageMappingList(data.essayPackageMappings, isRestricted),
-        isActive: data.isActive
+        isActive: data.isActive,
+        ...(!isRestricted && data.product ? {
+            externalProductId: data.product.externalProductId,
+            externalProductName: data.product.externalProductName,
+            externalTicketId: data.product.externalTicketId,
+            externalTicketName: data.product.externalTicketName
+        } : {})
     };
 };
 
