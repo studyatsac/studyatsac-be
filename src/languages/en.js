@@ -142,6 +142,9 @@ module.exports = Object.freeze({
         UPDATE_SUCCESS: 'Success to update user purchase',
         UPDATE_FAILED: 'Failed to update user purchase',
         DELETE_SUCCESS: 'Success to delete user purchase',
-        DELETE_FAILED: 'Failed to delete user purchase'
+        DELETE_FAILED: 'Failed to delete user purchase',
+        ESSAY_PACKAGE_ALREADY_CLAIMED: 'Essay package already claimed',
+        ESSAY_PACKAGE_CLAIM_SUCCESS: 'Success to claim essay package',
+        ESSAY_PACKAGE_CLAIM_FAILED: 'Failed to claim essay package'
     }
 });

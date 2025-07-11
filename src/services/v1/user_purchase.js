@@ -224,6 +224,29 @@ const createUserPurchase = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, userPurchase, null);
 };
 
+const claimUserPurchaseEssayPackage = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    let userPurchase = await UserPurchaseRepository.findOne({
+        userId: input.userId,
+        essayPackageId: input.essayPackageId
+    });
+    if (userPurchase) {
+        return Response.formatServiceReturn(false, 400, null, language.USER_PURCHASE.ESSAY_PACKAGE_ALREADY_CLAIMED);
+    }
+
+    userPurchase = await UserPurchaseRepository.create({
+        userId: input.userId,
+        essayPackageId: input.essayPackageId,
+        expiredAt: Moment().add(365, 'days').format()
+    });
+    if (!userPurchase) {
+        return Response.formatServiceReturn(false, 500, null, language.USER_PURCHASE.ESSAY_PACKAGE_CLAIM_FAILED);
+    }
+
+    return Response.formatServiceReturn(true, 200, userPurchase, null);
+};
+
 const deleteUserPurchase = async (input, opts = {}) => {
     const language = opts.lang;
 
@@ -242,6 +265,7 @@ exports.getMyExamPackage = getMyExamPackage;
 exports.getMyExam = getMyExam;
 exports.getUserPurchaseEssayPackageList = getUserPurchaseEssayPackageList;
 exports.injectUserPurchase = injectUserPurchase;
+exports.claimUserPurchaseEssayPackage = claimUserPurchaseEssayPackage;
 exports.createUserPurchase = createUserPurchase;
 exports.deleteUserPurchase = deleteUserPurchase;
 

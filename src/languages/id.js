@@ -141,6 +141,9 @@ module.exports = Object.freeze({
         UPDATE_SUCCESS: 'Berhasil memperbarui pembelian pengguna',
         UPDATE_FAILED: 'Gagal memperbarui pembelian pengguna',
         DELETE_SUCCESS: 'Berhasil menghapus pembelian pengguna',
-        DELETE_FAILED: 'Gagal menghapus pembelian pengguna'
+        DELETE_FAILED: 'Gagal menghapus pembelian pengguna',
+        ESSAY_PACKAGE_ALREADY_CLAIMED: 'Paket esai sudah diklaim',
+        ESSAY_PACKAGE_CLAIM_SUCCESS: 'Paket esai berhasil diklaim',
+        ESSAY_PACKAGE_CLAIM_FAILED: 'Gagal mengklaim paket esai'
     }
 });

@@ -583,9 +583,9 @@ router.get(
     require('../methods/v1/essay-package/active_essay_package_list').getActiveEssayPackageList
 );
 router.post(
-    '/essay-packages/pay',
+    '/essay-packages/claim',
     [tokenMiddleware],
-    require('../methods/v1/essay-package/pay_essay_package').payEssayPackage
+    require('../methods/v1/user-purchase/claim_user_purchase_essay_package').claimUserPurchaseEssayPackage
 );
 router.get(
     '/essay-packages/me',
