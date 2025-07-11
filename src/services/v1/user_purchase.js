@@ -185,14 +185,14 @@ const injectUserPurchase = async (input, opts = {}) => {
 const createUserPurchase = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const user = UserRepository.findOne({ uuid: input.userUuid });
+    const user = await UserRepository.findOne({ uuid: input.userUuid });
     if (!user) {
         return Response.formatServiceReturn(false, 404, null, language.USER_NOT_FOUND);
     }
 
     let examPackage;
     if (input.examPackageUuid) {
-        examPackage = ExamPackageRepository.findOne({ uuid: input.examPackageUuid });
+        examPackage = await ExamPackageRepository.findOne({ uuid: input.examPackageUuid });
         if (!examPackage) {
             return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_NOT_FOUND);
         }
@@ -200,7 +200,7 @@ const createUserPurchase = async (input, opts = {}) => {
 
     let essayPackage;
     if (input.essayPackageUuid) {
-        essayPackage = EssayPackageRepository.findOne({ uuid: input.essayPackageUuid });
+        essayPackage = await EssayPackageRepository.findOne({ uuid: input.essayPackageUuid });
         if (!essayPackage) {
             return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
         }
