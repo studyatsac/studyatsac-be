@@ -13,11 +13,17 @@ const getEssayPackage = async (input, opts = {}) => {
     const essay = await EssayPackageRepository.findOne(
         input,
         {
-            include: {
-                model: Models.EssayPackageMapping,
-                as: 'essayPackageMappings',
-                include: { model: Models.Essay, as: 'essay' }
-            }
+            include: [
+                {
+                    model: Models.EssayPackageMapping,
+                    as: 'essayPackageMappings',
+                    include: { model: Models.Essay, as: 'essay' }
+                },
+                {
+                    model: Models.Product,
+                    as: 'product'
+                }
+            ]
         }
     );
     if (!essay) {
@@ -93,7 +99,7 @@ const getAllMyEssayPackageAndCount = async (input, opts = {}) => {
     const language = opts.lang;
     const params = opts.params;
 
-    const userPurchased = await EssayPackageRepository.findFromUserPurchaseAndCountAll(
+    const userPurchased = await EssayPackageRepository.findAndCountAllFromUserPurchase(
         input,
         {
             limit: params.limit,
@@ -239,9 +245,7 @@ const updateEssayPackage = async (input, opts = {}) => {
     let productId;
     if (hasProduct) {
         const product = await ProductRepository.findOne({ essayPackageId: essayPackage.id });
-        if (!product) throw new Error();
-
-        productId = product.id;
+        if (product) productId = product.id;
     }
 
     try {

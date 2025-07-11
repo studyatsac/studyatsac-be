@@ -23,4 +23,28 @@ exports.findOneWithExamPackage = function (where, opts = {}, trx = null) {
     return Models.Product.findOne({ where, ...opts, transaction: trx });
 };
 
+exports.findOneWithPackage = function (where, opts = {}, trx = null) {
+    return Models.Product.findOne({
+        where,
+        include: [
+            { model: Models.ExamPackage },
+            { model: Models.EssayPackage, as: 'essayPackage' }
+        ],
+        ...opts,
+        transaction: trx
+    });
+};
+
+exports.findAllWithPackage = function (where, opts = {}, trx = null) {
+    return Models.Product.findAll({
+        where,
+        include: [
+            { model: Models.ExamPackage },
+            { model: Models.EssayPackage, as: 'essayPackage' }
+        ],
+        ...opts,
+        transaction: trx
+    });
+};
+
 module.exports = exports;

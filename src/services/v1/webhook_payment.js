@@ -5,32 +5,38 @@ const UserPurchaseRepository = require('../../repositories/mysql/user_purchase')
 const PaymentLogRepository = require('../../repositories/mysql/payment_log');
 const Config = require('../../constants/webhook_payment');
 const Response = require('../../utils/response');
+const Models = require('../../models/mysql');
+const LogUtils = require('../../utils/logger');
 
 const insertPaymentLog = async (input) => {
-    const payload = {
-        provider: input.provider,
-        userId: input.user?.id || null,
-        email: input.user.email,
-        productId: input.product?.id || null,
-        externalProductId: input.product?.externalProductId || null,
-        examPackageId: input.examPackage?.id || null,
-        metadata: input.paymentLog,
-        status: input.status,
-        notes: input.notes
-    };
+    try {
+        const payloads = input.productAndAmounts.map((item) => ({
+            provider: input.provider,
+            userId: input.user?.id || null,
+            email: input.user.email,
+            productId: item.product?.id || null,
+            externalProductId: item.product?.externalProductId || null,
+            externalProductName: item.product?.externalProductName || null,
+            externalTicketId: item.product?.externalTicketId || null,
+            externalTicketName: item.product?.externalTicketName || null,
+            examPackageId: item.product?.ExamPackage?.id || null,
+            essayPackageId: item.product?.essayPackage?.id || null,
+            metadata: input.paymentLog,
+            status: input.status,
+            notes: input.notes
+        }));
 
-    await PaymentLogRepository.create(payload);
+        await PaymentLogRepository.createMany(payloads);
+    } catch (err) {
+        LogUtils.loggingError({ functionName: 'insertPaymentLog', message: err.message });
+    }
 };
 
 const handleProductPayment = async (input, opts = {}) => {
     const language = opts.lang;
     const data = input.data;
-    let responseData = {
-        examPackage: null,
-        paymentLog: data,
-        user: null,
-        product: null
-    };
+    let productAndAmounts = [];
+    let responseData = { productAndAmounts, paymentLog: data, user: null };
 
     const user = await UserRepository.findOne({ email: data.customerEmail });
 
@@ -40,19 +46,45 @@ const handleProductPayment = async (input, opts = {}) => {
 
     responseData.user = user.toJSON();
 
-    const product = await ProductRepository.findOneWithExamPackage({ externalProductId: data.productId });
+    const isValidProduct = (data.productId || data.productName);
+    if (isValidProduct && data.ticketHistory && Array.isArray(data.ticketHistory)) {
+        const whereClauseConditions = data.ticketHistory.map((item) => {
+            const hasValidTicket = item.ticketId || item.ticketName;
+            if (!hasValidTicket) return null;
 
-    if (!product) {
+            return {
+                ...(data.productId ? { externalProductId: data.productId } : {}),
+                ...(!data.productId && data.productName ? { externalProductName: data.productName } : {}),
+                ...(item.ticketId ? { externalTicketId: item.ticketId } : {}),
+                ...(!item.ticketId && item.ticketName ? { externalTicketName: item.ticketName } : {})
+            };
+        }).filter(Boolean);
+
+        const products = await ProductRepository.findAllWithPackage({ [Models.Op.or]: whereClauseConditions });
+        if (products && products.length) {
+            productAndAmounts = products.map((product) => {
+                const ticket = data.ticketHistory.find(
+                    (item) => item.ticketId === product.externalTicketId
+                        || item.ticketName === product.externalTicketName
+                );
+
+                return { product, amount: ticket.amount || 0 };
+            });
+        }
+    }
+    if (isValidProduct && !productAndAmounts.length) {
+        const product = await ProductRepository.findOneWithPackage({
+            ...(data.productId ? { externalProductId: data.productId } : {}),
+            ...(!data.productId && data.productName ? { externalProductName: data.productName } : {})
+        });
+        if (product) { productAndAmounts = [{ product, amount: data.amount }]; }
+    }
+
+    if (!productAndAmounts.length) {
         return Response.formatServiceReturn(false, 200, responseData, language.PRODUCT_NOT_FOUND);
     }
 
-    const { ExamPackage, ...productObject } = product.toJSON();
-
-    responseData = {
-        ...responseData,
-        examPackage: ExamPackage,
-        product: productObject
-    };
+    responseData = { ...responseData, productAndAmounts };
 
     return Response.formatServiceReturn(true, 200, responseData, null);
 };
@@ -81,6 +113,7 @@ const handleWebhookPayment = async (input, opts = {}) => {
         paymentLog.externalProductId = input.data.productId;
 
         await insertPaymentLog(paymentLog);
+
         return Response.formatServiceReturn(true, 200, null, language.PAYMENT_STATUS_NOT_SUCCESS);
     }
 
@@ -93,7 +126,7 @@ const handleWebhookPayment = async (input, opts = {}) => {
             email: input.data.customerEmail,
             ...(productPaymentResult.data?.user || {})
         };
-        paymentLog.product = { externalProductId: input.data.productId };
+        paymentLog.productAndAmounts = [{ externalProductId: input.data.productId }];
 
         await insertPaymentLog(paymentLog);
 
@@ -112,55 +145,100 @@ const handleWebhookPayment = async (input, opts = {}) => {
         };
 
         await insertPaymentLog(paymentLog);
+
         return Response.formatServiceReturn(true, 200, null, language.UNPROCESS_ENTITY);
     }
 
-    const activeExamPackage = await UserPurchaseRepository.findOneExcludeExpired({
-        userId: paymentData.user.id,
-        examPackageId: paymentData.examPackage.id
-    });
+    const existedProductAndAmounts = [];
+    const pendingPromises = paymentData.productAndAmounts.map(async (item) => {
+        if (item.product?.ExamPackage?.id) {
+            const activeExamPackage = await UserPurchaseRepository.findOneExcludeExpired({
+                userId: paymentData.user.id,
+                examPackageId: paymentData.examPackage.id
+            });
+            if (activeExamPackage) {
+                existedProductAndAmounts.push(item);
+                return null;
+            }
+        } else if (item.product?.essayPackage?.id && input?.data?.transactionId) {
+            const essayPackage = await UserPurchaseRepository.findOne({
+                userId: paymentData.user.id,
+                essayPackageId: item.product.essayPackage.id,
+                externalTransactionId: input.data.transactionId
+            });
+            if (essayPackage) {
+                existedProductAndAmounts.push(item);
+                return null;
+            }
+        }
 
-    if (activeExamPackage) {
-        paymentLog.notes = 'Exam package still active';
+        return item;
+    });
+    const filteredProductAndAmounts = (await Promise.all(pendingPromises)).filter(Boolean);
+
+    if (existedProductAndAmounts.length) {
+        paymentLog.notes = 'Package still active/already inserted';
         paymentLog.user = {
             id: null,
             email: input.data.customerEmail,
             ...(paymentData?.user || {})
         };
-        paymentLog.product = {
-            ...paymentData.product
-        };
-
-        paymentLog.examPackage = {
-            ...paymentData.examPackage
-        };
+        paymentLog.productAndAmounts = existedProductAndAmounts;
 
         await insertPaymentLog(paymentLog);
-        return Response.formatServiceReturn(true, 200, null, 'Exam package still active');
+
+        if (!filteredProductAndAmounts.length) return Response.formatServiceReturn(true, 200, null, paymentLog.notes);
     }
 
-    const userPurchasePayload = {
-        userId: paymentData.user.id,
-        examPackageId: paymentData.examPackage.id,
-        expiredAt: Moment().add(365, 'days').format()
-    };
+    const notInsertedProductAndAmounts = [];
+    const insertingProductAndAmounts = [];
+    const userPurchasePayloads = filteredProductAndAmounts.map((item) => {
+        if (item.product?.ExamPackage?.id) {
+            insertingProductAndAmounts.push(item);
 
-    const userPurchased = await UserPurchaseRepository.create(userPurchasePayload);
+            return {
+                userId: paymentData.user.id,
+                examPackageId: item.product?.ExamPackage?.id,
+                expiredAt: Moment().add(365, 'days').format()
+            };
+        }
+        if (item.product?.essayPackage?.id && input?.data?.transactionId) {
+            insertingProductAndAmounts.push(item);
+
+            return {
+                userId: paymentData.user.id,
+                essayPackageId: item.product?.essayPackage?.id,
+                externalTransactionId: input?.data?.transactionId,
+                expiredAt: Moment().add(365, 'days').format()
+            };
+        }
+
+        notInsertedProductAndAmounts.push(item);
+
+        return null;
+    }).filter(Boolean);
+
+    if (notInsertedProductAndAmounts.length) {
+        paymentLog.notes = 'Data not inserted';
+        paymentLog.user = {
+            id: null,
+            email: input.data.customerEmail,
+            ...(paymentData?.user || {})
+        };
+        paymentLog.productAndAmounts = notInsertedProductAndAmounts;
+
+        await insertPaymentLog(paymentLog);
+    }
+    if (!userPurchasePayloads.length) return Response.formatServiceReturn(true, 200, null, 'Data not inserted');
+
+    const userPurchased = await UserPurchaseRepository.createMany(userPurchasePayloads);
 
     paymentLog.user = {
         id: null,
         email: input.data.customerEmail,
         ...(paymentData?.user || {})
     };
-    paymentLog.product = {
-        ...paymentData.product
-    };
-
-    paymentLog.examPackage = {
-        ...paymentData.examPackage
-    };
-
-    paymentLog.status = 'success';
+    paymentLog.productAndAmounts = insertingProductAndAmounts;
 
     await insertPaymentLog(paymentLog);
 

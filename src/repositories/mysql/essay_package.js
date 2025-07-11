@@ -24,7 +24,7 @@ exports.delete = function (where, trx = null) {
     return Models.EssayPackage.destroy({ where, transaction: trx });
 };
 
-exports.findFromUserPurchaseAndCountAll = async function (where, opts = {}, trx = null) {
+exports.findAndCountAllFromUserPurchase = async function (where, opts = {}, trx = null) {
     const baseQuery = `
 SELECT DISTINCT 
     EssayPackage.id, 
