@@ -1,5 +1,6 @@
 const EssayPackageRepository = require('../../repositories/mysql/essay_package');
 const EssayPackageMappingRepository = require('../../repositories/mysql/essay_package_mapping');
+const ProductRepository = require('../../repositories/mysql/product');
 const Response = require('../../utils/response');
 const LogUtils = require('../../utils/logger');
 const Models = require('../../models/mysql');
@@ -151,6 +152,23 @@ const createEssayPackage = async (input, opts = {}) => {
             }, trx);
             if (!essayPackage) throw new Error();
 
+            const hasProduct = input.externalProductId
+                || input.externalProductName
+                || input.externalTicketId
+                || input.externalTicketName;
+            if (hasProduct) {
+                const product = await ProductRepository.create({
+                    essayPackageId: essayPackage.id,
+                    externalProductId: input.externalProductId,
+                    externalProductName: input.externalProductName,
+                    externalTicketId: input.externalTicketId,
+                    externalTicketName: input.externalTicketName
+                }, trx);
+                if (!product) throw new Error();
+
+                essayPackage.product = product;
+            }
+
             if (inputEssayPackageMappings.length) {
                 const essayPackageMappings = await EssayPackageMappingRepository.createMany(inputEssayPackageMappings.map((item) => ({
                     essayPackageId: essayPackage.id,
@@ -214,6 +232,18 @@ const updateEssayPackage = async (input, opts = {}) => {
     if (input.totalMaxAttempt != null) totalMaxAttempt = input.totalMaxAttempt;
     if (input.defaultItemMaxAttempt != null) defaultItemMaxAttempt = input.defaultItemMaxAttempt;
 
+    const hasProduct = input.externalProductId
+        || input.externalProductName
+        || input.externalTicketId
+        || input.externalTicketName;
+    let productId;
+    if (hasProduct) {
+        const product = await ProductRepository.findOne({ essayPackageId: essayPackage.id });
+        if (!product) throw new Error();
+
+        productId = product.id;
+    }
+
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
             const updatedItem = await EssayPackageRepository.update(
@@ -231,6 +261,20 @@ const updateEssayPackage = async (input, opts = {}) => {
                 trx
             );
             if (!updatedItem) throw new Error();
+
+            if (hasProduct) {
+                const product = await ProductRepository.creatOrUpdate({
+                    id: productId,
+                    essayPackageId: essayPackage.id,
+                    externalProductId: input.externalProductId,
+                    externalProductName: input.externalProductName,
+                    externalTicketId: input.externalTicketId,
+                    externalTicketName: input.externalTicketName
+                }, trx);
+                if (!product) throw new Error();
+
+                essayPackage.product = product;
+            }
 
             if (hasEssayPackageMappings) {
                 if (essayPackage.essayPackageMappings && Array.isArray(essayPackage.essayPackageMappings)) {

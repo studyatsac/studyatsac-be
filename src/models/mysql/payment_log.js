@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER().UNSIGNED,
             allowNull: true
         },
+        essayPackageId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true
+        },
         metadata: {
             type: DataTypes.JSON,
             allowNull: false

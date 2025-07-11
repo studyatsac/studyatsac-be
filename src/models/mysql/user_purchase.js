@@ -17,13 +17,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         examPackageId: {
             type: DataTypes.INTEGER().UNSIGNED,
-            allowNull: true,
-            defaultValue: null
+            allowNull: true
         },
         essayPackageId: {
             type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: true,
-            defaultValue: null
+            allowNull: true
         },
         expiredAt: {
             type: DataTypes.DATE(),
