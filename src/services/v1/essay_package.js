@@ -2,10 +2,11 @@ const EssayPackageRepository = require('../../repositories/mysql/essay_package')
 const EssayPackageMappingRepository = require('../../repositories/mysql/essay_package_mapping');
 const ProductRepository = require('../../repositories/mysql/product');
 const Response = require('../../utils/response');
-const LogUtils = require('../../utils/logger');
 const Models = require('../../models/mysql');
 const Helpers = require('../../utils/helpers');
 const EssayRepository = require('../../repositories/mysql/essay');
+
+class EssayPackageError extends Error {}
 
 const getEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
@@ -36,7 +37,7 @@ const getEssayPackage = async (input, opts = {}) => {
 const getPaidEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await EssayPackageRepository.findOneFromUserPurchase(input);
+    const essay = await EssayPackageRepository.findOneWithMappingFromUserPurchase(input);
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
@@ -156,7 +157,7 @@ const createEssayPackage = async (input, opts = {}) => {
                 paymentUrl: input.paymentUrl,
                 isActive: input.isActive
             }, trx);
-            if (!essayPackage) throw new Error();
+            if (!essayPackage) throw new EssayPackageError(language.ESSAY_PACKAGE.CREATE_FAILED);
 
             const hasProduct = input.externalProductId
                 || input.externalProductName
@@ -170,7 +171,7 @@ const createEssayPackage = async (input, opts = {}) => {
                     externalTicketId: input.externalTicketId,
                     externalTicketName: input.externalTicketName
                 }, trx);
-                if (!product) throw new Error();
+                if (!product) throw new EssayPackageError(language.PRODUCT.CREATE_FAILED);
 
                 essayPackage.product = product;
             }
@@ -181,7 +182,7 @@ const createEssayPackage = async (input, opts = {}) => {
                     essayId: item.essayId,
                     maxAttempt: item.maxAttempt
                 })), trx);
-                if (!essayPackageMappings) throw new Error();
+                if (!essayPackageMappings) throw new EssayPackageError(language.ESSAY_PACKAGE_MAPPING.CREATE_FAILED);
 
                 essayPackage.essayPackageMappings = essayPackageMappings;
             }
@@ -191,9 +192,11 @@ const createEssayPackage = async (input, opts = {}) => {
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'createEssayPackage', message: err.message });
+        if (err instanceof EssayPackageError) {
+            return Response.formatServiceReturn(false, 500, null, err.message);
+        }
 
-        return Response.formatServiceReturn(false, 500, null, language.ESSAY_PACKAGE.CREATE_FAILED);
+        throw err;
     }
 };
 
@@ -264,7 +267,7 @@ const updateEssayPackage = async (input, opts = {}) => {
                 { id: essayPackage.id },
                 trx
             );
-            if (!updatedItem) throw new Error();
+            if (!updatedItem) throw new EssayPackageError(language.ESSAY_PACKAGE.UPDATE_FAILED);
 
             if (hasProduct) {
                 const product = await ProductRepository.creatOrUpdate({
@@ -275,7 +278,7 @@ const updateEssayPackage = async (input, opts = {}) => {
                     externalTicketId: input.externalTicketId,
                     externalTicketName: input.externalTicketName
                 }, trx);
-                if (!product) throw new Error();
+                if (!product) throw new EssayPackageError(language.PRODUCT.UPDATE_FAILED);
 
                 essayPackage.product = product;
             }
@@ -292,7 +295,7 @@ const updateEssayPackage = async (input, opts = {}) => {
                             trx
                         );
                         // eslint-disable-next-line max-depth
-                        if (!deleteCount) throw new Error();
+                        if (!deleteCount) throw new EssayPackageError(language.ESSAY_PACKAGE_MAPPING.DELETE_FAILED);
                     }
 
                     inputEssayPackageMappings = inputEssayPackageMappings.map((item) => {
@@ -311,7 +314,7 @@ const updateEssayPackage = async (input, opts = {}) => {
                         essayId: item.essayId,
                         maxAttempt: item.maxAttempt
                     }, trx);
-                    if (!updatedEssayPackageMapping) throw new Error();
+                    if (!updatedEssayPackageMapping) throw new EssayPackageError(language.ESSAY_PACKAGE_MAPPING.UPDATE_FAILED);
                 });
 
                 await Promise.all(updatingEssayPackageMappings);
@@ -324,9 +327,11 @@ const updateEssayPackage = async (input, opts = {}) => {
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'updateEssayPackage', message: err.message });
+        if (err instanceof EssayPackageError) {
+            return Response.formatServiceReturn(false, 500, null, err.message);
+        }
 
-        return Response.formatServiceReturn(false, 500, null, language.ESSAY_PACKAGE.UPDATE_FAILED);
+        throw err;
     }
 };
 

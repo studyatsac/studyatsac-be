@@ -151,7 +151,7 @@ const handleWebhookPayment = async (input, opts = {}) => {
 
     const existedProductAndAmounts = [];
     const pendingPromises = paymentData.productAndAmounts.map(async (item) => {
-        if (item.product?.ExamPackage?.id) {
+        if (item.product?.ExamPackage) {
             const activeExamPackage = await UserPurchaseRepository.findOneExcludeExpired({
                 userId: paymentData.user.id,
                 examPackageId: paymentData.examPackage.id
@@ -160,7 +160,7 @@ const handleWebhookPayment = async (input, opts = {}) => {
                 existedProductAndAmounts.push(item);
                 return null;
             }
-        } else if (item.product?.essayPackage?.id && input?.data?.transactionId) {
+        } else if (item.product?.essayPackage && input?.data?.transactionId) {
             const essayPackage = await UserPurchaseRepository.findOne({
                 userId: paymentData.user.id,
                 essayPackageId: item.product.essayPackage.id,
@@ -193,7 +193,7 @@ const handleWebhookPayment = async (input, opts = {}) => {
     const notInsertedProductAndAmounts = [];
     const insertingProductAndAmounts = [];
     const userPurchasePayloads = filteredProductAndAmounts.map((item) => {
-        if (item.product?.ExamPackage?.id) {
+        if (item.product?.ExamPackage) {
             insertingProductAndAmounts.push(item);
 
             return {
@@ -202,7 +202,7 @@ const handleWebhookPayment = async (input, opts = {}) => {
                 expiredAt: Moment().add(365, 'days').format()
             };
         }
-        if (item.product?.essayPackage?.id && input?.data?.transactionId) {
+        if (item.product?.essayPackage && input?.data?.transactionId) {
             insertingProductAndAmounts.push(item);
 
             return {
