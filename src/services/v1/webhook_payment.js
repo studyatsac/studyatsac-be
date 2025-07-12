@@ -46,17 +46,69 @@ const handleProductPayment = async (input, opts = {}) => {
 
     responseData.user = user.toJSON();
 
-    const isValidProduct = (data.productId || data.productName);
+    const isValidProduct = !!(data.productId || data.productName);
     if (isValidProduct && data.ticketHistory && Array.isArray(data.ticketHistory)) {
         const whereClauseConditions = data.ticketHistory.map((item) => {
-            const hasValidTicket = item.ticketId || item.ticketName;
+            const hasValidTicket = !!(item.ticketId || item.ticketName);
             if (!hasValidTicket) return null;
 
             return {
-                ...(data.productId ? { externalProductId: data.productId } : {}),
-                ...(!data.productId && data.productName ? { externalProductName: data.productName } : {}),
-                ...(item.ticketId ? { externalTicketId: item.ticketId } : {}),
-                ...(!item.ticketId && item.ticketName ? { externalTicketName: item.ticketName } : {})
+                [Models.Op.or]: [
+                    {
+                        externalProductId: data.productId,
+                        externalProductName: data.productName,
+                        externalTicketId: item.ticketId,
+                        externalTicketName: item.ticketName
+                    },
+                    {
+                        externalProductId: data.productId,
+                        [Models.Op.or]: [
+                            { externalProductName: '' },
+                            { externalProductName: { [Models.Op.is]: null } }
+                        ],
+                        externalTicketId: item.ticketId,
+                        [Models.Op.or]: [
+                            { externalTicketName: '' },
+                            { externalTicketName: { [Models.Op.is]: null } }
+                        ]
+                    },
+                    {
+                        externalProductId: data.productId,
+                        [Models.Op.or]: [
+                            { externalProductName: '' },
+                            { externalProductName: { [Models.Op.is]: null } }
+                        ],
+                        [Models.Op.or]: [
+                            { externalTicketId: '' },
+                            { externalTicketId: { [Models.Op.is]: null } }
+                        ],
+                        externalTicketName: item.ticketName
+                    },
+                    {
+                        [Models.Op.or]: [
+                            { externalProductId: '' },
+                            { externalProductId: { [Models.Op.is]: null } }
+                        ],
+                        externalProductName: data.productName,
+                        externalTicketId: item.ticketId,
+                        [Models.Op.or]: [
+                            { externalTicketName: '' },
+                            { externalTicketName: { [Models.Op.is]: null } }
+                        ]
+                    },
+                    {
+                        [Models.Op.or]: [
+                            { externalProductId: '' },
+                            { externalProductId: { [Models.Op.is]: null } }
+                        ],
+                        externalProductName: data.productName,
+                        [Models.Op.or]: [
+                            { externalTicketId: '' },
+                            { externalTicketId: { [Models.Op.is]: null } }
+                        ],
+                        externalTicketName: item.ticketName
+                    }
+                ]
             };
         }).filter(Boolean);
 
@@ -74,8 +126,26 @@ const handleProductPayment = async (input, opts = {}) => {
     }
     if (isValidProduct && !productAndAmounts.length) {
         const product = await ProductRepository.findOneWithPackage({
-            ...(data.productId ? { externalProductId: data.productId } : {}),
-            ...(!data.productId && data.productName ? { externalProductName: data.productName } : {})
+            [Models.Op.or]: [
+                {
+                    externalProductId: data.productId,
+                    externalProductName: data.productName
+                },
+                {
+                    externalProductId: data.productId,
+                    [Models.Op.or]: [
+                        { externalProductName: '' },
+                        { externalProductName: { [Models.Op.is]: null } }
+                    ]
+                },
+                {
+                    [Models.Op.or]: [
+                        { externalProductId: '' },
+                        { externalProductId: { [Models.Op.is]: null } }
+                    ],
+                    externalProductName: data.productName
+                }
+            ]
         });
         if (product) { productAndAmounts = [{ product, amount: data.amount }]; }
     }
