@@ -55,3 +55,7 @@ Thumbs.db
 data/*
 conf/*
 .idea
+
+.nvmrc
+docker-compose.yml
+docker/

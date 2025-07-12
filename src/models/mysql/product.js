@@ -13,10 +13,26 @@ module.exports = (sequelize, DataTypes) => {
         },
         externalProductId: {
             type: DataTypes.STRING(50),
-            allowNull: false
+            allowNull: true
+        },
+        externalProductName: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        externalTicketId: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
+        externalTicketName: {
+            type: DataTypes.STRING(255),
+            allowNull: true
         },
         examPackageId: {
             type: DataTypes.INTEGER().UNSIGNED,
+            allowNull: true
+        },
+        essayPackageId: {
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: true
         }
     };
@@ -35,6 +51,12 @@ module.exports = (sequelize, DataTypes) => {
         Product.belongsTo(models.ExamPackage, {
             targetKey: 'id',
             sourceKey: 'exam_package_id'
+        });
+        Product.belongsTo(models.EssayPackage, {
+            targetKey: 'id',
+            sourceKey: 'essay_package_id',
+            onDelete: 'CASCADE',
+            as: 'essayPackage'
         });
     };
 

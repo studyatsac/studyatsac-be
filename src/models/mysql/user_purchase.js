@@ -11,13 +11,21 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: DataTypes.UUIDV4
         },
+        externalTransactionId: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
         userId: {
             type: DataTypes.INTEGER().UNSIGNED,
             allowNull: false
         },
         examPackageId: {
             type: DataTypes.INTEGER().UNSIGNED,
-            allowNull: false
+            allowNull: true
+        },
+        essayPackageId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true
         },
         expiredAt: {
             type: DataTypes.DATE(),
@@ -43,6 +51,11 @@ module.exports = (sequelize, DataTypes) => {
         UserPurchase.belongsTo(models.User, {
             targetKey: 'id',
             foreignKey: 'user_id'
+        });
+        UserPurchase.belongsTo(models.EssayPackage, {
+            targetKey: 'id',
+            foreignKey: 'essay_package_id',
+            as: 'essayPackage'
         });
     };
 
