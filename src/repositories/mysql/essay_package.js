@@ -79,7 +79,7 @@ WHERE
     return { rows, count };
 };
 
-exports.findOneFromUserPurchase = async function (where, trx = null) {
+exports.findOneWithMappingFromUserPurchase = async function (where, trx = null) {
     const query = `
 SELECT 
     EssayPackage.*, 
@@ -168,6 +168,90 @@ FROM
         ...where,
         uuid: where.uuid ?? 'IS NOT NULL',
         userId: where.userId ?? 'IS NOT NULL',
+        isActive: where.isActive ?? true
+    };
+
+    return Models.sequelize.query(query, {
+        type: Models.sequelize.QueryTypes.SELECT,
+        replacements,
+        raw: true,
+        nest: true,
+        transaction: trx
+    });
+};
+
+exports.findOneWithAttemptFormUserPurchase = async function (where, trx = null) {
+    const query = `
+SELECT 
+    EssayPackage.*, 
+    (essayPackageMappings.max_attempt * UserPurchase.count) AS itemMaxAttempt, 
+    UserEssay.count AS currentAttempt 
+FROM 
+    ( 
+        SELECT 
+            EssayPackage.id, 
+            EssayPackage.uuid, 
+            EssayPackage.title, 
+            EssayPackage.description, 
+            EssayPackage.additional_information AS additionalInformation, 
+            EssayPackage.price, 
+            EssayPackage.total_max_attempt AS totalMaxAttempt, 
+            EssayPackage.default_item_max_attempt AS defaultItemMaxAttempt, 
+            EssayPackage.payment_url AS paymentUrl, 
+            EssayPackage.is_active AS isActive 
+        FROM 
+            essay_packages AS EssayPackage 
+        WHERE 
+            ( 
+                EssayPackage.deleted_at IS NULL 
+                AND EssayPackage.is_active = :isActive 
+                AND EssayPackage.uuid = :uuid 
+            )  
+        LIMIT 
+            1 
+    ) AS EssayPackage 
+    JOIN essay_package_mappings AS essayPackageMappings ON EssayPackage.id = essayPackageMappings.essay_package_id 
+    AND essayPackageMappings.deleted_at IS NULL 
+    JOIN essays AS \`essayPackageMappings->essay\` ON essayPackageMappings.essay_id = \`essayPackageMappings->essay\`.id 
+    AND \`essayPackageMappings->essay\`.deleted_at IS NULL 
+    AND \`essayPackageMappings->essay\`.is_active = :isActive 
+    AND \`essayPackageMappings->essay\`.uuid = :essayUuid 
+    JOIN ( 
+        SELECT 
+            user_id, 
+            essay_package_id, 
+            COUNT(*) as count 
+        FROM 
+            user_purchases 
+        WHERE 
+            user_purchases.deleted_at IS NULL 
+        GROUP BY 
+            user_id, 
+            essay_package_id 
+    ) AS UserPurchase ON UserPurchase.essay_package_id = EssayPackage.id  
+    AND UserPurchase.user_id = :userId 
+    LEFT JOIN ( 
+        SELECT 
+            essay_id, 
+            essay_package_id, 
+            COUNT(*) as count 
+        FROM 
+            user_essays 
+        WHERE 
+            user_essays.deleted_at IS NULL 
+            AND user_essays.user_id = :userId 
+        GROUP BY  
+            essay_id, 
+            essay_package_id 
+    ) AS UserEssay ON UserEssay.essay_package_id = EssayPackage.id 
+    AND UserEssay.essay_id = essayPackageMappings.essay_id;
+    `;
+
+    const replacements = {
+        ...where,
+        uuid: where.uuid ?? 'IS NOT NULL',
+        userId: where.userId ?? 'IS NOT NULL',
+        essayUuid: where.essayUuid ?? 'IS NOT NULL',
         isActive: where.isActive ?? true
     };
 

@@ -1,8 +1,9 @@
 const EssayRepository = require('../../repositories/mysql/essay');
 const EssayItemRepository = require('../../repositories/mysql/essay_item');
 const Response = require('../../utils/response');
-const LogUtils = require('../../utils/logger');
 const Models = require('../../models/mysql');
+
+class EssayError extends Error {}
 
 const getEssay = async (input, opts = {}) => {
     const language = opts.lang;
@@ -40,7 +41,7 @@ const createEssay = async (input, opts = {}) => {
                 description: input.description,
                 isActive: input.isActive
             }, trx);
-            if (!essay) throw new Error();
+            if (!essay) throw new EssayError(language.ESSAY.CREATE_FAILED);
 
             if (input.essayItems && Array.isArray(input.essayItems)) {
                 const essayItems = await EssayItemRepository.createMany(input.essayItems.map((item) => ({
@@ -50,7 +51,7 @@ const createEssay = async (input, opts = {}) => {
                     description: item.description,
                     systemPrompt: item.systemPrompt
                 })), trx);
-                if (!essayItems) throw new Error();
+                if (!essayItems) throw new EssayError(language.ESSAY.CREATE_FAILED);
 
                 essay.essayItems = essayItems;
             }
@@ -60,9 +61,11 @@ const createEssay = async (input, opts = {}) => {
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'createEssay', message: err.message });
+        if (err instanceof EssayError) {
+            return Response.formatServiceReturn(false, 500, null, err.message);
+        }
 
-        return Response.formatServiceReturn(false, 500, null, language.ESSAY.CREATE_FAILED);
+        throw err;
     }
 };
 
@@ -89,7 +92,7 @@ const updateEssay = async (input, opts = {}) => {
                 { id: essay.id },
                 trx
             );
-            if (!updatedItem) throw new Error();
+            if (!updatedItem) throw new EssayError(language.ESSAY.UPDATE_FAILED);
 
             if (input.essayItems && Array.isArray(input.essayItems)) {
                 let inputEssayItems = input.essayItems;
@@ -104,7 +107,7 @@ const updateEssay = async (input, opts = {}) => {
                             trx
                         );
                         // eslint-disable-next-line max-depth
-                        if (!deleteCount) throw new Error();
+                        if (!deleteCount) throw new EssayError(language.ESSAY_ITEM.DELETE_FAILED);
                     }
 
                     inputEssayItems = inputEssayItems.map((item) => {
@@ -125,7 +128,7 @@ const updateEssay = async (input, opts = {}) => {
                         description: item.description,
                         systemPrompt: item.systemPrompt
                     }, trx);
-                    if (!updatedEssayItem) throw new Error();
+                    if (!updatedEssayItem) throw new EssayError(language.ESSAY_ITEM.UPDATE_FAILED);
                 });
 
                 await Promise.all(updatingEssayItems);
@@ -138,9 +141,11 @@ const updateEssay = async (input, opts = {}) => {
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'updateEssay', message: err.message });
+        if (err instanceof EssayError) {
+            return Response.formatServiceReturn(false, 500, null, err.message);
+        }
 
-        return Response.formatServiceReturn(false, 500, null, language.ESSAY.UPDATE_FAILED);
+        throw err;
     }
 };
 

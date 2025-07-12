@@ -73,7 +73,10 @@ module.exports = Object.freeze({
         NUMBER_NOT_VALID: 'Urutan tidak valid',
         TOPIC_NOT_VALID: 'Topik tidak valid',
         DESCRIPTION_NOT_VALID: 'Deskripsi tidak valid',
-        SYSTEM_PROMPT_NOT_VALID: 'AI prompt tidak valid'
+        SYSTEM_PROMPT_NOT_VALID: 'AI prompt tidak valid',
+        CREATE_FAILED: 'Gagal membuat item esai',
+        UPDATE_FAILED: 'Gagal memperbarui item esai',
+        DELETE_FAILED: 'Gagal menghapus item esai'
     },
     USER_ESSAY: {
         NOT_FOUND: 'Esai pengguna tidak ditemukan',
@@ -81,22 +84,25 @@ module.exports = Object.freeze({
         ESSAY_UUID_NOT_VALID: 'ID esai tidak valid',
         ESSAY_ITEMS_NOT_VALID: 'Item esai tidak valid',
         OVERALL_REVIEW_NOT_VALID: 'Review tidak valid',
+        WITH_REVIEW_NOT_VALID: 'Penanda review tidak valid',
+        BACKGROUND_DESCRIPTION_NOT_VALID: 'Deskripsi latar belakang tidak valid',
+        LANGUAGE_NOT_VALID: 'Bahasa tidak valid',
         CREATE_SUCCESS: 'Berhasil membuat esai pengguna',
         CREATE_FAILED: 'Gagal membuat esai pengguna',
         UPDATE_SUCCESS: 'Berhasil memperbarui esai pengguna',
         UPDATE_FAILED: 'Gagal memperbarui esai pengguna',
         DELETE_SUCCESS: 'Berhasil menghapus esai pengguna',
-        DELETE_FAILED: 'Gagal menghapus esai pengguna',
-        WITH_REVIEW_NOT_VALID: 'Penanda review tidak valid',
-        BACKGROUND_DESCRIPTION_NOT_VALID: 'Deskripsi latar belakang tidak valid',
-        LANGUAGE_NOT_VALID: 'Bahasa tidak valid'
+        DELETE_FAILED: 'Gagal menghapus esai pengguna'
     },
     USER_ESSAY_ITEM: {
         NOT_FOUND: 'Item esai pengguna tidak ditemukan',
         UUID_NOT_VALID: 'ID tidak valid',
         ESSAY_ITEM_UUID_NOT_VALID: 'ID item esai tidak valid',
         ANSWER_NOT_VALID: 'Jwaban tidak valid',
-        REVIEW_NOT_VALID: 'Review tidak valid'
+        REVIEW_NOT_VALID: 'Review tidak valid',
+        CREATE_FAILED: 'Gagal membuat item esai pengguna',
+        UPDATE_FAILED: 'Gagal memperbarui item esai pengguna',
+        DELETE_FAILED: 'Gagal menghapus item esai pengguna'
     },
     ESSAY_PACKAGE: {
         NOT_FOUND: 'Paket esai tidak ditemukan',
@@ -124,7 +130,10 @@ module.exports = Object.freeze({
         NOT_FOUND: 'Item paket esai tidak ditemukan',
         UUID_NOT_VALID: 'ID tidak valid',
         ESSAY_UUID_NOT_VALID: 'ID esai tidak valid',
-        MAX_ATTEMPT_NOT_VALID: 'Maksimal percobaan tidak valid'
+        MAX_ATTEMPT_NOT_VALID: 'Maksimal percobaan tidak valid',
+        CREATE_FAILED: 'Gagal membuat item paket esai',
+        UPDATE_FAILED: 'Gagal memperbarui item paket esai',
+        DELETE_FAILED: 'Gagal menghapus item paket esai'
     },
     ESSAY_REVIEW: {
         EXCEED_MAX_ATTEMPT: 'Percobaan telah habis'
@@ -145,5 +154,9 @@ module.exports = Object.freeze({
         ESSAY_PACKAGE_ALREADY_CLAIMED: 'Paket esai sudah diklaim',
         ESSAY_PACKAGE_CLAIM_SUCCESS: 'Paket esai berhasil diklaim',
         ESSAY_PACKAGE_CLAIM_FAILED: 'Gagal mengklaim paket esai'
+    },
+    PRODUCT: {
+        CREATE_FAILED: 'Gagal membuat produk',
+        UPDATE_FAILED: 'Gagal memperbarui produk'
     }
 });

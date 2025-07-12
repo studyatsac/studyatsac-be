@@ -74,7 +74,10 @@ module.exports = Object.freeze({
         NUMBER_NOT_VALID: 'Number not valid',
         TOPIC_NOT_VALID: 'Topic not valid',
         DESCRIPTION_NOT_VALID: 'Description not valid',
-        SYSTEM_PROMPT_NOT_VALID: 'AI prompt not valid'
+        SYSTEM_PROMPT_NOT_VALID: 'AI prompt not valid',
+        CREATE_FAILED: 'Failed to create essay item',
+        UPDATE_FAILED: 'Failed to update essay item',
+        DELETE_FAILED: 'Failed to delete essay item'
     },
     USER_ESSAY: {
         NOT_FOUND: 'User essay not found',
@@ -82,22 +85,25 @@ module.exports = Object.freeze({
         ESSAY_UUID_NOT_VALID: 'Essay ID not valid',
         ESSAY_ITEMS_NOT_VALID: 'Essay item not valid',
         OVERALL_REVIEW_NOT_VALID: 'Review not valid',
+        WITH_REVIEW_NOT_VALID: 'Review flag not valid',
+        BACKGROUND_DESCRIPTION_NOT_VALID: 'Background description not valid',
+        LANGUAGE_NOT_VALID: 'Language not valid',
         CREATE_SUCCESS: 'Success to create user essay',
         CREATE_FAILED: 'Failed to create user essay',
         UPDATE_SUCCESS: 'Success to update user essay',
         UPDATE_FAILED: 'Failed to update user essay',
         DELETE_SUCCESS: 'Success to delete user essay',
-        DELETE_FAILED: 'Failed to delete user essay',
-        WITH_REVIEW_NOT_VALID: 'Review flag not valid',
-        BACKGROUND_DESCRIPTION_NOT_VALID: 'Background description not valid',
-        LANGUAGE_NOT_VALID: 'Language not valid'
+        DELETE_FAILED: 'Failed to delete user essay'
     },
     USER_ESSAY_ITEM: {
         NOT_FOUND: 'User essay item not found',
         UUID_NOT_VALID: 'ID not valid',
         ESSAY_ITEM_UUID_NOT_VALID: 'Essay item ID not valid',
         ANSWER_NOT_VALID: 'Answer not valid',
-        REVIEW_NOT_VALID: 'Review not valid'
+        REVIEW_NOT_VALID: 'Review not valid',
+        CREATE_FAILED: 'Failed to create user essay item',
+        UPDATE_FAILED: 'Failed to update user essay item',
+        DELETE_FAILED: 'Failed to delete user essay item'
     },
     ESSAY_PACKAGE: {
         NOT_FOUND: 'Essay package not found',
@@ -125,7 +131,10 @@ module.exports = Object.freeze({
         NOT_FOUND: 'Essay package mapping not found',
         UUID_NOT_VALID: 'ID not valid',
         ESSAY_UUID_NOT_VALID: 'Essay ID not valid',
-        MAX_ATTEMPT_NOT_VALID: 'Max attempt not valid'
+        MAX_ATTEMPT_NOT_VALID: 'Max attempt not valid',
+        CREATE_FAILED: 'Failed to create essay package mapping',
+        UPDATE_FAILED: 'Failed to update essay package mapping',
+        DELETE_FAILED: 'Failed to delete essay package mapping'
     },
     ESSAY_REVIEW: {
         EXCEED_MAX_ATTEMPT: 'Trial is over'
@@ -146,5 +155,9 @@ module.exports = Object.freeze({
         ESSAY_PACKAGE_ALREADY_CLAIMED: 'Essay package already claimed',
         ESSAY_PACKAGE_CLAIM_SUCCESS: 'Success to claim essay package',
         ESSAY_PACKAGE_CLAIM_FAILED: 'Failed to claim essay package'
+    },
+    PRODUCT: {
+        CREATE_FAILED: 'Failed to create product',
+        UPDATE_FAILED: 'Failed to update product'
     }
 });

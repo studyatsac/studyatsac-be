@@ -4,10 +4,11 @@ const UserEssayItemRepository = require('../../repositories/mysql/user_essay_ite
 const Response = require('../../utils/response');
 const Models = require('../../models/mysql');
 const Helpers = require('../../utils/helpers');
-const LogUtils = require('../../utils/logger');
 const Queues = require('../../queues/redis');
 const UserEssayConstants = require('../../constants/user_essay');
 const EssayReviewConstants = require('../../constants/essay_review');
+
+class UserEssayError extends Error {}
 
 const getUserEssay = async (input, opts = {}) => {
     const language = opts.lang;
@@ -140,7 +141,7 @@ const createUserEssay = async (input, opts = {}) => {
                 },
                 trx
             );
-            if (!essay) throw new Error();
+            if (!essay) throw new UserEssayError(language.USER_ESSAY.CREATE_FAILED);
 
             if (hasEssayItems) {
                 const essayItems = await UserEssayItemRepository.createMany(
@@ -155,7 +156,7 @@ const createUserEssay = async (input, opts = {}) => {
                     })),
                     trx
                 );
-                if (!essayItems) throw new Error();
+                if (!essayItems) throw new UserEssayError(language.USER_ESSAY_ITEM.CREATE_FAILED);
 
                 userEssay.essayItems = essayItems;
             }
@@ -172,12 +173,11 @@ const createUserEssay = async (input, opts = {}) => {
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
-        LogUtils.loggingError({
-            functionName: 'createUserEssay',
-            message: err.message
-        });
+        if (err instanceof UserEssayError) {
+            return Response.formatServiceReturn(false, 500, null, err.message);
+        }
 
-        return Response.formatServiceReturn(false, 500, null, language.USER_ESSAY.CREATE_FAILED);
+        throw err;
     }
 };
 
@@ -231,7 +231,7 @@ const updateUserEssay = async (input, opts = {}) => {
                             trx
                         );
                         // eslint-disable-next-line max-depth
-                        if (!deleteCount) throw new Error();
+                        if (!deleteCount) throw new UserEssayError(language.USER_ESSAY_ITEM.DELETE_FAILED);
                     }
 
                     inputEssayItems = inputEssayItems.map((item) => {
@@ -268,7 +268,7 @@ const updateUserEssay = async (input, opts = {}) => {
                 { id: userEssay.id },
                 trx
             );
-            if (!updatedItem) throw new Error();
+            if (!updatedItem) throw new UserEssayError(language.USER_ESSAY.UPDATE_FAILED);
 
             if (hasEssayItems) {
                 const updatingEssayItems = inputEssayItems.map(async (item) => {
@@ -284,7 +284,7 @@ const updateUserEssay = async (input, opts = {}) => {
                         }),
                         ...(!opts.isRestricted ? { review: item.review } : {})
                     }, trx);
-                    if (!updatedEssayItem) throw new Error();
+                    if (!updatedEssayItem) throw new UserEssayError(language.USER_ESSAY_ITEM.UPDATE_FAILED);
                 });
 
                 await Promise.all(updatingEssayItems);
@@ -304,9 +304,11 @@ const updateUserEssay = async (input, opts = {}) => {
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'updateEssay', message: err.message });
+        if (err instanceof UserEssayError) {
+            return Response.formatServiceReturn(false, 500, null, err.message);
+        }
 
-        return Response.formatServiceReturn(false, 500, null, language.USER_ESSAY.UPDATE_FAILED);
+        throw err;
     }
 };
 
