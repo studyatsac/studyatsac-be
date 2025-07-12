@@ -5,32 +5,72 @@ const PromptUtils = require('../../utils/prompt');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
 const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
 const UserEssayConstants = require('../../constants/user_essay');
+const EssayReviewLogRepository = require('../../repositories/mysql/essay_review_log');
 const Models = require('../../models/mysql');
 const EssayReviewConstants = require('../../constants/essay_review');
 
 const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function callApiReview(content, topic = 'Overall Essay', criteria, language, backgroundDescription) {
-    const response = await openAi.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-            {
-                role: 'system',
-                content: PromptUtils.getBasePrompt(backgroundDescription, topic, UserEssayConstants.LANGUAGE_LABELS[language] || 'English')
-            },
-            {
-                role: 'user',
-                content: PromptUtils.getReviewSystemPrompt(
-                    criteria,
-                    content
-                )
+async function insertEssayReviewLog(payload, data, isSuccess = false) {
+    try {
+        let metadata = {};
+        if (data && typeof data === 'object') {
+            if (isSuccess) {
+                metadata = {
+                    id: data?.id,
+                    object: data?.object,
+                    created: data?.created,
+                    model: data?.model,
+                    usage: data?.usage,
+                    service_tier: data?.service_tier,
+                    system_fingerprint: data?.system_fingerprint
+                };
+            } else {
+                metadata = {
+                    error: data?.error,
+                    requestID: data?.requestID,
+                    code: data?.code,
+                    param: data?.param,
+                    type: data?.type
+                };
             }
-        ],
-        temperature: 0.3,
-        max_tokens: 16384
-    });
+        }
 
-    return response.choices[0].message.content;
+        await EssayReviewLogRepository.create({ ...payload, metadata });
+    } catch (err) {
+        LogUtils.loggingError({ functionName: 'insertEssayReviewLog', message: err.message });
+    }
+}
+
+async function callApiReview(userEssayId, content, topic = 'Overall Essay', criteria, language, backgroundDescription) {
+    try {
+        const response = await openAi.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+                {
+                    role: 'system',
+                    content: PromptUtils.getBasePrompt(backgroundDescription, topic, UserEssayConstants.LANGUAGE_LABELS[language] || 'English')
+                },
+                {
+                    role: 'user',
+                    content: PromptUtils.getReviewSystemPrompt(
+                        criteria,
+                        content
+                    )
+                }
+            ],
+            temperature: 0.3,
+            max_tokens: 16384
+        });
+
+        await insertEssayReviewLog({ userEssayId }, response, true);
+
+        return response.choices[0].message.content;
+    } catch (err) {
+        await insertEssayReviewLog({ userEssayId, notes: err.message }, err);
+
+        throw err;
+    }
 }
 
 async function processEssayReviewOverallJob(job) {
@@ -66,11 +106,11 @@ async function processEssayReviewOverallJob(job) {
 
         const overallContent = userEssay.essayItems.reduce(
             (text, item) => `${text}\n=====
-                    ${item.essayItem.topic}\n
-                    ${item.answer}\n=====`, ''
+                ${item.essayItem.topic}\n
+                ${item.answer}\n=====`, ''
         );
 
-        const overallReview = await callApiReview(overallContent, 'Overall Essay', '', userEssay.language);
+        const overallReview = await callApiReview(userEssayId, overallContent, 'Overall Essay', '', userEssay.language);
 
         await UserEssayRepository.update(
             { overallReviewStatus: UserEssayConstants.STATUS.COMPLETED, overallReview },
@@ -113,6 +153,7 @@ async function processEssayReviewItemJob(job) {
     let reviewStatus = false;
     try {
         const review = await callApiReview(
+            userEssayId,
             userEssayItem.answer,
             userEssayItem.essayItem.topic,
             userEssayItem.essayItem.systemPrompt,
