@@ -603,6 +603,11 @@ router.post(
     [tokenMiddleware],
     require('../methods/v1/essay-review/review_user_essay').reviewUserEssay
 );
+router.post(
+    '/essay-review/:uuid/retry',
+    [tokenMiddleware],
+    require('../methods/v1/essay-review/retry_user_essay_review').retryUserEssayReview
+);
 
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam

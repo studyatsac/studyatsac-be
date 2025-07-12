@@ -32,7 +32,7 @@ const retryEssayReview = async (input, opts = {}) => {
     const language = opts.lang;
 
     const userEssay = await UserEssayRepository.findOne(
-        { uuid: input.essayPackageUuid, userId: input.userId },
+        { uuid: input.uuid, userId: input.userId },
         {
             include: {
                 model: Models.UserEssayItem,
@@ -47,28 +47,31 @@ const retryEssayReview = async (input, opts = {}) => {
     try {
         let shouldAddJob = false;
         await Models.sequelize.transaction(async (trx) => {
-            if (userEssay.overallReviewStatus === UserEssayConstants.STATUS.FAILED) {
-                const updatedItem = await UserEssayRepository.update(
-                    { overallReviewStatus: UserEssayConstants.STATUS.PENDING },
-                    { id: userEssay.id },
-                    trx
-                );
+            let shouldUpdate = userEssay.overallReviewStatus === UserEssayConstants.STATUS.FAILED;
+            let payload = {};
+            if (shouldUpdate) payload = { overallReviewStatus: UserEssayConstants.STATUS.PENDING };
 
-                if (!updatedItem) throw new EssayReviewError(language.USER_ESSAY.UPDATE_FAILED);
-
-                shouldAddJob = true;
-            }
-
-            const pendingItems = userEssay.essayItems.filter((item) => item.reviewStatus === UserEssayConstants.STATUS.PENDING);
-            if (pendingItems.length) {
-                const pendingItemIds = pendingItems.map((item) => item.id);
+            const failedItems = userEssay.essayItems.filter((item) => item.reviewStatus === UserEssayConstants.STATUS.FAILED);
+            if (failedItems.length) {
+                const failedItemIds = failedItems.map((item) => item.id);
                 const updatedItem = await UserEssayItemRepository.update(
                     { reviewStatus: UserEssayConstants.STATUS.PENDING },
-                    { id: pendingItemIds },
+                    { id: failedItemIds },
                     trx
                 );
 
                 if (!updatedItem) throw new EssayReviewError(language.USER_ESSAY_ITEM.UPDATE_FAILED);
+
+                shouldAddJob = true;
+                shouldUpdate = true;
+
+                payload.itemReviewStatus = UserEssayConstants.STATUS.PENDING;
+            }
+
+            if (shouldUpdate) {
+                const updatedItem = await UserEssayRepository.update(payload, { id: userEssay.id }, trx);
+
+                if (!updatedItem) throw new EssayReviewError(language.USER_ESSAY.UPDATE_FAILED);
 
                 shouldAddJob = true;
             }
