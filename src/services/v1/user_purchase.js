@@ -106,6 +106,7 @@ const getUserPurchaseEssayPackageList = async (input, opts = {}) => {
     const params = opts.params;
 
     const allEssayPackage = await UserPurchaseRepository.findAndCountAll({
+        essayPackageId: { [Models.Op.not]: null },
         ...input,
         ...(params.search ? {
             [Models.Op.or]: [
