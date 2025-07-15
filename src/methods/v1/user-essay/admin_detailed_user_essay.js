@@ -17,7 +17,7 @@ exports.getDetailedUserEssay = async (req, res) => {
         }
 
         return res.status(200).json({
-            data: UserEssayTransformer.userEssayItem(result.data),
+            data: UserEssayTransformer.userEssayItem(result.data, false),
             message: ''
         });
     } catch (err) {

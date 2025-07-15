@@ -29,7 +29,7 @@ exports.getUserEssayList = async (req, res) => {
         }
 
         return res.status(200).json({
-            data: UserEssayTransformer.userEssayList(result.data.rows),
+            data: UserEssayTransformer.userEssayList(result.data.rows, false),
             message: '',
             meta: {
                 page: params.page,

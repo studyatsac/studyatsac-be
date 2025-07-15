@@ -2,7 +2,6 @@ const UserEssayService = require('../../../services/v1/user_essay');
 const UserEssayTransformer = require('../../../transformers/v1/user-essay/user_essay');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
-const UserEssayItemTransformer = require('../../../transformers/v1/user-essay/user_essay_item');
 
 let lang;
 
@@ -23,10 +22,7 @@ exports.getUserEssay = async (req, res) => {
         }
 
         return res.status(200).json({
-            data: {
-                ...UserEssayTransformer.userEssayItem(result.data),
-                essayItems: UserEssayItemTransformer.userEssayItemList(result.data.essayItems)
-            },
+            data: UserEssayTransformer.userEssayItem(result.data),
             message: ''
         });
     } catch (err) {

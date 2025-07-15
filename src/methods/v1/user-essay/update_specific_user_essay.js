@@ -1,6 +1,5 @@
 const UserEssayService = require('../../../services/v1/user_essay');
 const UserEssayTransformer = require('../../../transformers/v1/user-essay/user_essay');
-const UserEssayItemTransformer = require('../../../transformers/v1/user-essay/user_essay_item');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 const UserEssayValidation = require('../../../validations/v1/user-essay/user_essay');
@@ -37,10 +36,7 @@ exports.updateSpecificUserEssay = async (req, res) => {
         }
 
         return res.status(200).json({
-            data: {
-                ...UserEssayTransformer.userEssayItem(result.data),
-                essayItems: UserEssayItemTransformer.userEssayItemList(result.data.essayItems)
-            },
+            data: UserEssayTransformer.userEssayItem(result.data),
             message: lang.USER_ESSAY.UPDATE_SUCCESS
         });
     } catch (err) {
