@@ -19,7 +19,7 @@ CREATE TABLE `interview_sections` (
   `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `system_prompt` text NOT NULL,
-  `duration` int unsigned NULL,
+  `duration` int unsigned NOT NULL DEFAULT 900,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime NULL,

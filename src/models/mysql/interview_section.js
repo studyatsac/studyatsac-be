@@ -34,7 +34,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         duration: {
             type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: true
+            allowNull: false,
+            defaultValue: 900
         }
     };
 

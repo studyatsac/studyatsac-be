@@ -159,5 +159,48 @@ module.exports = Object.freeze({
     PRODUCT: {
         CREATE_FAILED: 'Failed to create product',
         UPDATE_FAILED: 'Failed to update product'
+    },
+    INTERVIEW: {
+        NOT_FOUND: 'Interview not found',
+        TITLE_NOT_VALID: 'Title not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        IS_ACTIVE_NOT_VALID: 'Active status not valid',
+        INTERVIEW_SECTIONS_NOT_VALID: 'Interview sections not valid',
+        CREATE_SUCCESS: 'Success to create interview',
+        CREATE_FAILED: 'Failed to create interview',
+        UPDATE_SUCCESS: 'Success to update interview',
+        UPDATE_FAILED: 'Failed to update interview',
+        DELETE_SUCCESS: 'Success to delete interview',
+        DELETE_FAILED: 'Failed to delete interview'
+    },
+    INTERVIEW_SECTION: {
+        NOT_FOUND: 'Interview section not found',
+        UUID_NOT_VALID: 'ID not valid',
+        NUMBER_NOT_VALID: 'Number not valid',
+        TITLE_NOT_VALID: 'Title not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        SYSTEM_PROMPT_NOT_VALID: 'System prompt not valid',
+        DURATION_NOT_VALID: 'Duration not valid',
+        INTERVIEW_SECTION_QUESTIONS_NOT_VALID: 'Interview section questions not valid',
+        CREATE_SUCCESS: 'Success to create interview section',
+        CREATE_FAILED: 'Failed to create interview section',
+        UPDATE_SUCCESS: 'Success to update interview section',
+        UPDATE_FAILED: 'Failed to update interview section',
+        DELETE_SUCCESS: 'Success to delete interview section',
+        DELETE_FAILED: 'Failed to delete interview section'
+    },
+    INTERVIEW_SECTION_QUESTION: {
+        NOT_FOUND: 'Interview section question not found',
+        UUID_NOT_VALID: 'ID not valid',
+        NUMBER_NOT_VALID: 'Number not valid',
+        QUESTION_NOT_VALID: 'Question not valid',
+        SYSTEM_PROMPT_NOT_VALID: 'System prompt not valid',
+        HINT_NOT_VALID: 'Hint not valid',
+        CREATE_SUCCESS: 'Success to create interview section question',
+        CREATE_FAILED: 'Failed to create interview section question',
+        UPDATE_SUCCESS: 'Success to update interview section question',
+        UPDATE_FAILED: 'Failed to update interview section question',
+        DELETE_SUCCESS: 'Success to delete interview section question',
+        DELETE_FAILED: 'Failed to delete interview section question'
     }
 });
