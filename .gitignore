@@ -48,7 +48,8 @@ Thumbs.db
 *.mov
 *.wmv
 
-.env
+.env*
+!.env.example
 .vscode
 .DS_Store
 
