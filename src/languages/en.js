@@ -202,5 +202,46 @@ module.exports = Object.freeze({
         UPDATE_FAILED: 'Failed to update interview section question',
         DELETE_SUCCESS: 'Success to delete interview section question',
         DELETE_FAILED: 'Failed to delete interview section question'
+    },
+    USER_INTERVIEW: {
+        NOT_FOUND: 'User interview not found',
+        UUID_NOT_VALID: 'ID not valid',
+        INTERVIEW_UUID_NOT_VALID: 'Interview ID not valid',
+        OVERALL_REVIEW_NOT_VALID: 'Review not valid',
+        INTERVIEW_SECTIONS_NOT_VALID: 'Interview sections not valid',
+        BACKGROUND_DESCRIPTION_NOT_VALID: 'Background description not valid',
+        LANGUAGE_NOT_VALID: 'Language not valid',
+        CREATE_SUCCESS: 'Success to create user interview',
+        CREATE_FAILED: 'Failed to create user interview',
+        UPDATE_SUCCESS: 'Success to update user interview',
+        UPDATE_FAILED: 'Failed to update user interview',
+        DELETE_SUCCESS: 'Success to delete user interview',
+        DELETE_FAILED: 'Failed to delete user interview',
+        WITH_REVIEW_NOT_VALID: 'Review flag not valid'
+    },
+    USER_INTERVIEW_SECTION: {
+        NOT_FOUND: 'User interview section not found',
+        UUID_NOT_VALID: 'ID not valid',
+        INTERVIEW_SECTION_UUID_NOT_VALID: 'Interview section ID not valid',
+        REVIEW_NOT_VALID: 'Review not valid',
+        CREATE_SUCCESS: 'Success to create user interview section',
+        CREATE_FAILED: 'Failed to create user interview section',
+        UPDATE_SUCCESS: 'Success to update user interview section',
+        UPDATE_FAILED: 'Failed to update user interview section',
+        DELETE_SUCCESS: 'Success to delete user interview section',
+        DELETE_FAILED: 'Failed to delete user interview section'
+    },
+    USER_INTERVIEW_SECTION_ANSWER: {
+        NOT_FOUND: 'User interview section answer not found',
+        UUID_NOT_VALID: 'ID not valid',
+        INTERVIEW_SECTION_QUESTION_UUID_NOT_VALID: 'Interview section question ID not valid',
+        ANSWER_NOT_VALID: 'Answer not valid',
+        REVIEW_NOT_VALID: 'Review not valid',
+        CREATE_SUCCESS: 'Success to create user interview section answer',
+        CREATE_FAILED: 'Failed to create user interview section answer',
+        UPDATE_SUCCESS: 'Success to update user interview section answer',
+        UPDATE_FAILED: 'Failed to update user interview section answer',
+        DELETE_SUCCESS: 'Success to delete user interview section answer',
+        DELETE_FAILED: 'Failed to delete user interview section answer'
     }
 });

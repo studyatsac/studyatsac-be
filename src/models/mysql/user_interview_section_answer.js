@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
-        questionId: {
+        interviewSectionQuestionId: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
@@ -65,7 +65,7 @@ module.exports = (sequelize, DataTypes) => {
         });
         UserInterviewSectionAnswer.belongsTo(models.InterviewSectionQuestion, {
             targetKey: 'id',
-            foreignKey: 'question_id',
+            foreignKey: 'interview_section_question_id',
             as: 'interviewSectionQuestion'
         });
     };
