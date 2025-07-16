@@ -12,7 +12,7 @@ exports.createMany = function (payload, trx = null) {
     return Models.UserEssayItem.bulkCreate(payload, { transaction: trx });
 };
 
-exports.creatOrUpdate = function (payload, trx = null) {
+exports.createOrUpdate = function (payload, trx = null) {
     return Models.UserEssayItem.upsert(payload, { transaction: trx });
 };
 

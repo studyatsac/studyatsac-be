@@ -268,11 +268,13 @@ const updateUserEssay = async (input, opts = {}) => {
                 { id: userEssay.id },
                 trx
             );
-            if (!updatedItem) throw new UserEssayError(language.USER_ESSAY.UPDATE_FAILED);
+            if ((Array.isArray(updatedItem) && !updatedItem[0]) || !updatedItem) {
+                throw new UserEssayError(language.USER_ESSAY.UPDATE_FAILED);
+            }
 
             if (hasEssayItems) {
                 const updatingEssayItems = inputEssayItems.map(async (item) => {
-                    const updatedEssayItem = await UserEssayItemRepository.creatOrUpdate({
+                    const updatedEssayItem = await UserEssayItemRepository.createOrUpdate({
                         id: item.id,
                         userEssayId: userEssay.id,
                         essayItemId: item.essayItemId,
@@ -284,7 +286,9 @@ const updateUserEssay = async (input, opts = {}) => {
                         }),
                         ...(!opts.isRestricted ? { review: item.review } : {})
                     }, trx);
-                    if (!updatedEssayItem) throw new UserEssayError(language.USER_ESSAY_ITEM.UPDATE_FAILED);
+                    if ((Array.isArray(updatedEssayItem) && !updatedEssayItem[0]) || !updatedEssayItem) {
+                        throw new UserEssayError(language.USER_ESSAY_ITEM.UPDATE_FAILED);
+                    }
                 });
 
                 await Promise.all(updatingEssayItems);
