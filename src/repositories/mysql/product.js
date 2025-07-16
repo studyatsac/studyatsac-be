@@ -4,7 +4,7 @@ exports.create = function (payload, trx = null) {
     return Models.Product.create(payload, { transaction: trx });
 };
 
-exports.creatOrUpdate = function (payload, trx = null) {
+exports.createOrUpdate = function (payload, trx = null) {
     return Models.Product.upsert(payload, { transaction: trx });
 };
 

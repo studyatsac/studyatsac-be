@@ -158,5 +158,48 @@ module.exports = Object.freeze({
     PRODUCT: {
         CREATE_FAILED: 'Gagal membuat produk',
         UPDATE_FAILED: 'Gagal memperbarui produk'
+    },
+    INTERVIEW: {
+        NOT_FOUND: 'Wawancara tidak ditemukan',
+        TITLE_NOT_VALID: 'Judul tidak valid',
+        DESCRIPTION_NOT_VALID: 'Deskripsi tidak valid',
+        IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
+        INTERVIEW_SECTIONS_NOT_VALID: 'Sesi wawancara tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat wawancara',
+        CREATE_FAILED: 'Gagal membuat wawancara',
+        UPDATE_SUCCESS: 'Berhasil memperbarui wawancara',
+        UPDATE_FAILED: 'Gagal memperbarui wawancara',
+        DELETE_SUCCESS: 'Berhasil menghapus wawancara',
+        DELETE_FAILED: 'Gagal menghapus wawancara'
+    },
+    INTERVIEW_SECTION: {
+        NOT_FOUND: 'Sesi wawancara tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        NUMBER_NOT_VALID: 'Urutan tidak valid',
+        TITLE_NOT_VALID: 'Judul tidak valid',
+        DESCRIPTION_NOT_VALID: 'Deskripsi tidak valid',
+        SYSTEM_PROMPT_NOT_VALID: 'AI prompt tidak valid',
+        DURATION_NOT_VALID: 'Durasi tidak valid',
+        INTERVIEW_SECTION_QUESTIONS_NOT_VALID: 'Sesi wawancara question tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat sesi wawancara',
+        CREATE_FAILED: 'Gagal membuat sesi wawancara',
+        UPDATE_SUCCESS: 'Berhasil memperbarui sesi wawancara',
+        UPDATE_FAILED: 'Gagal memperbarui sesi wawancara',
+        DELETE_SUCCESS: 'Berhasil menghapus sesi wawancara',
+        DELETE_FAILED: 'Gagal menghapus sesi wawancara'
+    },
+    INTERVIEW_SECTION_QUESTION: {
+        NOT_FOUND: 'Pertanyyaan sesi wawancara tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        NUMBER_NOT_VALID: 'Urutan tidak valid',
+        QUESTION_NOT_VALID: 'Pertanyaan tidak valid',
+        SYSTEM_PROMPT_NOT_VALID: 'AI prompt tidak valid',
+        HINT_NOT_VALID: 'Petunjuk tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat pertanyyaan sesi wawancara',
+        CREATE_FAILED: 'Gagal membuat pertanyyaan sesi wawancara',
+        UPDATE_SUCCESS: 'Berhasil memperbarui pertanyyaan sesi wawancara',
+        UPDATE_FAILED: 'Gagal memperbarui pertanyyaan sesi wawancara',
+        DELETE_SUCCESS: 'Berhasil menghapus pertanyyaan sesi wawancara',
+        DELETE_FAILED: 'Gagal menghapus pertanyyaan sesi wawancara'
     }
 });

@@ -1,28 +1,25 @@
-const UserEssayService = require('../../../services/v1/user_essay');
-const UserEssayTransformer = require('../../../transformers/v1/user-essay/user_essay');
+const InterviewService = require('../../../services/v1/interview');
+const InterviewTransformer = require('../../../transformers/v1/interview/interview');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.getDetailedUserEssay = async (req, res) => {
+exports.getRestrictedInterview = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
         const { uuid } = req.params;
-        const result = await UserEssayService.getUserEssay({ uuid }, { lang, isDetailed: true });
+        const result = await InterviewService.getInterview({ uuid, isActive: true }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({
-            data: UserEssayTransformer.userEssayItem(result.data, false),
-            message: ''
-        });
+        return res.status(200).json({ data: InterviewTransformer.interviewItem(result.data), message: '' });
     } catch (err) {
         LogUtils.loggingError({
-            functionName: 'getDetailedUserEssay',
+            functionName: 'getRestrictedInterview',
             message: err.message
         });
 

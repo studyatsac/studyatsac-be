@@ -60,7 +60,9 @@ const retryEssayReview = async (input, opts = {}) => {
                     trx
                 );
 
-                if (!updatedItem) throw new EssayReviewError(language.USER_ESSAY_ITEM.UPDATE_FAILED);
+                if ((Array.isArray(updatedItem) && !updatedItem[0]) || !updatedItem) {
+                    throw new EssayReviewError(language.USER_ESSAY_ITEM.UPDATE_FAILED);
+                }
 
                 shouldAddJob = true;
                 shouldUpdate = true;
@@ -71,7 +73,9 @@ const retryEssayReview = async (input, opts = {}) => {
             if (shouldUpdate) {
                 const updatedItem = await UserEssayRepository.update(payload, { id: userEssay.id }, trx);
 
-                if (!updatedItem) throw new EssayReviewError(language.USER_ESSAY.UPDATE_FAILED);
+                if ((Array.isArray(updatedItem) && !updatedItem[0]) || !updatedItem) {
+                    throw new EssayReviewError(language.USER_ESSAY.UPDATE_FAILED);
+                }
 
                 shouldAddJob = true;
             }
