@@ -267,10 +267,12 @@ const updateEssayPackage = async (input, opts = {}) => {
                 { id: essayPackage.id },
                 trx
             );
-            if (!updatedItem) throw new EssayPackageError(language.ESSAY_PACKAGE.UPDATE_FAILED);
+            if ((Array.isArray(updatedItem) && !updatedItem[0]) || !updatedItem) {
+                throw new EssayPackageError(language.ESSAY_PACKAGE.UPDATE_FAILED);
+            }
 
             if (hasProduct) {
-                const product = await ProductRepository.creatOrUpdate({
+                const product = await ProductRepository.createOrUpdate({
                     id: productId,
                     essayPackageId: essayPackage.id,
                     externalProductId: input.externalProductId,
@@ -278,7 +280,9 @@ const updateEssayPackage = async (input, opts = {}) => {
                     externalTicketId: input.externalTicketId,
                     externalTicketName: input.externalTicketName
                 }, trx);
-                if (!product) throw new EssayPackageError(language.PRODUCT.UPDATE_FAILED);
+                if ((Array.isArray(product) && !product[0]) || !product) {
+                    throw new EssayPackageError(language.PRODUCT.UPDATE_FAILED);
+                }
 
                 essayPackage.product = product;
             }
@@ -308,13 +312,15 @@ const updateEssayPackage = async (input, opts = {}) => {
                 }
 
                 const updatingEssayPackageMappings = inputEssayPackageMappings.map(async (item) => {
-                    const updatedEssayPackageMapping = await EssayPackageMappingRepository.creatOrUpdate({
+                    const updatedEssayPackageMapping = await EssayPackageMappingRepository.createOrUpdate({
                         id: item.id,
                         essayPackageId: essayPackage.id,
                         essayId: item.essayId,
                         maxAttempt: item.maxAttempt
                     }, trx);
-                    if (!updatedEssayPackageMapping) throw new EssayPackageError(language.ESSAY_PACKAGE_MAPPING.UPDATE_FAILED);
+                    if ((Array.isArray(updatedEssayPackageMapping) && !updatedEssayPackageMapping[0]) || !updatedEssayPackageMapping) {
+                        throw new EssayPackageError(language.ESSAY_PACKAGE_MAPPING.UPDATE_FAILED);
+                    }
                 });
 
                 await Promise.all(updatingEssayPackageMappings);

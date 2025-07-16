@@ -51,7 +51,7 @@ const createEssay = async (input, opts = {}) => {
                     description: item.description,
                     systemPrompt: item.systemPrompt
                 })), trx);
-                if (!essayItems) throw new EssayError(language.ESSAY.CREATE_FAILED);
+                if (!essayItems) throw new EssayError(language.ESSAY_ITEM.CREATE_FAILED);
 
                 essay.essayItems = essayItems;
             }
@@ -92,7 +92,9 @@ const updateEssay = async (input, opts = {}) => {
                 { id: essay.id },
                 trx
             );
-            if (!updatedItem) throw new EssayError(language.ESSAY.UPDATE_FAILED);
+            if ((Array.isArray(updatedItem) && !updatedItem[0]) || !updatedItem) {
+                throw new EssayError(language.ESSAY.UPDATE_FAILED);
+            }
 
             if (input.essayItems && Array.isArray(input.essayItems)) {
                 let inputEssayItems = input.essayItems;
@@ -120,7 +122,7 @@ const updateEssay = async (input, opts = {}) => {
                 }
 
                 const updatingEssayItems = inputEssayItems.map(async (item) => {
-                    const updatedEssayItem = await EssayItemRepository.creatOrUpdate({
+                    const updatedEssayItem = await EssayItemRepository.createOrUpdate({
                         id: item.id,
                         essayId: essay.id,
                         number: item.number,
@@ -128,7 +130,9 @@ const updateEssay = async (input, opts = {}) => {
                         description: item.description,
                         systemPrompt: item.systemPrompt
                     }, trx);
-                    if (!updatedEssayItem) throw new EssayError(language.ESSAY_ITEM.UPDATE_FAILED);
+                    if ((Array.isArray(updatedEssayItem) && !updatedEssayItem[0]) || !updatedEssayItem) {
+                        throw new EssayError(language.ESSAY_ITEM.UPDATE_FAILED);
+                    }
                 });
 
                 await Promise.all(updatingEssayItems);
