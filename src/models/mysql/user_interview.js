@@ -38,6 +38,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        sectionReviewStatus: {
+            type: DataTypes.STRING(30),
+            allowNull: false,
+            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+        },
         overallReviewStatus: {
             type: DataTypes.STRING(30),
             allowNull: false,

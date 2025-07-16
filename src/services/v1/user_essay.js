@@ -101,6 +101,7 @@ const createUserEssay = async (input, opts = {}) => {
         { uuid: input.essayUuid },
         { include: { model: Models.EssayItem, attributes: ['id', 'uuid'], as: 'essayItems' } }
     );
+
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
     }
