@@ -201,5 +201,46 @@ module.exports = Object.freeze({
         UPDATE_FAILED: 'Gagal memperbarui pertanyyaan sesi wawancara',
         DELETE_SUCCESS: 'Berhasil menghapus pertanyyaan sesi wawancara',
         DELETE_FAILED: 'Gagal menghapus pertanyyaan sesi wawancara'
+    },
+    USER_INTERVIEW: {
+        NOT_FOUND: 'Wawancara pengguna tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        INTERVIEW_UUID_NOT_VALID: 'ID wawancara tidak valid',
+        OVERALL_REVIEW_NOT_VALID: 'Review tidak valid',
+        INTERVIEW_SECTIONS_NOT_VALID: 'Sesi wawancara tidak valid',
+        BACKGROUND_DESCRIPTION_NOT_VALID: 'Deskripsi latar belakang tidak valid',
+        LANGUAGE_NOT_VALID: 'Bahasa tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat user interview',
+        CREATE_FAILED: 'Gagal membuat user interview',
+        UPDATE_SUCCESS: 'Berhasil memperbarui user interview',
+        UPDATE_FAILED: 'Gagal memperbarui user interview',
+        DELETE_SUCCESS: 'Berhasil menghapus user interview',
+        DELETE_FAILED: 'Gagal menghapus user interview',
+        WITH_REVIEW_NOT_VALID: 'Penanda review tidak valid'
+    },
+    USER_INTERVIEW_SECTION: {
+        NOT_FOUND: 'Sesi wawancara pengguna tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        INTERVIEW_SECTION_UUID_NOT_VALID: 'Sesi wawancara ID tidak valid',
+        REVIEW_NOT_VALID: 'Review tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat sesi wawancara pengguna',
+        CREATE_FAILED: 'Gagal membuat sesi wawancara pengguna',
+        UPDATE_SUCCESS: 'Berhasil memperbarui sesi wawancara pengguna',
+        UPDATE_FAILED: 'Gagal memperbarui sesi wawancara pengguna',
+        DELETE_SUCCESS: 'Berhasil menghapus sesi wawancara pengguna',
+        DELETE_FAILED: 'Gagal menghapus sesi wawancara pengguna'
+    },
+    USER_INTERVIEW_SECTION_ANSWER: {
+        NOT_FOUND: 'Jawaban sesi wawancara pengguna tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        INTERVIEW_SECTION_QUESTION_UUID_NOT_VALID: 'ID pertanyaan sesi wawancara tidak valid',
+        ANSWER_NOT_VALID: 'Jawaban tidak valid',
+        REVIEW_NOT_VALID: 'Review tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat jawaban sesi wawancara pengguna',
+        CREATE_FAILED: 'Gagal membuat jawaban sesi wawancara pengguna',
+        UPDATE_SUCCESS: 'Berhasil memperbarui jawaban sesi wawancara pengguna',
+        UPDATE_FAILED: 'Gagal memperbarui jawaban sesi wawancara pengguna',
+        DELETE_SUCCESS: 'Berhasil menghapus jawaban sesi wawancara pengguna',
+        DELETE_FAILED: 'Gagal menghapus jawaban sesi wawancara pengguna'
     }
 });

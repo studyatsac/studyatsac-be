@@ -8,6 +8,6 @@ module.exports = function (lang) {
         overallReview: Joi.string().max(20000).allow('', null).optional().error(new Error(lang.USER_ESSAY.OVERALL_REVIEW_NOT_VALID)),
         essayItems: Joi.array().items(UserEssayItemValidation(lang)).required().error(new Error(lang.USER_ESSAY.ESSAY_ITEMS_NOT_VALID)),
         backgroundDescription: Joi.string().max(5000).allow('', null).optional().error(new Error(lang.USER_ESSAY.BACKGROUND_DESCRIPTION_NOT_VALID)),
-        language: Joi.string().valid(...Object.values(require('../../../constants/user_essay').LANGUAGE)).optional().error(new Error(lang.USER_ESSAY.LANGUAGE_NOT_VALID))
+        language: Joi.string().valid(...Object.values(require('../../../constants/common').LANGUAGE)).optional().error(new Error(lang.USER_ESSAY.LANGUAGE_NOT_VALID))
     });
 };

@@ -5,6 +5,7 @@ const PromptUtils = require('../../utils/prompt');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
 const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
 const UserEssayConstants = require('../../constants/user_essay');
+const CommonConstants = require('../../constants/common');
 const EssayReviewLogRepository = require('../../repositories/mysql/essay_review_log');
 const Models = require('../../models/mysql');
 const EssayReviewConstants = require('../../constants/essay_review');
@@ -49,7 +50,7 @@ async function callApiReview(userEssayId, content, topic = 'Overall Essay', crit
             messages: [
                 {
                     role: 'system',
-                    content: PromptUtils.getBasePrompt(backgroundDescription, topic, UserEssayConstants.LANGUAGE_LABELS[language] || 'English')
+                    content: PromptUtils.getBasePrompt(backgroundDescription, topic, CommonConstants.LANGUAGE_LABELS[language] || 'English')
                 },
                 {
                     role: 'user',
