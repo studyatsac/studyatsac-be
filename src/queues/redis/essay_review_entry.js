@@ -55,7 +55,7 @@ async function processEssayReviewEntryJob(job) {
 
 module.exports = (redis, defaultJobOptions) => {
     const queueName = 'EssayReviewEntry';
-    const finalQueueName = `${process.env.QUEUE_PREFIX}:${queueName}`;
+    const finalQueueName = `${process.env.QUEUE_PREFIX}-${queueName}`;
 
     const queue = new Queue(finalQueueName, { connection: redis.queue, defaultJobOptions });
     const defaultWorker = new Worker(
