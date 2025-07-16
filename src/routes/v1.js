@@ -544,7 +544,7 @@ router.get(
 router.get(
     '/user-essays/:uuid',
     [tokenMiddleware],
-    require('../methods/v1/user-essay/user_essay').getUserEssay
+    require('../methods/v1/user-essay/specific_user_essay').getSpecificUserEssay
 );
 router.put(
     '/user-essays/:uuid',
@@ -607,6 +607,42 @@ router.post(
     '/essay-review/:uuid/retry',
     [tokenMiddleware],
     require('../methods/v1/essay-review/retry_user_essay_review').retryUserEssayReview
+);
+
+router.get(
+    '/admin/interviews',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_interview_list').getInterviewList
+);
+router.post(
+    '/admin/interviews',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_create_interview').createInterview
+);
+router.get(
+    '/admin/interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_interview').getInterview
+);
+router.put(
+    '/admin/interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_update_interview').updateInterview
+);
+router.delete(
+    '/admin/interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_delete_interview').deleteInterview
+);
+// router.get(
+//     '/interviews',
+//     [tokenMiddleware],
+//     require('../methods/v1/interview/active_interview_list').getActiveInterviewList
+// );
+router.get(
+    '/interviews/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/interview/restricted_interview').getRestrictedInterview
 );
 
 /**

@@ -5,7 +5,7 @@ const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.getUserEssay = async (req, res) => {
+exports.getSpecificUserEssay = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
