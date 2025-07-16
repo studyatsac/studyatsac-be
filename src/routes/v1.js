@@ -645,6 +645,42 @@ router.get(
     require('../methods/v1/interview/restricted_interview').getRestrictedInterview
 );
 
+router.get(
+    '/admin/user-interviews',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-interview/admin_user_interview_list').getUserInterviewList
+);
+router.get(
+    '/admin/user-interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-interview/admin_detailed_user_interview').getDetailedUserInterview
+);
+router.put(
+    '/admin/user-interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-interview/admin_update_user_interview').updateUserInterview
+);
+router.delete(
+    '/admin/user-interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-interview/admin_delete_user_interview').deleteUserInterview
+);
+router.get(
+    '/user-interviews',
+    [tokenMiddleware],
+    require('../methods/v1/user-interview/specific_user_interview_list').getSpecificUserInterviewList
+);
+router.get(
+    '/user-interviews/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/user-interview/specific_user_interview').getSpecificUserInterview
+);
+router.put(
+    '/user-interviews/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/user-interview/update_specific_user_interview').updateSpecificUserInterview
+);
+
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
