@@ -1,3 +1,5 @@
+const ProductPackageConstants = require('../../constants/product_package');
+
 module.exports = (sequelize, DataTypes) => {
     const attributes = {
         id: {
@@ -13,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         type: {
             type: DataTypes.STRING(30),
-            allowNull: true
+            allowNull: false,
+            defaultValue: ProductPackageConstants.TYPE.ESSAY
         },
         title: {
             type: DataTypes.STRING(255),

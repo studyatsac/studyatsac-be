@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: true
         },
+        interviewId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true
+        },
         maxAttempt: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
@@ -44,6 +48,11 @@ module.exports = (sequelize, DataTypes) => {
             targetKey: 'id',
             foreignKey: 'essay_id',
             as: 'essay'
+        });
+        ProductPackageMapping.belongsTo(models.Interview, {
+            targetKey: 'id',
+            foreignKey: 'interview_id',
+            as: 'interview'
         });
     };
 

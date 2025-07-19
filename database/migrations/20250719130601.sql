@@ -13,7 +13,7 @@ ALTER TABLE `essay_package_mappings` RENAME TO `product_package_mappings`;
 -- Modify "product_package_mappings" table
 ALTER TABLE `product_package_mappings` RENAME COLUMN `essay_package_id` TO `product_package_id`, DROP INDEX `essay_package_id`, ADD INDEX `product_package_id` (`product_package_id`), ADD CONSTRAINT `product_package_mappings_ibfk_1` FOREIGN KEY (`product_package_id`) REFERENCES `product_packages` (`id`) ON UPDATE CASCADE ON DELETE CASCADE;
 -- Modify "product_packages" table
-ALTER TABLE `product_packages` ADD COLUMN `type` varchar(30) NULL AFTER `uuid`;
+ALTER TABLE `product_packages` ADD COLUMN `type` varchar(30) NOT NULL DEFAULT "essay" AFTER `uuid`; 
 -- Modify "payment_logs" table
 ALTER TABLE `payment_logs` RENAME COLUMN `essay_package_id` TO `product_package_id`;
 -- Modify "products" table
