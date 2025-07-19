@@ -11,13 +11,13 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: DataTypes.UUIDV4
         },
-        essayPackageId: {
+        productPackageId: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
         essayId: {
             type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: false
+            allowNull: true
         },
         maxAttempt: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -30,22 +30,22 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: true,
         paranoid: true,
         underscored: true,
-        tableName: 'essay_package_mappings'
+        tableName: 'product_package_mappings'
     };
 
-    const EssayPackageMapping = sequelize.define('EssayPackageMapping', attributes, options);
+    const ProductPackageMapping = sequelize.define('ProductPackageMapping', attributes, options);
 
-    EssayPackageMapping.associate = (models) => {
-        EssayPackageMapping.belongsTo(models.EssayPackage, {
+    ProductPackageMapping.associate = (models) => {
+        ProductPackageMapping.belongsTo(models.ProductPackage, {
             targetKey: 'id',
-            foreignKey: 'essay_package_id'
+            foreignKey: 'product_package_id'
         });
-        EssayPackageMapping.belongsTo(models.Essay, {
+        ProductPackageMapping.belongsTo(models.Essay, {
             targetKey: 'id',
             foreignKey: 'essay_id',
             as: 'essay'
         });
     };
 
-    return EssayPackageMapping;
+    return ProductPackageMapping;
 };

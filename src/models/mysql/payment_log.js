@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER().UNSIGNED,
             allowNull: true
         },
-        essayPackageId: {
+        productPackageId: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: true
         },

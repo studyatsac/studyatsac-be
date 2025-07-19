@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
-        essayPackageId: {
+        productPackageId: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: true
         },
@@ -75,10 +75,10 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'CASCADE',
             as: 'essayItems'
         });
-        UserEssay.belongsTo(models.EssayPackage, {
+        UserEssay.belongsTo(models.ProductPackage, {
             targetKey: 'id',
-            foreignKey: 'essay_package_id',
-            as: 'essayPackage'
+            foreignKey: 'product_package_id',
+            as: 'productPackage'
         });
     };
 
