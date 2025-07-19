@@ -1,7 +1,7 @@
 const Models = require('../../models/mysql');
 
-exports.findAll = function (where, opts = {}, trx = null) {
-    return Models.UserInterview.findAll({ where, ...opts, transaction: trx });
+exports.findAndCountAll = function (where, opts = {}, trx = null) {
+    return Models.UserInterview.findAndCountAll({ where, ...opts, transaction: trx });
 };
 
 exports.findOne = function (where, opts = {}, trx = null) {
