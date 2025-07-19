@@ -599,12 +599,12 @@ router.get(
 );
 
 router.post(
-    '/essay-review',
+    '/essay-reviews',
     [tokenMiddleware],
     require('../methods/v1/essay-review/review_user_essay').reviewUserEssay
 );
 router.post(
-    '/essay-review/:uuid/retry',
+    '/essay-reviews/:uuid/retry',
     [tokenMiddleware],
     require('../methods/v1/essay-review/retry_user_essay_review').retryUserEssayReview
 );
@@ -634,11 +634,11 @@ router.delete(
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/interview/admin_delete_interview').deleteInterview
 );
-// router.get(
-//     '/interviews',
-//     [tokenMiddleware],
-//     require('../methods/v1/interview/active_interview_list').getActiveInterviewList
-// );
+router.get(
+    '/interviews',
+    [tokenMiddleware],
+    require('../methods/v1/interview/active_interview_list').getActiveInterviewList
+);
 router.get(
     '/interviews/:uuid',
     [tokenMiddleware],
