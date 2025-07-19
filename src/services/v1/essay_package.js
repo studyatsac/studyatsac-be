@@ -165,7 +165,7 @@ const createEssayPackage = async (input, opts = {}) => {
                 || input.externalTicketName;
             if (hasProduct) {
                 const product = await ProductRepository.create({
-                    essayPackageId: essayPackage.id,
+                    productPackageId: essayPackage.id,
                     externalProductId: input.externalProductId,
                     externalProductName: input.externalProductName,
                     externalTicketId: input.externalTicketId,
@@ -247,7 +247,7 @@ const updateEssayPackage = async (input, opts = {}) => {
         || input.externalTicketName;
     let productId;
     if (hasProduct) {
-        const product = await ProductRepository.findOne({ essayPackageId: essayPackage.id });
+        const product = await ProductRepository.findOne({ productPackageId: essayPackage.id });
         if (product) productId = product.id;
     }
 
@@ -274,7 +274,7 @@ const updateEssayPackage = async (input, opts = {}) => {
             if (hasProduct) {
                 const product = await ProductRepository.createOrUpdate({
                     id: productId,
-                    essayPackageId: essayPackage.id,
+                    productPackageId: essayPackage.id,
                     externalProductId: input.externalProductId,
                     externalProductName: input.externalProductName,
                     externalTicketId: input.externalTicketId,

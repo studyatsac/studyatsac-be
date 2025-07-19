@@ -28,7 +28,7 @@ exports.findOneWithPackage = function (where, opts = {}, trx = null) {
         where,
         include: [
             { model: Models.ExamPackage },
-            { model: Models.ProductPackage, as: 'essayPackage' }
+            { model: Models.ProductPackage, as: 'productPackage' }
         ],
         ...opts,
         transaction: trx
@@ -40,7 +40,7 @@ exports.findAllWithPackage = function (where, opts = {}, trx = null) {
         where,
         include: [
             { model: Models.ExamPackage },
-            { model: Models.ProductPackage, as: 'essayPackage' }
+            { model: Models.ProductPackage, as: 'productPackage' }
         ],
         ...opts,
         transaction: trx

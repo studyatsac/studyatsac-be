@@ -27,24 +27,25 @@ exports.delete = function (where, trx = null) {
 exports.findAndCountAllFromUserPurchase = async function (where, opts = {}, trx = null) {
     const baseQuery = `
 SELECT DISTINCT 
-    EssayPackage.id, 
-    EssayPackage.uuid, 
-    EssayPackage.title, 
-    EssayPackage.description, 
-    EssayPackage.additional_information AS additionalInformation, 
-    EssayPackage.price, 
-    EssayPackage.total_max_attempt AS totalMaxAttempt, 
-    EssayPackage.default_item_max_attempt AS defaultItemMaxAttempt, 
-    EssayPackage.payment_url AS paymentUrl, 
-    EssayPackage.is_active AS isActive, 
-    EssayPackage.created_at
+    ProductPackage.id, 
+    ProductPackage.uuid,
+    ProductPackage.type, 
+    ProductPackage.title, 
+    ProductPackage.description, 
+    ProductPackage.additional_information AS additionalInformation, 
+    ProductPackage.price, 
+    ProductPackage.total_max_attempt AS totalMaxAttempt, 
+    ProductPackage.default_item_max_attempt AS defaultItemMaxAttempt, 
+    ProductPackage.payment_url AS paymentUrl, 
+    ProductPackage.is_active AS isActive, 
+    ProductPackage.created_at
 FROM 
-    essay_packages AS EssayPackage 
-    JOIN user_purchases AS UserPurchase ON UserPurchase.essay_package_id = EssayPackage.id  
+    product_packages AS ProductPackage 
+    JOIN user_purchases AS UserPurchase ON UserPurchase.product_package_id = ProductPackage.id  
 WHERE 
     ( 
-        EssayPackage.deleted_at IS NULL 
-        AND EssayPackage.is_active = :isActive
+        ProductPackage.deleted_at IS NULL 
+        AND ProductPackage.is_active = :isActive
         AND UserPurchase.deleted_at IS NULL 
         AND UserPurchase.user_id = :userId 
     ) 
@@ -58,7 +59,7 @@ WHERE
         offset: opts.offset
     };
 
-    const query = `${baseQuery} ORDER BY EssayPackage.created_at DESC LIMIT :limit OFFSET :offset;`;
+    const query = `${baseQuery} ORDER BY ProductPackage.created_at DESC LIMIT :limit OFFSET :offset;`;
     const rows = await Models.sequelize.query(query, {
         type: Models.sequelize.QueryTypes.SELECT,
         replacements,
@@ -82,55 +83,56 @@ WHERE
 exports.findOneWithMappingFromUserPurchase = async function (where, trx = null) {
     const query = `
 SELECT 
-    EssayPackage.*, 
-    essayPackageMappings.uuid AS \`essayPackageMappings.uuid\`, 
-    essayPackageMappings.essay_package_id AS \`essayPackageMappings.essayPackageId\`, 
-    essayPackageMappings.essay_id AS \`essayPackageMappings.essayId\`, 
-    (essayPackageMappings.max_attempt * UserPurchase.count) AS \`essayPackageMappings.maxAttempt\`, 
-    essayPackageMappings.current_attempt AS \`essayPackageMappings.currentAttempt\`, 
-    \`essayPackageMappings->essay\`.id AS \`essayPackageMappings.essay.id\`, 
-    \`essayPackageMappings->essay\`.uuid AS \`essayPackageMappings.essay.uuid\`, 
-    \`essayPackageMappings->essay\`.title AS \`essayPackageMappings.essay.title\`, 
-    \`essayPackageMappings->essay\`.description AS \`essayPackageMappings.essay.description\`, 
-    \`essayPackageMappings->essay\`.is_active AS \`essayPackageMappings.essay.isActive\` 
+    ProductPackage.*, 
+    productPackageMappings.uuid AS \`productPackageMappings.uuid\`, 
+    productPackageMappings.product_package_id AS \`productPackageMappings.productPackageId\`, 
+    productPackageMappings.essay_id AS \`productPackageMappings.essayId\`, 
+    (productPackageMappings.max_attempt * UserPurchase.count) AS \`productPackageMappings.maxAttempt\`, 
+    productPackageMappings.current_attempt AS \`productPackageMappings.currentAttempt\`, 
+    \`productPackageMappings->essay\`.id AS \`productPackageMappings.essay.id\`, 
+    \`productPackageMappings->essay\`.uuid AS \`productPackageMappings.essay.uuid\`, 
+    \`productPackageMappings->essay\`.title AS \`productPackageMappings.essay.title\`, 
+    \`productPackageMappings->essay\`.description AS \`productPackageMappings.essay.description\`, 
+    \`productPackageMappings->essay\`.is_active AS \`productPackageMappings.essay.isActive\` 
 FROM 
     ( 
         SELECT 
-            EssayPackage.id, 
-            EssayPackage.uuid, 
-            EssayPackage.title, 
-            EssayPackage.description, 
-            EssayPackage.additional_information AS additionalInformation, 
-            EssayPackage.price, 
-            EssayPackage.total_max_attempt AS totalMaxAttempt, 
-            EssayPackage.default_item_max_attempt AS defaultItemMaxAttempt, 
-            EssayPackage.payment_url AS paymentUrl, 
-            EssayPackage.is_active AS isActive 
+            ProductPackage.id, 
+            ProductPackage.uuid,
+            ProductPackage.type, 
+            ProductPackage.title, 
+            ProductPackage.description, 
+            ProductPackage.additional_information AS additionalInformation, 
+            ProductPackage.price, 
+            ProductPackage.total_max_attempt AS totalMaxAttempt, 
+            ProductPackage.default_item_max_attempt AS defaultItemMaxAttempt, 
+            ProductPackage.payment_url AS paymentUrl, 
+            ProductPackage.is_active AS isActive 
         FROM 
-            essay_packages AS EssayPackage 
+            product_packages AS ProductPackage 
         WHERE 
             ( 
-                EssayPackage.deleted_at IS NULL 
-                AND EssayPackage.is_active = :isActive 
-                AND EssayPackage.uuid = :uuid 
+                ProductPackage.deleted_at IS NULL 
+                AND ProductPackage.is_active = :isActive 
+                AND ProductPackage.uuid = :uuid 
             )  
         LIMIT 
             1 
-    ) AS EssayPackage 
+    ) AS ProductPackage 
     JOIN
         ( 
             SELECT 
-                essay_package_mappings.uuid, 
-                essay_package_mappings.essay_package_id, 
-                essay_package_mappings.essay_id, 
-                essay_package_mappings.max_attempt, 
+                product_package_mappings.uuid, 
+                product_package_mappings.product_package_id, 
+                product_package_mappings.essay_id, 
+                product_package_mappings.max_attempt, 
                 UserEssay.count AS current_attempt 
             FROM 
-                essay_package_mappings 
+                product_package_mappings 
                 LEFT JOIN ( 
                     SELECT 
                         essay_id, 
-                        essay_package_id, 
+                        product_package_id, 
                         COUNT(*) as count 
                     FROM 
                         user_essays 
@@ -139,19 +141,19 @@ FROM
                         AND user_id = :userId  
                     GROUP BY  
                         essay_id, 
-                        essay_package_id 
-                ) AS UserEssay ON UserEssay.essay_package_id = essay_package_mappings.essay_package_id 
-                AND UserEssay.essay_id = essay_package_mappings.essay_id 
+                        product_package_id 
+                ) AS UserEssay ON UserEssay.product_package_id = product_package_mappings.product_package_id 
+                AND UserEssay.essay_id = product_package_mappings.essay_id 
             WHERE 
-                essay_package_mappings.deleted_at IS NULL 
-        ) AS essayPackageMappings ON EssayPackage.id = essayPackageMappings.essay_package_id 
-    JOIN essays AS \`essayPackageMappings->essay\` ON essayPackageMappings.essay_id = \`essayPackageMappings->essay\`.id 
-    AND \`essayPackageMappings->essay\`.deleted_at IS NULL 
-    AND \`essayPackageMappings->essay\`.is_active = :isActive 
+                product_package_mappings.deleted_at IS NULL 
+        ) AS productPackageMappings ON ProductPackage.id = productPackageMappings.product_package_id 
+    JOIN essays AS \`productPackageMappings->essay\` ON productPackageMappings.essay_id = \`productPackageMappings->essay\`.id 
+    AND \`productPackageMappings->essay\`.deleted_at IS NULL 
+    AND \`productPackageMappings->essay\`.is_active = :isActive 
     JOIN ( 
         SELECT 
             user_id, 
-            essay_package_id, 
+            product_package_id, 
             COUNT(*) as count 
         FROM 
             user_purchases 
@@ -159,8 +161,8 @@ FROM
             user_purchases.deleted_at IS NULL 
         GROUP BY 
             user_id, 
-            essay_package_id 
-    ) AS UserPurchase ON UserPurchase.essay_package_id = EssayPackage.id  
+            product_package_id 
+    ) AS UserPurchase ON UserPurchase.product_package_id = ProductPackage.id  
     AND UserPurchase.user_id = :userId;
     `;
 
@@ -183,43 +185,44 @@ FROM
 exports.findOneWithAttemptFormUserPurchase = async function (where, trx = null) {
     const query = `
 SELECT 
-    EssayPackage.*, 
-    (essayPackageMappings.max_attempt * UserPurchase.count) AS itemMaxAttempt, 
+    ProductPackage.*, 
+    (productPackageMappings.max_attempt * UserPurchase.count) AS itemMaxAttempt, 
     UserEssay.count AS currentAttempt 
 FROM 
     ( 
         SELECT 
-            EssayPackage.id, 
-            EssayPackage.uuid, 
-            EssayPackage.title, 
-            EssayPackage.description, 
-            EssayPackage.additional_information AS additionalInformation, 
-            EssayPackage.price, 
-            EssayPackage.total_max_attempt AS totalMaxAttempt, 
-            EssayPackage.default_item_max_attempt AS defaultItemMaxAttempt, 
-            EssayPackage.payment_url AS paymentUrl, 
-            EssayPackage.is_active AS isActive 
+            ProductPackage.id, 
+            ProductPackage.uuid,
+            ProductPackage.type, 
+            ProductPackage.title, 
+            ProductPackage.description, 
+            ProductPackage.additional_information AS additionalInformation, 
+            ProductPackage.price, 
+            ProductPackage.total_max_attempt AS totalMaxAttempt, 
+            ProductPackage.default_item_max_attempt AS defaultItemMaxAttempt, 
+            ProductPackage.payment_url AS paymentUrl, 
+            ProductPackage.is_active AS isActive 
         FROM 
-            essay_packages AS EssayPackage 
+            product_packages AS ProductPackage 
         WHERE 
             ( 
-                EssayPackage.deleted_at IS NULL 
-                AND EssayPackage.is_active = :isActive 
-                AND EssayPackage.uuid = :uuid 
+                ProductPackage.deleted_at IS NULL 
+                AND ProductPackage.is_active = :isActive 
+                AND ProductPackage.uuid = :uuid 
             )  
         LIMIT 
             1 
-    ) AS EssayPackage 
-    JOIN essay_package_mappings AS essayPackageMappings ON EssayPackage.id = essayPackageMappings.essay_package_id 
-    AND essayPackageMappings.deleted_at IS NULL 
-    JOIN essays AS \`essayPackageMappings->essay\` ON essayPackageMappings.essay_id = \`essayPackageMappings->essay\`.id 
-    AND \`essayPackageMappings->essay\`.deleted_at IS NULL 
-    AND \`essayPackageMappings->essay\`.is_active = :isActive 
-    AND \`essayPackageMappings->essay\`.uuid = :essayUuid 
+    ) AS ProductPackage 
+    JOIN product_package_mappings AS productPackageMappings ON ProductPackage.id = productPackageMappings.product_package_id 
+    AND productPackageMappings.deleted_at IS NULL 
+    JOIN essays AS \`productPackageMappings->essay\` ON productPackageMappings.essay_id = \`productPackageMappings->essay\`.id 
+    AND \`productPackageMappings->essay\`.deleted_at IS NULL 
+    AND \`productPackageMappings->essay\`.is_active = :isActive 
+    AND \`productPackageMappings->essay\`.uuid = :essayUuid 
     JOIN ( 
         SELECT 
             user_id, 
-            essay_package_id, 
+            product_package_id, 
             COUNT(*) as count 
         FROM 
             user_purchases 
@@ -227,13 +230,13 @@ FROM
             user_purchases.deleted_at IS NULL 
         GROUP BY 
             user_id, 
-            essay_package_id 
-    ) AS UserPurchase ON UserPurchase.essay_package_id = EssayPackage.id  
+            product_package_id 
+    ) AS UserPurchase ON UserPurchase.product_package_id = ProductPackage.id  
     AND UserPurchase.user_id = :userId 
     LEFT JOIN ( 
         SELECT 
             essay_id, 
-            essay_package_id, 
+            product_package_id, 
             COUNT(*) as count 
         FROM 
             user_essays 
@@ -242,9 +245,9 @@ FROM
             AND user_essays.user_id = :userId 
         GROUP BY  
             essay_id, 
-            essay_package_id 
-    ) AS UserEssay ON UserEssay.essay_package_id = EssayPackage.id 
-    AND UserEssay.essay_id = essayPackageMappings.essay_id;
+            product_package_id 
+    ) AS UserEssay ON UserEssay.product_package_id = ProductPackage.id 
+    AND UserEssay.essay_id = productPackageMappings.essay_id;
     `;
 
     const replacements = {
