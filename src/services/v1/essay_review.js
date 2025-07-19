@@ -6,26 +6,28 @@ const Models = require('../../models/mysql');
 const Queues = require('../../queues/redis');
 const UserEssayConstants = require('../../constants/user_essay');
 const EssayReviewConstants = require('../../constants/essay_review');
+const ProductPackageConstants = require('../../constants/product_package');
 
 class EssayReviewError extends Error {}
 
 const getPaidEssayReviewPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await ProductPackageRepository.findOneWithAttemptFormUserPurchase({
+    const rawProductPackage = await ProductPackageRepository.findOneWithAttemptFormUserPurchase({
         ...input,
+        type: ProductPackageConstants.TYPE.ESSAY,
         uuid: input.essayPackageUuid,
         userId: input.userId,
         essayUuid: input.essayUuid
     });
 
-    let essayPackage = essay;
-    if (Array.isArray(essay)) essayPackage = essay[0];
-    if (!essayPackage) {
+    let productPackage = rawProductPackage;
+    if (Array.isArray(rawProductPackage)) productPackage = rawProductPackage[0];
+    if (!productPackage) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    return Response.formatServiceReturn(true, 200, essayPackage, null);
+    return Response.formatServiceReturn(true, 200, productPackage, null);
 };
 
 const retryEssayReview = async (input, opts = {}) => {

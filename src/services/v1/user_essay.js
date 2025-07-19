@@ -129,7 +129,7 @@ const createUserEssay = async (input, opts = {}) => {
                 {
                     userId: input.userId,
                     essayId: essay.id,
-                    essayPackageId: input.essayPackageId,
+                    productPackageId: input.essayPackageId,
                     ...(input.language != null ? { language: input.language } : {}),
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({

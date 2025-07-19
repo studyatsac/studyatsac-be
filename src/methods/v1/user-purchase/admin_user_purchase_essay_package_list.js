@@ -1,6 +1,6 @@
 const UserPurchaseService = require('../../../services/v1/user_purchase');
 const ListValidation = require('../../../validations/custom/list');
-const UserPurchaseTransformer = require('../../../transformers/v1/user-purchase/user_purchase');
+const UserPurchaseEssayPackageTransformer = require('../../../transformers/v1/user-purchase/user_purchase_essay_package');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 
@@ -24,7 +24,7 @@ exports.getUserPurchaseEssayPackageList = async (req, res) => {
         }
 
         return res.status(200).json({
-            data: UserPurchaseTransformer.userPurchaseList(result.data.rows, false),
+            data: UserPurchaseEssayPackageTransformer.userPurchaseEssayPackageList(result.data.rows, false),
             message: '',
             meta: {
                 page: params.page,

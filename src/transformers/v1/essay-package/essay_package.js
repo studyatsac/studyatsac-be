@@ -1,8 +1,9 @@
 const EssayPackageMappingTransformer = require('./essay_package_mapping');
 const ProductPackageTransformer = require('../product-package/product_package');
+const ProductPackageConstants = require('../../../constants/product_package');
 
 exports.essayPackageItem = (data, isRestricted = true) => {
-    if (!data) return null;
+    if (!data || data.type !== ProductPackageConstants.TYPE.ESSAY) return null;
 
     return {
         ...(ProductPackageTransformer.productPackageItem(data, isRestricted) || {}),

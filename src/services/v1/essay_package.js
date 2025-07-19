@@ -5,19 +5,20 @@ const Response = require('../../utils/response');
 const Models = require('../../models/mysql');
 const Helpers = require('../../utils/helpers');
 const EssayRepository = require('../../repositories/mysql/essay');
+const ProductPackageConstants = require('../../constants/product_package');
 
 class EssayPackageError extends Error {}
 
 const getEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await ProductPackageRepository.findOne(
-        input,
+    const productPackage = await ProductPackageRepository.findOne(
+        { ...input, type: ProductPackageConstants.TYPE.ESSAY },
         {
             include: [
                 {
                     model: Models.ProductPackageMapping,
-                    as: 'essayPackageMappings',
+                    as: 'productPackageMappings',
                     include: { model: Models.Essay, as: 'essay' }
                 },
                 {
@@ -27,48 +28,55 @@ const getEssayPackage = async (input, opts = {}) => {
             ]
         }
     );
-    if (!essay) {
+    if (!productPackage) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    return Response.formatServiceReturn(true, 200, essay, null);
+    return Response.formatServiceReturn(true, 200, productPackage, null);
 };
 
 const getPaidEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await ProductPackageRepository.findOneWithMappingFromUserPurchase(input);
-    if (!essay) {
+    const rawProductPackage = await ProductPackageRepository.findOneWithMappingFromUserPurchase({
+        ...input,
+        type: ProductPackageConstants.TYPE.ESSAY
+    });
+    if (!rawProductPackage) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    let essayPackage = essay;
-    if (Array.isArray(essay)) {
-        essayPackage = essay[0];
-        essayPackage.essayPackageMappings = essay.map((item) => item.essayPackageMappings);
+    let productPackage = rawProductPackage;
+    if (Array.isArray(rawProductPackage)) {
+        productPackage = rawProductPackage[0];
+        productPackage.productPackageMappings = rawProductPackage.map((item) => item.productPackageMappings);
     }
 
-    return Response.formatServiceReturn(true, 200, essayPackage, null);
+    return Response.formatServiceReturn(true, 200, productPackage, null);
 };
 
 const getAllEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const allEssayPackage = await ProductPackageRepository.findAll(input);
+    const allProductPackage = await ProductPackageRepository.findAll({
+        ...input,
+        type: ProductPackageConstants.TYPE.ESSAY
+    });
 
-    if (!allEssayPackage) {
+    if (!allProductPackage) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    return Response.formatServiceReturn(true, 200, allEssayPackage, null);
+    return Response.formatServiceReturn(true, 200, allProductPackage, null);
 };
 
 const getAllEssayPackageAndCount = async (input, opts = {}) => {
     const language = opts.lang;
     const params = opts.params;
 
-    const allEssayPackage = await ProductPackageRepository.findAndCountAll({
+    const allProductPackage = await ProductPackageRepository.findAndCountAll({
         ...input,
+        type: ProductPackageConstants.TYPE.ESSAY,
         ...(params.search ? {
             [Models.Op.or]: [
                 {
@@ -89,56 +97,56 @@ const getAllEssayPackageAndCount = async (input, opts = {}) => {
         offset: Helpers.setOffset(params.page, params.limit)
     });
 
-    if (!allEssayPackage) {
-        return Response.formatServiceReturn(false, 404, null, language.USER_ESSAY.NOT_FOUND);
+    if (!allProductPackage) {
+        return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    return Response.formatServiceReturn(true, 200, allEssayPackage, null);
+    return Response.formatServiceReturn(true, 200, allProductPackage, null);
 };
 
 const getAllMyEssayPackageAndCount = async (input, opts = {}) => {
     const language = opts.lang;
     const params = opts.params;
 
-    const userPurchased = await ProductPackageRepository.findAndCountAllFromUserPurchase(
-        input,
+    const allPaidProductPackage = await ProductPackageRepository.findAndCountAllFromUserPurchase(
+        { ...input, type: ProductPackageConstants.TYPE.ESSAY },
         {
             limit: params.limit,
             offset: Helpers.setOffset(params.page, params.limit)
         }
     );
 
-    if (!userPurchased) {
+    if (!allPaidProductPackage) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    return Response.formatServiceReturn(true, 200, userPurchased, null);
+    return Response.formatServiceReturn(true, 200, allPaidProductPackage, null);
 };
 
 const createEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    let inputEssayPackageMappings = [];
+    let inputProductPackageMappings = [];
     let totalMaxAttempt = 0;
     let defaultItemMaxAttempt = 0;
     if (input.essayPackageMappings && Array.isArray(input.essayPackageMappings)) {
-        inputEssayPackageMappings = input.essayPackageMappings;
+        inputProductPackageMappings = input.essayPackageMappings;
 
-        const essayUuids = inputEssayPackageMappings.map((item) => item.essayUuid);
+        const essayUuids = inputProductPackageMappings.map((item) => item.essayUuid);
         const essays = await EssayRepository.findAll(
             { uuid: { [Models.Op.in]: essayUuids } },
             { attributes: ['id', 'uuid'] }
         );
 
-        for (let index = 0; index < inputEssayPackageMappings.length; index++) {
-            const essay = essays.find((item) => item.uuid === inputEssayPackageMappings[index].essayUuid);
+        for (let index = 0; index < inputProductPackageMappings.length; index++) {
+            const essay = essays.find((item) => item.uuid === inputProductPackageMappings[index].essayUuid);
             if (!essay) {
                 return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
             }
-            inputEssayPackageMappings[index] = { ...inputEssayPackageMappings[index], essayId: essay.id };
+            inputProductPackageMappings[index] = { ...inputProductPackageMappings[index], essayId: essay.id };
 
-            totalMaxAttempt += inputEssayPackageMappings[index].maxAttempt;
-            defaultItemMaxAttempt = inputEssayPackageMappings[index].maxAttempt;
+            totalMaxAttempt += inputProductPackageMappings[index].maxAttempt;
+            defaultItemMaxAttempt = inputProductPackageMappings[index].maxAttempt;
         }
     }
 
@@ -147,7 +155,8 @@ const createEssayPackage = async (input, opts = {}) => {
 
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
-            const essayPackage = await ProductPackageRepository.create({
+            const productPackage = await ProductPackageRepository.create({
+                type: ProductPackageConstants.TYPE.ESSAY,
                 title: input.title,
                 description: input.description,
                 additionalInformation: input.additionalInformation,
@@ -157,7 +166,7 @@ const createEssayPackage = async (input, opts = {}) => {
                 paymentUrl: input.paymentUrl,
                 isActive: input.isActive
             }, trx);
-            if (!essayPackage) throw new EssayPackageError(language.ESSAY_PACKAGE.CREATE_FAILED);
+            if (!productPackage) throw new EssayPackageError(language.ESSAY_PACKAGE.CREATE_FAILED);
 
             const hasProduct = input.externalProductId
                 || input.externalProductName
@@ -165,7 +174,7 @@ const createEssayPackage = async (input, opts = {}) => {
                 || input.externalTicketName;
             if (hasProduct) {
                 const product = await ProductRepository.create({
-                    productPackageId: essayPackage.id,
+                    productPackageId: productPackage.id,
                     externalProductId: input.externalProductId,
                     externalProductName: input.externalProductName,
                     externalTicketId: input.externalTicketId,
@@ -173,21 +182,21 @@ const createEssayPackage = async (input, opts = {}) => {
                 }, trx);
                 if (!product) throw new EssayPackageError(language.PRODUCT.CREATE_FAILED);
 
-                essayPackage.product = product;
+                productPackage.product = product;
             }
 
-            if (inputEssayPackageMappings.length) {
-                const essayPackageMappings = await ProductPackageMappingRepository.createMany(inputEssayPackageMappings.map((item) => ({
-                    essayPackageId: essayPackage.id,
+            if (inputProductPackageMappings.length) {
+                const productPackageMappings = await ProductPackageMappingRepository.createMany(inputProductPackageMappings.map((item) => ({
+                    productPackageId: productPackage.id,
                     essayId: item.essayId,
                     maxAttempt: item.maxAttempt
                 })), trx);
-                if (!essayPackageMappings) throw new EssayPackageError(language.ESSAY_PACKAGE_MAPPING.CREATE_FAILED);
+                if (!productPackageMappings) throw new EssayPackageError(language.ESSAY_PACKAGE_MAPPING.CREATE_FAILED);
 
-                essayPackage.essayPackageMappings = essayPackageMappings;
+                productPackage.productPackageMappings = productPackageMappings;
             }
 
-            return essayPackage;
+            return productPackage;
         });
 
         return Response.formatServiceReturn(true, 200, result, null);
@@ -203,38 +212,38 @@ const createEssayPackage = async (input, opts = {}) => {
 const updateEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essayPackage = await ProductPackageRepository.findOne(
-        { uuid: input.uuid },
-        { include: { model: Models.ProductPackageMapping, attributes: ['id', 'uuid'], as: 'essayPackageMappings' } }
+    const productPackage = await ProductPackageRepository.findOne(
+        { uuid: input.uuid, type: ProductPackageConstants.TYPE.ESSAY },
+        { include: { model: Models.ProductPackageMapping, attributes: ['id', 'uuid'], as: 'productPackageMappings' } }
     );
 
-    if (!essayPackage) {
+    if (!productPackage) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    let inputEssayPackageMappings = [];
+    let inputProductPackageMappings = [];
     let totalMaxAttempt = 0;
     let defaultItemMaxAttempt = 0;
     const hasEssayPackageMappings = input.essayPackageMappings && Array.isArray(input.essayPackageMappings);
     if (hasEssayPackageMappings) {
-        inputEssayPackageMappings = input.essayPackageMappings;
+        inputProductPackageMappings = input.essayPackageMappings;
 
-        const essayUuids = inputEssayPackageMappings.map((item) => item.essayUuid);
+        const essayUuids = inputProductPackageMappings.map((item) => item.essayUuid);
         const essays = await EssayRepository.findAll(
             { uuid: { [Models.Op.in]: essayUuids } },
             { attributes: ['id', 'uuid'] }
         );
 
-        for (let index = 0; index < inputEssayPackageMappings.length; index++) {
+        for (let index = 0; index < inputProductPackageMappings.length; index++) {
             // eslint-disable-next-line no-loop-func
-            const essay = essays.find((item) => item.uuid === inputEssayPackageMappings[index].essayUuid);
+            const essay = essays.find((item) => item.uuid === inputProductPackageMappings[index].essayUuid);
             if (!essay) {
                 return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
             }
-            inputEssayPackageMappings[index] = { ...inputEssayPackageMappings[index], essayId: essay.id };
+            inputProductPackageMappings[index] = { ...inputProductPackageMappings[index], essayId: essay.id };
 
-            totalMaxAttempt += inputEssayPackageMappings[index].maxAttempt;
-            defaultItemMaxAttempt = inputEssayPackageMappings[index].maxAttempt;
+            totalMaxAttempt += inputProductPackageMappings[index].maxAttempt;
+            defaultItemMaxAttempt = inputProductPackageMappings[index].maxAttempt;
         }
     }
 
@@ -247,7 +256,7 @@ const updateEssayPackage = async (input, opts = {}) => {
         || input.externalTicketName;
     let productId;
     if (hasProduct) {
-        const product = await ProductRepository.findOne({ productPackageId: essayPackage.id });
+        const product = await ProductRepository.findOne({ productPackageId: productPackage.id });
         if (product) productId = product.id;
     }
 
@@ -264,7 +273,7 @@ const updateEssayPackage = async (input, opts = {}) => {
                     paymentUrl: input.paymentUrl,
                     isActive: input.isActive
                 },
-                { id: essayPackage.id },
+                { id: productPackage.id },
                 trx
             );
             if ((Array.isArray(updatedItem) && !updatedItem[0]) || !updatedItem) {
@@ -274,7 +283,7 @@ const updateEssayPackage = async (input, opts = {}) => {
             if (hasProduct) {
                 const product = await ProductRepository.createOrUpdate({
                     id: productId,
-                    productPackageId: essayPackage.id,
+                    productPackageId: productPackage.id,
                     externalProductId: input.externalProductId,
                     externalProductName: input.externalProductName,
                     externalTicketId: input.externalTicketId,
@@ -284,13 +293,13 @@ const updateEssayPackage = async (input, opts = {}) => {
                     throw new EssayPackageError(language.PRODUCT.UPDATE_FAILED);
                 }
 
-                essayPackage.product = product;
+                productPackage.product = product;
             }
 
             if (hasEssayPackageMappings) {
-                if (essayPackage.essayPackageMappings && Array.isArray(essayPackage.essayPackageMappings)) {
-                    const deletedEssayPackageMappings = essayPackage.essayPackageMappings.filter(
-                        (item) => !inputEssayPackageMappings.find((i) => i.uuid === item.uuid)
+                if (productPackage.productPackageMappings && Array.isArray(productPackage.productPackageMappings)) {
+                    const deletedEssayPackageMappings = productPackage.productPackageMappings.filter(
+                        (item) => !inputProductPackageMappings.find((i) => i.uuid === item.uuid)
                     );
                     if (deletedEssayPackageMappings.length) {
                         const deleteCount = await ProductPackageMappingRepository.delete(
@@ -302,19 +311,19 @@ const updateEssayPackage = async (input, opts = {}) => {
                         if (!deleteCount) throw new EssayPackageError(language.ESSAY_PACKAGE_MAPPING.DELETE_FAILED);
                     }
 
-                    inputEssayPackageMappings = inputEssayPackageMappings.map((item) => {
-                        const essayItem = essayPackage.essayPackageMappings.find((i) => i.uuid === item.uuid);
+                    inputProductPackageMappings = inputProductPackageMappings.map((item) => {
+                        const productItem = productPackage.productPackageMappings.find((i) => i.uuid === item.uuid);
                         return ({
                             ...item,
-                            ...(essayItem && { id: essayItem.id })
+                            ...(productItem && { id: productItem.id })
                         });
                     });
                 }
 
-                const updatingEssayPackageMappings = inputEssayPackageMappings.map(async (item) => {
+                const updatingEssayPackageMappings = inputProductPackageMappings.map(async (item) => {
                     const updatedEssayPackageMapping = await ProductPackageMappingRepository.createOrUpdate({
                         id: item.id,
-                        essayPackageId: essayPackage.id,
+                        productPackageId: productPackage.id,
                         essayId: item.essayId,
                         maxAttempt: item.maxAttempt
                     }, trx);
@@ -325,10 +334,10 @@ const updateEssayPackage = async (input, opts = {}) => {
 
                 await Promise.all(updatingEssayPackageMappings);
 
-                essayPackage.essayPackageMappings = inputEssayPackageMappings;
+                productPackage.productPackageMappings = inputProductPackageMappings;
             }
 
-            return essayPackage;
+            return productPackage;
         });
 
         return Response.formatServiceReturn(true, 200, result, null);
@@ -344,13 +353,16 @@ const updateEssayPackage = async (input, opts = {}) => {
 const deleteEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await ProductPackageRepository.findOne(input);
+    const productPackage = await ProductPackageRepository.findOne({
+        ...input,
+        type: ProductPackageConstants.TYPE.ESSAY
+    });
 
-    if (!essay) {
+    if (!productPackage) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    await ProductPackageRepository.delete({ id: essay.id });
+    await ProductPackageRepository.delete({ id: productPackage.id });
 
     return Response.formatServiceReturn(true, 200, null, language.ESSAY_PACKAGE.DELETE_SUCCESS);
 };

@@ -105,8 +105,8 @@ const getUserPurchaseEssayPackageList = async (input, opts = {}) => {
     const language = opts.lang;
     const params = opts.params;
 
-    const allEssayPackage = await UserPurchaseRepository.findAndCountAll({
-        essayPackageId: { [Models.Op.not]: null },
+    const allProductPackage = await UserPurchaseRepository.findAndCountAll({
+        productPackageId: { [Models.Op.not]: null },
         ...input,
         ...(params.search ? {
             [Models.Op.or]: [
@@ -116,7 +116,7 @@ const getUserPurchaseEssayPackageList = async (input, opts = {}) => {
                     }
                 },
                 {
-                    '$essayPackage.title$': {
+                    '$productPackage.title$': {
                         [Models.Op.like]: `%${params.search}%`
                     }
                 }
@@ -125,18 +125,18 @@ const getUserPurchaseEssayPackageList = async (input, opts = {}) => {
     }, {
         include: [
             { model: Models.User },
-            { model: Models.ProductPackage, as: 'essayPackage' }
+            { model: Models.ProductPackage, as: 'productPackage' }
         ],
         order: [['created_at', 'desc']],
         limit: params.limit,
         offset: Helpers.setOffset(params.page, params.limit)
     });
 
-    if (!allEssayPackage) {
+    if (!allProductPackage) {
         return Response.formatServiceReturn(false, 404, null, language.USER_PURCHASE.NOT_FOUND);
     }
 
-    return Response.formatServiceReturn(true, 200, allEssayPackage, null);
+    return Response.formatServiceReturn(true, 200, allProductPackage, null);
 };
 
 const injectUserPurchase = async (input, opts = {}) => {
@@ -199,22 +199,22 @@ const createUserPurchase = async (input, opts = {}) => {
         }
     }
 
-    let essayPackage;
+    let productPackage;
     if (input.essayPackageUuid) {
-        essayPackage = await ProductPackageRepository.findOne({ uuid: input.essayPackageUuid });
-        if (!essayPackage) {
+        productPackage = await ProductPackageRepository.findOne({ uuid: input.essayPackageUuid });
+        if (!productPackage) {
             return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
         }
     }
 
-    if (!examPackage && !essayPackage) {
+    if (!examPackage && !productPackage) {
         return Response.formatServiceReturn(false, 404, null, language.PACKAGE_NOT_FOUND);
     }
 
     const userPurchase = await UserPurchaseRepository.create({
         userId: user.id,
         examPackageId: examPackage?.id,
-        essayPackageId: essayPackage?.id,
+        productPackageId: productPackage?.id,
         externalTransactionId: input.externalTransactionId,
         expiredAt: input.expiredIn ?? Moment().add(365, 'days').format()
     });
@@ -230,7 +230,7 @@ const claimUserPurchaseEssayPackage = async (input, opts = {}) => {
 
     let userPurchase = await UserPurchaseRepository.findOne({
         userId: input.userId,
-        essayPackageId: input.essayPackageId
+        productPackageId: input.essayPackageId
     });
     if (userPurchase) {
         return Response.formatServiceReturn(false, 400, null, language.USER_PURCHASE.ESSAY_PACKAGE_ALREADY_CLAIMED);
@@ -238,7 +238,7 @@ const claimUserPurchaseEssayPackage = async (input, opts = {}) => {
 
     userPurchase = await UserPurchaseRepository.create({
         userId: input.userId,
-        essayPackageId: input.essayPackageId,
+        productPackageId: input.essayPackageId,
         expiredAt: Moment().add(365, 'days').format()
     });
     if (!userPurchase) {

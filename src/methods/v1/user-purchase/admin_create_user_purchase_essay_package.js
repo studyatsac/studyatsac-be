@@ -1,5 +1,5 @@
 const UserPurchaseService = require('../../../services/v1/user_purchase');
-const UserPurchaseTransformer = require('../../../transformers/v1/user-purchase/user_purchase');
+const UserPurchaseEssayPackageTransformer = require('../../../transformers/v1/user-purchase/user_purchase_essay_package');
 const UserPurchaseValidation = require('../../../validations/v1/user-purchase/user_purchase');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
@@ -24,7 +24,7 @@ exports.createUserPurchaseEssayPackage = async (req, res) => {
         }
 
         return res.status(200).json({
-            data: UserPurchaseTransformer.userPurchaseItem(result.data, false),
+            data: UserPurchaseEssayPackageTransformer.userPurchaseEssayPackageItem(result.data, false),
             message: lang.USER_PURCHASE.CREATE_SUCCESS
         });
     } catch (err) {

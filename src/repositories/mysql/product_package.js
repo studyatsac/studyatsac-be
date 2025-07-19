@@ -46,14 +46,16 @@ WHERE
     ( 
         ProductPackage.deleted_at IS NULL 
         AND ProductPackage.is_active = :isActive
+        AND ProductPackage.type :type
         AND UserPurchase.deleted_at IS NULL 
-        AND UserPurchase.user_id = :userId 
+        AND UserPurchase.user_id :userId 
     ) 
     `;
 
     const replacements = {
         ...where,
-        userId: where.userId ?? 'IS NOT NULL',
+        userId: `= ${where.userId}` ?? 'IS NOT NULL',
+        type: `= ${where.type}` ?? 'IS NOT NULL',
         isActive: where.isActive ?? true,
         limit: opts.limit,
         offset: opts.offset
@@ -114,7 +116,8 @@ FROM
             ( 
                 ProductPackage.deleted_at IS NULL 
                 AND ProductPackage.is_active = :isActive 
-                AND ProductPackage.uuid = :uuid 
+                AND ProductPackage.uuid :uuid 
+                AND ProductPackage.type :type 
             )  
         LIMIT 
             1 
@@ -138,7 +141,7 @@ FROM
                         user_essays 
                     WHERE 
                         deleted_at IS NULL 
-                        AND user_id = :userId  
+                        AND user_id :userId  
                     GROUP BY  
                         essay_id, 
                         product_package_id 
@@ -163,13 +166,14 @@ FROM
             user_id, 
             product_package_id 
     ) AS UserPurchase ON UserPurchase.product_package_id = ProductPackage.id  
-    AND UserPurchase.user_id = :userId;
+    AND UserPurchase.user_id :userId;
     `;
 
     const replacements = {
         ...where,
-        uuid: where.uuid ?? 'IS NOT NULL',
-        userId: where.userId ?? 'IS NOT NULL',
+        uuid: `= ${where.uuid}` ?? 'IS NOT NULL',
+        type: `= ${where.type}` ?? 'IS NOT NULL',
+        userId: `= ${where.userId}` ?? 'IS NOT NULL',
         isActive: where.isActive ?? true
     };
 
@@ -208,7 +212,8 @@ FROM
             ( 
                 ProductPackage.deleted_at IS NULL 
                 AND ProductPackage.is_active = :isActive 
-                AND ProductPackage.uuid = :uuid 
+                AND ProductPackage.uuid :uuid 
+                AND ProductPackage.uuid :type 
             )  
         LIMIT 
             1 
@@ -218,7 +223,7 @@ FROM
     JOIN essays AS \`productPackageMappings->essay\` ON productPackageMappings.essay_id = \`productPackageMappings->essay\`.id 
     AND \`productPackageMappings->essay\`.deleted_at IS NULL 
     AND \`productPackageMappings->essay\`.is_active = :isActive 
-    AND \`productPackageMappings->essay\`.uuid = :essayUuid 
+    AND \`productPackageMappings->essay\`.uuid :essayUuid 
     JOIN ( 
         SELECT 
             user_id, 
@@ -232,7 +237,7 @@ FROM
             user_id, 
             product_package_id 
     ) AS UserPurchase ON UserPurchase.product_package_id = ProductPackage.id  
-    AND UserPurchase.user_id = :userId 
+    AND UserPurchase.user_id :userId 
     LEFT JOIN ( 
         SELECT 
             essay_id, 
@@ -242,7 +247,7 @@ FROM
             user_essays 
         WHERE 
             user_essays.deleted_at IS NULL 
-            AND user_essays.user_id = :userId 
+            AND user_essays.user_id :userId 
         GROUP BY  
             essay_id, 
             product_package_id 
@@ -252,9 +257,10 @@ FROM
 
     const replacements = {
         ...where,
-        uuid: where.uuid ?? 'IS NOT NULL',
-        userId: where.userId ?? 'IS NOT NULL',
-        essayUuid: where.essayUuid ?? 'IS NOT NULL',
+        uuid: `= ${where.uuid}` ?? 'IS NOT NULL',
+        type: `= ${where.type}` ?? 'IS NOT NULL',
+        userId: `= ${where.userId}` ?? 'IS NOT NULL',
+        essayUuid: `= ${where.essayUuid}` ?? 'IS NOT NULL',
         isActive: where.isActive ?? true
     };
 
