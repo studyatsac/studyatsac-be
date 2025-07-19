@@ -1,5 +1,5 @@
 const Response = require('../../utils/response');
-const EssayPackageRepository = require('../../repositories/mysql/essay_package');
+const ProductPackageRepository = require('../../repositories/mysql/product_package');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
 const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
 const Models = require('../../models/mysql');
@@ -12,7 +12,7 @@ class EssayReviewError extends Error {}
 const getPaidEssayReviewPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await EssayPackageRepository.findOneWithAttemptFormUserPurchase({
+    const essay = await ProductPackageRepository.findOneWithAttemptFormUserPurchase({
         ...input,
         uuid: input.essayPackageUuid,
         userId: input.userId,

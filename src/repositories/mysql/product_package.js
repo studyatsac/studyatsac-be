@@ -1,27 +1,27 @@
 const Models = require('../../models/mysql');
 
 exports.findAll = function (where, opts = {}, trx = null) {
-    return Models.EssayPackage.findAll({ where, ...opts, transaction: trx });
+    return Models.ProductPackage.findAll({ where, ...opts, transaction: trx });
 };
 
 exports.findAndCountAll = function (where, opts = {}, trx = null) {
-    return Models.EssayPackage.findAndCountAll({ where, ...opts, transaction: trx });
+    return Models.ProductPackage.findAndCountAll({ where, ...opts, transaction: trx });
 };
 
 exports.findOne = function (where, opts = {}, trx = null) {
-    return Models.EssayPackage.findOne({ where, ...opts, transaction: trx });
+    return Models.ProductPackage.findOne({ where, ...opts, transaction: trx });
 };
 
 exports.create = function (payload, trx = null) {
-    return Models.EssayPackage.create(payload, { transaction: trx });
+    return Models.ProductPackage.create(payload, { transaction: trx });
 };
 
 exports.update = function (payload, where, trx = null) {
-    return Models.EssayPackage.update(payload, { where, transaction: trx });
+    return Models.ProductPackage.update(payload, { where, transaction: trx });
 };
 
 exports.delete = function (where, trx = null) {
-    return Models.EssayPackage.destroy({ where, transaction: trx });
+    return Models.ProductPackage.destroy({ where, transaction: trx });
 };
 
 exports.findAndCountAllFromUserPurchase = async function (where, opts = {}, trx = null) {
@@ -62,7 +62,7 @@ WHERE
     const rows = await Models.sequelize.query(query, {
         type: Models.sequelize.QueryTypes.SELECT,
         replacements,
-        model: Models.EssayPackage,
+        model: Models.ProductPackage,
         mapToModel: true,
         transaction: trx
     });

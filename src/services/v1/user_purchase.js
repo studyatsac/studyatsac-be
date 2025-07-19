@@ -3,7 +3,7 @@ const UserPurchaseRepository = require('../../repositories/mysql/user_purchase')
 const ProductRepository = require('../../repositories/mysql/product');
 const UserRepository = require('../../repositories/mysql/user');
 const ExamPackageRepository = require('../../repositories/mysql/exam_package');
-const EssayPackageRepository = require('../../repositories/mysql/essay_package');
+const ProductPackageRepository = require('../../repositories/mysql/product_package');
 const MasterCategoryRepository = require('../../repositories/mysql/master_category');
 const ExamPackageMappingRepository = require('../../repositories/mysql/exam_package_mapping');
 const Response = require('../../utils/response');
@@ -125,7 +125,7 @@ const getUserPurchaseEssayPackageList = async (input, opts = {}) => {
     }, {
         include: [
             { model: Models.User },
-            { model: Models.EssayPackage, as: 'essayPackage' }
+            { model: Models.ProductPackage, as: 'essayPackage' }
         ],
         order: [['created_at', 'desc']],
         limit: params.limit,
@@ -201,7 +201,7 @@ const createUserPurchase = async (input, opts = {}) => {
 
     let essayPackage;
     if (input.essayPackageUuid) {
-        essayPackage = await EssayPackageRepository.findOne({ uuid: input.essayPackageUuid });
+        essayPackage = await ProductPackageRepository.findOne({ uuid: input.essayPackageUuid });
         if (!essayPackage) {
             return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
         }

@@ -1,5 +1,5 @@
-const EssayPackageRepository = require('../../repositories/mysql/essay_package');
-const EssayPackageMappingRepository = require('../../repositories/mysql/essay_package_mapping');
+const ProductPackageRepository = require('../../repositories/mysql/product_package');
+const ProductPackageMappingRepository = require('../../repositories/mysql/product_package_mapping');
 const ProductRepository = require('../../repositories/mysql/product');
 const Response = require('../../utils/response');
 const Models = require('../../models/mysql');
@@ -11,12 +11,12 @@ class EssayPackageError extends Error {}
 const getEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await EssayPackageRepository.findOne(
+    const essay = await ProductPackageRepository.findOne(
         input,
         {
             include: [
                 {
-                    model: Models.EssayPackageMapping,
+                    model: Models.ProductPackageMapping,
                     as: 'essayPackageMappings',
                     include: { model: Models.Essay, as: 'essay' }
                 },
@@ -37,7 +37,7 @@ const getEssayPackage = async (input, opts = {}) => {
 const getPaidEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await EssayPackageRepository.findOneWithMappingFromUserPurchase(input);
+    const essay = await ProductPackageRepository.findOneWithMappingFromUserPurchase(input);
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
@@ -54,7 +54,7 @@ const getPaidEssayPackage = async (input, opts = {}) => {
 const getAllEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const allEssayPackage = await EssayPackageRepository.findAll(input);
+    const allEssayPackage = await ProductPackageRepository.findAll(input);
 
     if (!allEssayPackage) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
@@ -67,7 +67,7 @@ const getAllEssayPackageAndCount = async (input, opts = {}) => {
     const language = opts.lang;
     const params = opts.params;
 
-    const allEssayPackage = await EssayPackageRepository.findAndCountAll({
+    const allEssayPackage = await ProductPackageRepository.findAndCountAll({
         ...input,
         ...(params.search ? {
             [Models.Op.or]: [
@@ -100,7 +100,7 @@ const getAllMyEssayPackageAndCount = async (input, opts = {}) => {
     const language = opts.lang;
     const params = opts.params;
 
-    const userPurchased = await EssayPackageRepository.findAndCountAllFromUserPurchase(
+    const userPurchased = await ProductPackageRepository.findAndCountAllFromUserPurchase(
         input,
         {
             limit: params.limit,
@@ -147,7 +147,7 @@ const createEssayPackage = async (input, opts = {}) => {
 
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
-            const essayPackage = await EssayPackageRepository.create({
+            const essayPackage = await ProductPackageRepository.create({
                 title: input.title,
                 description: input.description,
                 additionalInformation: input.additionalInformation,
@@ -177,7 +177,7 @@ const createEssayPackage = async (input, opts = {}) => {
             }
 
             if (inputEssayPackageMappings.length) {
-                const essayPackageMappings = await EssayPackageMappingRepository.createMany(inputEssayPackageMappings.map((item) => ({
+                const essayPackageMappings = await ProductPackageMappingRepository.createMany(inputEssayPackageMappings.map((item) => ({
                     essayPackageId: essayPackage.id,
                     essayId: item.essayId,
                     maxAttempt: item.maxAttempt
@@ -203,9 +203,9 @@ const createEssayPackage = async (input, opts = {}) => {
 const updateEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essayPackage = await EssayPackageRepository.findOne(
+    const essayPackage = await ProductPackageRepository.findOne(
         { uuid: input.uuid },
-        { include: { model: Models.EssayPackageMapping, attributes: ['id', 'uuid'], as: 'essayPackageMappings' } }
+        { include: { model: Models.ProductPackageMapping, attributes: ['id', 'uuid'], as: 'essayPackageMappings' } }
     );
 
     if (!essayPackage) {
@@ -253,7 +253,7 @@ const updateEssayPackage = async (input, opts = {}) => {
 
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
-            const updatedItem = await EssayPackageRepository.update(
+            const updatedItem = await ProductPackageRepository.update(
                 {
                     title: input.title,
                     description: input.description,
@@ -293,7 +293,7 @@ const updateEssayPackage = async (input, opts = {}) => {
                         (item) => !inputEssayPackageMappings.find((i) => i.uuid === item.uuid)
                     );
                     if (deletedEssayPackageMappings.length) {
-                        const deleteCount = await EssayPackageMappingRepository.delete(
+                        const deleteCount = await ProductPackageMappingRepository.delete(
                             { id: deletedEssayPackageMappings.map((item) => item.id) },
                             { force: true },
                             trx
@@ -312,7 +312,7 @@ const updateEssayPackage = async (input, opts = {}) => {
                 }
 
                 const updatingEssayPackageMappings = inputEssayPackageMappings.map(async (item) => {
-                    const updatedEssayPackageMapping = await EssayPackageMappingRepository.createOrUpdate({
+                    const updatedEssayPackageMapping = await ProductPackageMappingRepository.createOrUpdate({
                         id: item.id,
                         essayPackageId: essayPackage.id,
                         essayId: item.essayId,
@@ -344,13 +344,13 @@ const updateEssayPackage = async (input, opts = {}) => {
 const deleteEssayPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const essay = await EssayPackageRepository.findOne(input);
+    const essay = await ProductPackageRepository.findOne(input);
 
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
     }
 
-    await EssayPackageRepository.delete({ id: essay.id });
+    await ProductPackageRepository.delete({ id: essay.id });
 
     return Response.formatServiceReturn(true, 200, null, language.ESSAY_PACKAGE.DELETE_SUCCESS);
 };
