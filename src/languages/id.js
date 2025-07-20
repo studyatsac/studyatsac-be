@@ -242,5 +242,35 @@ module.exports = Object.freeze({
         UPDATE_FAILED: 'Gagal memperbarui jawaban sesi wawancara pengguna',
         DELETE_SUCCESS: 'Berhasil menghapus jawaban sesi wawancara pengguna',
         DELETE_FAILED: 'Gagal menghapus jawaban sesi wawancara pengguna'
+    },
+    PRODUCT_PACKAGE: {
+        NOT_FOUND: 'Paket produk tidak ditemukan',
+        TITLE_NOT_VALID: 'Judul tidak valid',
+        DESCRIPTION_NOT_VALID: 'Description tidak valid',
+        ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information tidak valid',
+        PRICE_NOT_VALID: 'Harga tidak valid',
+        TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total maksimal percobaan tidak valid',
+        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Jumlah default maksimal percobaan tidak valid',
+        PAYMENT_URL_NOT_VALID: 'Link pembayaran tidak valid',
+        IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
+        PRODUCT_PACKAGE_MAPPINGS_NOT_VALID: 'Item paket produk tidak valid',
+        EXTERNAL_PRODUCT_ID_NOT_VALID: 'ID produk/event tidak valid',
+        EXTERNAL_PRODUCT_NAME_NOT_VALID: 'Nama produk/event tidak valid',
+        EXTERNAL_TICKET_ID_NOT_VALID: 'ID tiket tidak valid',
+        EXTERNAL_TICKET_NAME_NOT_VALID: 'Nama tiket tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat paket produk',
+        CREATE_FAILED: 'Gagal membuat paket produk',
+        UPDATE_SUCCESS: 'Berhasil memperbarui paket produk',
+        UPDATE_FAILED: 'Gagal memperbarui paket produk',
+        DELETE_SUCCESS: 'Berhasil menghapus paket produk',
+        DELETE_FAILED: 'Gagal menghapus paket produk'
+    },
+    PRODUCT_PACKAGE_MAPPING: {
+        NOT_FOUND: 'Item paket produk tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        MAX_ATTEMPT_NOT_VALID: 'Maksimal percobaan tidak valid',
+        CREATE_FAILED: 'Gagal membuat item paket produk',
+        UPDATE_FAILED: 'Gagal memperbarui item paket produk',
+        DELETE_FAILED: 'Gagal menghapus item paket produk'
     }
 });
