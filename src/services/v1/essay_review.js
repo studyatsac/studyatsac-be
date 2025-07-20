@@ -13,7 +13,7 @@ class EssayReviewError extends Error {}
 const getPaidEssayReviewPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const rawProductPackage = await ProductPackageRepository.findOneWithAttemptFormUserPurchase({
+    const rawProductPackage = await ProductPackageRepository.findOneWithEssayAttemptFormUserPurchase({
         ...input,
         type: ProductPackageConstants.TYPE.ESSAY,
         uuid: input.essayPackageUuid,

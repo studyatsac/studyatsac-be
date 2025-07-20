@@ -109,7 +109,7 @@ const createUserInterview = async (input, opts = {}) => {
                 model: Models.InterviewSection,
                 as: 'interviewSections',
                 include: {
-                    model: Models.UserInterviewSectionQuestion,
+                    model: Models.InterviewSectionQuestion,
                     attributes: ['id', 'uuid'],
                     as: 'interviewSectionQuestions'
                 }
@@ -163,6 +163,7 @@ const createUserInterview = async (input, opts = {}) => {
                 {
                     userId: input.userId,
                     interviewId: interview.id,
+                    productPackageId: input.interviewPackageId,
                     ...(input.language != null ? { language: input.language } : {}),
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({

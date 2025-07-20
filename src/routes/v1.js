@@ -743,6 +743,12 @@ router.get(
     require('../methods/v1/interview-package/paid_interview_package').getPaidInterviewPackage
 );
 
+router.post(
+    '/mock-interviews/start',
+    [tokenMiddleware],
+    require('../methods/v1/mock-interview/start_mock_interview').startMockInterview
+);
+
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
