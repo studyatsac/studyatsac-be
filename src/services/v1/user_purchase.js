@@ -101,9 +101,15 @@ const getMyExam = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, examPackageMappings, null);
 };
 
-const getUserPurchaseEssayPackageList = async (input, opts = {}) => {
+const getUserPurchaseProductPackageList = async (input, opts = {}) => {
     const language = opts.lang;
     const params = opts.params;
+
+    let packageType;
+    if (input.type) {
+        packageType = input.type;
+        delete input.type;
+    }
 
     const allProductPackage = await UserPurchaseRepository.findAndCountAll({
         productPackageId: { [Models.Op.not]: null },
@@ -125,7 +131,11 @@ const getUserPurchaseEssayPackageList = async (input, opts = {}) => {
     }, {
         include: [
             { model: Models.User },
-            { model: Models.ProductPackage, as: 'productPackage' }
+            {
+                model: Models.ProductPackage,
+                as: 'productPackage',
+                where: { type: packageType }
+            }
         ],
         order: [['created_at', 'desc']],
         limit: params.limit,
@@ -133,7 +143,12 @@ const getUserPurchaseEssayPackageList = async (input, opts = {}) => {
     });
 
     if (!allProductPackage) {
-        return Response.formatServiceReturn(false, 404, null, language.USER_PURCHASE.NOT_FOUND);
+        return Response.formatServiceReturn(
+            false,
+            404,
+            null,
+            opts.notFoundMessage ?? language.USER_PURCHASE.NOT_FOUND
+        );
     }
 
     return Response.formatServiceReturn(true, 200, allProductPackage, null);
@@ -200,10 +215,15 @@ const createUserPurchase = async (input, opts = {}) => {
     }
 
     let productPackage;
-    if (input.essayPackageUuid) {
-        productPackage = await ProductPackageRepository.findOne({ uuid: input.essayPackageUuid });
+    if (input.productPackageUuid) {
+        productPackage = await ProductPackageRepository.findOne({ uuid: input.productPackageUuid });
         if (!productPackage) {
-            return Response.formatServiceReturn(false, 404, null, language.ESSAY_PACKAGE.NOT_FOUND);
+            return Response.formatServiceReturn(
+                false,
+                404,
+                null,
+                opts.packageNotFoundMessage ?? language.PRODUCT_PACKAGE.NOT_FOUND
+            );
         }
     }
 
@@ -213,8 +233,8 @@ const createUserPurchase = async (input, opts = {}) => {
 
     const userPurchase = await UserPurchaseRepository.create({
         userId: user.id,
-        examPackageId: examPackage?.id,
-        productPackageId: productPackage?.id,
+        ...(examPackage != null ? { examPackageId: examPackage?.id } : {}),
+        ...(productPackage != null ? { productPackageId: productPackage?.id } : {}),
         externalTransactionId: input.externalTransactionId,
         expiredAt: input.expiredIn ?? Moment().add(365, 'days').format()
     });
@@ -225,24 +245,48 @@ const createUserPurchase = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, userPurchase, null);
 };
 
-const claimUserPurchaseEssayPackage = async (input, opts = {}) => {
+const claimUserPurchaseProductPackage = async (input, opts = {}) => {
     const language = opts.lang;
+
+    const productPackage = await ProductPackageRepository.findOne({
+        uuid: input.productPackageUuid,
+        price: 0,
+        type: input.type
+    });
+    if (!productPackage) {
+        return Response.formatServiceReturn(
+            false,
+            404,
+            null,
+            opts.packageNotFoundMessage ?? language.PRODUCT_PACKAGE.NOT_FOUND
+        );
+    }
 
     let userPurchase = await UserPurchaseRepository.findOne({
         userId: input.userId,
-        productPackageId: input.essayPackageId
+        productPackageId: productPackage.id
     });
     if (userPurchase) {
-        return Response.formatServiceReturn(false, 400, null, language.USER_PURCHASE.ESSAY_PACKAGE_ALREADY_CLAIMED);
+        return Response.formatServiceReturn(
+            false,
+            400,
+            null,
+            opts.alreadyClaimedMessage ?? language.USER_PURCHASE.NOT_FOUND
+        );
     }
 
     userPurchase = await UserPurchaseRepository.create({
         userId: input.userId,
-        productPackageId: input.essayPackageId,
+        productPackageId: productPackage.id,
         expiredAt: Moment().add(365, 'days').format()
     });
     if (!userPurchase) {
-        return Response.formatServiceReturn(false, 500, null, language.USER_PURCHASE.ESSAY_PACKAGE_CLAIM_FAILED);
+        return Response.formatServiceReturn(
+            false,
+            500,
+            null,
+            opts.claimFailedMessage ?? language.USER_PURCHASE.CREATE_FAILED
+        );
     }
 
     return Response.formatServiceReturn(true, 200, userPurchase, null);
@@ -264,9 +308,9 @@ const deleteUserPurchase = async (input, opts = {}) => {
 
 exports.getMyExamPackage = getMyExamPackage;
 exports.getMyExam = getMyExam;
-exports.getUserPurchaseEssayPackageList = getUserPurchaseEssayPackageList;
+exports.getUserPurchaseProductPackageList = getUserPurchaseProductPackageList;
 exports.injectUserPurchase = injectUserPurchase;
-exports.claimUserPurchaseEssayPackage = claimUserPurchaseEssayPackage;
+exports.claimUserPurchaseProductPackage = claimUserPurchaseProductPackage;
 exports.createUserPurchase = createUserPurchase;
 exports.deleteUserPurchase = deleteUserPurchase;
 

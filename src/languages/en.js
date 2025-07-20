@@ -144,6 +144,7 @@ module.exports = Object.freeze({
         USER_UUID_NOT_VALID: 'User ID not valid',
         EXAM_PACKAGE_UUID_NOT_VALID: 'Exam package ID not valid',
         ESSAY_PACKAGE_UUID_NOT_VALID: 'Essay package ID not valid',
+        INTERVIEW_PACKAGE_UUID_NOT_VALID: 'Interview package ID not valid',
         EXTERNAL_TRANSACTION_ID_NOT_VALID: 'Transaction ID not valid',
         EXPIRED_AT_NOT_VALID: 'Expired at not valid',
         CREATE_SUCCESS: 'Success to create user purchase',
@@ -154,7 +155,10 @@ module.exports = Object.freeze({
         DELETE_FAILED: 'Failed to delete user purchase',
         ESSAY_PACKAGE_ALREADY_CLAIMED: 'Essay package already claimed',
         ESSAY_PACKAGE_CLAIM_SUCCESS: 'Success to claim essay package',
-        ESSAY_PACKAGE_CLAIM_FAILED: 'Failed to claim essay package'
+        ESSAY_PACKAGE_CLAIM_FAILED: 'Failed to claim essay package',
+        INTERVIEW_PACKAGE_ALREADY_CLAIMED: 'Interview package already claimed',
+        INTERVIEW_PACKAGE_CLAIM_SUCCESS: 'Success to claim interview package',
+        INTERVIEW_PACKAGE_CLAIM_FAILED: 'Failed to claim interview package'
     },
     PRODUCT: {
         CREATE_FAILED: 'Failed to create product',

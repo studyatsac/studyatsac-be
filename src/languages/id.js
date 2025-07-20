@@ -143,6 +143,7 @@ module.exports = Object.freeze({
         USER_UUID_NOT_VALID: 'ID pengguna tidak valid',
         EXAM_PACKAGE_UUID_NOT_VALID: 'ID paket exam tidak valid',
         ESSAY_PACKAGE_UUID_NOT_VALID: 'ID paket esai tidak valid',
+        INTERVIEW_PACKAGE_UUID_NOT_VALID: 'ID paket wawancara tidak valid',
         EXTERNAL_TRANSACTION_ID_NOT_VALID: 'ID transaksi tidak valid',
         EXPIRED_AT_NOT_VALID: 'Tanggal kadaluarsa tidak valid',
         CREATE_SUCCESS: 'Berhasil membuat pembelian pengguna',
@@ -153,7 +154,10 @@ module.exports = Object.freeze({
         DELETE_FAILED: 'Gagal menghapus pembelian pengguna',
         ESSAY_PACKAGE_ALREADY_CLAIMED: 'Paket esai sudah diklaim',
         ESSAY_PACKAGE_CLAIM_SUCCESS: 'Paket esai berhasil diklaim',
-        ESSAY_PACKAGE_CLAIM_FAILED: 'Gagal mengklaim paket esai'
+        ESSAY_PACKAGE_CLAIM_FAILED: 'Gagal mengklaim paket esai',
+        INTERVIEW_PACKAGE_ALREADY_CLAIMED: 'Paket interview sudah diklaim',
+        INTERVIEW_PACKAGE_CLAIM_SUCCESS: 'Paket interview berhasil diklaim',
+        INTERVIEW_PACKAGE_CLAIM_FAILED: 'Gagal mengklaim paket interview'
     },
     PRODUCT: {
         CREATE_FAILED: 'Gagal membuat produk',

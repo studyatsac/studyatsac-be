@@ -1,5 +1,4 @@
-const EssayPackageService = require('../../../services/v1/essay_package');
-const UserPurchaseService = require('../../../services/v1/user_purchase');
+const UserPurchaseEssayPackageService = require('../../../services/v1/user_purchase_essay_package');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 const UserPurchaseTransformer = require('../../../transformers/v1/user-purchase/user_purchase');
@@ -18,27 +17,14 @@ exports.claimUserPurchaseEssayPackage = async (req, res) => {
             return res.status(400).json({ message: err.message });
         }
 
-        const essayPackage = await EssayPackageService.getEssayPackage(
-            { uuid: input.essayPackageUuid, price: 0 },
-            { lang }
-        );
-
-        if (!essayPackage.status) {
-            return res.status(essayPackage.code).json({ message: essayPackage.message });
-        }
-        if (!essayPackage.data) {
-            return res.status(404).json({ message: lang.ESSAY_PACKAGE.NOT_FOUND });
-        }
-
         const userId = req.session.id;
         if (!userId) {
             return res.status(404).json({ message: lang.USER_NOT_FOUND });
         }
 
-        const result = await UserPurchaseService.claimUserPurchaseEssayPackage(
-            { userId, essayPackageId: essayPackage.data.id },
-            { lang }
-        );
+        input.userId = userId;
+
+        const result = await UserPurchaseEssayPackageService.claimUserPurchaseEssayPackage(input, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

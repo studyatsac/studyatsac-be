@@ -1,4 +1,4 @@
-const UserPurchaseService = require('../../../services/v1/user_purchase');
+const UserPurchaseEssayPackageService = require('../../../services/v1/user_purchase_essay_package');
 const ListValidation = require('../../../validations/custom/list');
 const UserPurchaseEssayPackageTransformer = require('../../../transformers/v1/user-purchase/user_purchase_essay_package');
 const Language = require('../../../languages');
@@ -17,7 +17,7 @@ exports.getUserPurchaseEssayPackageList = async (req, res) => {
             return res.status(400).json({ message: err.message });
         }
 
-        const result = await UserPurchaseService.getUserPurchaseEssayPackageList(null, { lang, params });
+        const result = await UserPurchaseEssayPackageService.getUserPurchaseEssayPackageList(null, { lang, params });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
