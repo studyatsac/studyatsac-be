@@ -20,7 +20,7 @@ const insertPaymentLog = async (input) => {
             externalTicketId: item.product?.externalTicketId || null,
             externalTicketName: item.product?.externalTicketName || null,
             examPackageId: item.product?.ExamPackage?.id || null,
-            essayPackageId: item.product?.essayPackage?.id || null,
+            productPackageId: item.product?.productPackage?.id || null,
             metadata: input.paymentLog,
             status: input.status,
             notes: input.notes
@@ -230,13 +230,13 @@ const handleWebhookPayment = async (input, opts = {}) => {
                 existedProductAndAmounts.push(item);
                 return null;
             }
-        } else if (item.product?.essayPackage && input?.data?.transactionId) {
-            const essayPackage = await UserPurchaseRepository.findOne({
+        } else if (item.product?.productPackage && input?.data?.transactionId) {
+            const productPackage = await UserPurchaseRepository.findOne({
                 userId: paymentData.user.id,
-                essayPackageId: item.product.essayPackage.id,
+                productPackageId: item.product.productPackage.id,
                 externalTransactionId: input.data.transactionId
             });
-            if (essayPackage) {
+            if (productPackage) {
                 existedProductAndAmounts.push(item);
                 return null;
             }
@@ -272,12 +272,12 @@ const handleWebhookPayment = async (input, opts = {}) => {
                 expiredAt: Moment().add(365, 'days').format()
             };
         }
-        if (item.product?.essayPackage && input?.data?.transactionId) {
+        if (item.product?.productPackage && input?.data?.transactionId) {
             insertingProductAndAmounts.push(item);
 
             return {
                 userId: paymentData.user.id,
-                essayPackageId: item.product?.essayPackage?.id,
+                productPackageId: item.product?.productPackage?.id,
                 externalTransactionId: input?.data?.transactionId,
                 expiredAt: Moment().add(365, 'days').format()
             };

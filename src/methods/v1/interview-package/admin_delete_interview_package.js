@@ -1,25 +1,24 @@
-const UserPurchaseService = require('../../../services/v1/user_purchase');
+const InterviewPackageService = require('../../../services/v1/interview_package');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.deleteUserPurchaseEssayPackage = async (req, res) => {
+exports.deleteInterviewPackage = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
         const { uuid } = req.params;
-        // TODO: Specify the product type
-        const result = await UserPurchaseService.deleteUserPurchase({ uuid }, { lang });
+        const result = await InterviewPackageService.deleteInterviewPackage({ uuid }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(200).json({ message: lang.USER_PURCHASE.DELETE_SUCCESS });
+        return res.status(200).json({ message: lang.INTERVIEW_PACKAGE.DELETE_SUCCESS });
     } catch (err) {
         LogUtils.loggingError({
-            function_name: 'deleteUserPurchaseEssayPackage',
+            functionName: 'deleteInterviewPackage',
             message: err.message
         });
 

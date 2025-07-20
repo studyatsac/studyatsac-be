@@ -24,6 +24,22 @@ router.delete(
     require('../methods/v1/user-purchase/admin_delete_user_purchase_essay_package').deleteUserPurchaseEssayPackage
 );
 
+router.get(
+    '/admin/user-purchases/interview-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_user_purchase_interview_package_list').getUserPurchaseInterviewPackageList
+);
+router.post(
+    '/admin/user-purchases/interview-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_create_user_purchase_interview_package').createUserPurchaseInterviewPackage
+);
+router.delete(
+    '/admin/user-purchases/interview-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_delete_user_purchase_interview_package').deleteUserPurchaseInterviewPackage
+);
+
 // Endpoint admin untuk mengambil total peserta beli paket exam tertentu
 router.get(
     '/admin/exam-package/participant-count',
@@ -634,11 +650,11 @@ router.delete(
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/interview/admin_delete_interview').deleteInterview
 );
-router.get(
-    '/interviews',
-    [tokenMiddleware],
-    require('../methods/v1/interview/active_interview_list').getActiveInterviewList
-);
+// router.get(
+//     '/interviews',
+//     [tokenMiddleware],
+//     require('../methods/v1/interview/active_interview_list').getActiveInterviewList
+// );
 router.get(
     '/interviews/:uuid',
     [tokenMiddleware],
@@ -679,6 +695,52 @@ router.put(
     '/user-interviews/:uuid',
     [tokenMiddleware],
     require('../methods/v1/user-interview/update_specific_user_interview').updateSpecificUserInterview
+);
+
+router.get(
+    '/admin/interview-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_interview_package_list').getInterviewPackageList
+);
+router.post(
+    '/admin/interview-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_create_interview_package').createInterviewPackage
+);
+router.get(
+    '/admin/interview-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_interview_package').getInterviewPackage
+);
+router.put(
+    '/admin/interview-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_update_interview_package').updateInterviewPackage
+);
+router.delete(
+    '/admin/interview-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_delete_interview_package').deleteInterviewPackage
+);
+router.get(
+    '/interview-packages',
+    [tokenMiddleware],
+    require('../methods/v1/interview-package/active_interview_package_list').getActiveInterviewPackageList
+);
+router.post(
+    '/interview-packages/claim',
+    [tokenMiddleware],
+    require('../methods/v1/user-purchase/claim_user_purchase_interview_package').claimUserPurchaseInterviewPackage
+);
+router.get(
+    '/interview-packages/me',
+    [tokenMiddleware],
+    require('../methods/v1/interview-package/my_interview_package_list').getMyInterviewPackageList
+);
+router.get(
+    '/interview-packages/me/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/interview-package/paid_interview_package').getPaidInterviewPackage
 );
 
 /**

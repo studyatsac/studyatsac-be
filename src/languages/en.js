@@ -144,6 +144,7 @@ module.exports = Object.freeze({
         USER_UUID_NOT_VALID: 'User ID not valid',
         EXAM_PACKAGE_UUID_NOT_VALID: 'Exam package ID not valid',
         ESSAY_PACKAGE_UUID_NOT_VALID: 'Essay package ID not valid',
+        INTERVIEW_PACKAGE_UUID_NOT_VALID: 'Interview package ID not valid',
         EXTERNAL_TRANSACTION_ID_NOT_VALID: 'Transaction ID not valid',
         EXPIRED_AT_NOT_VALID: 'Expired at not valid',
         CREATE_SUCCESS: 'Success to create user purchase',
@@ -154,7 +155,10 @@ module.exports = Object.freeze({
         DELETE_FAILED: 'Failed to delete user purchase',
         ESSAY_PACKAGE_ALREADY_CLAIMED: 'Essay package already claimed',
         ESSAY_PACKAGE_CLAIM_SUCCESS: 'Success to claim essay package',
-        ESSAY_PACKAGE_CLAIM_FAILED: 'Failed to claim essay package'
+        ESSAY_PACKAGE_CLAIM_FAILED: 'Failed to claim essay package',
+        INTERVIEW_PACKAGE_ALREADY_CLAIMED: 'Interview package already claimed',
+        INTERVIEW_PACKAGE_CLAIM_SUCCESS: 'Success to claim interview package',
+        INTERVIEW_PACKAGE_CLAIM_FAILED: 'Failed to claim interview package'
     },
     PRODUCT: {
         CREATE_FAILED: 'Failed to create product',
@@ -243,5 +247,66 @@ module.exports = Object.freeze({
         UPDATE_FAILED: 'Failed to update user interview section answer',
         DELETE_SUCCESS: 'Success to delete user interview section answer',
         DELETE_FAILED: 'Failed to delete user interview section answer'
+    },
+    PRODUCT_PACKAGE: {
+        NOT_FOUND: 'Product package not found',
+        TITLE_NOT_VALID: 'Title not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information not valid',
+        PRICE_NOT_VALID: 'Price not valid',
+        TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total max attempt not valid',
+        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Default max attempt not valid',
+        PAYMENT_URL_NOT_VALID: 'Payment url not valid',
+        IS_ACTIVE_NOT_VALID: 'Active status not valid',
+        PRODUCT_PACKAGE_MAPPINGS_NOT_VALID: 'Product package mapping not valid',
+        EXTERNAL_PRODUCT_ID_NOT_VALID: 'Product/event id not valid',
+        EXTERNAL_PRODUCT_NAME_NOT_VALID: 'Product/event name not valid',
+        EXTERNAL_TICKET_ID_NOT_VALID: 'Ticket id not valid',
+        EXTERNAL_TICKET_NAME_NOT_VALID: 'Ticket name not valid',
+        CREATE_SUCCESS: 'Success to create product package',
+        CREATE_FAILED: 'Failed to create product package',
+        UPDATE_SUCCESS: 'Success to update product package',
+        UPDATE_FAILED: 'Failed to update product package',
+        DELETE_SUCCESS: 'Success to delete product package',
+        DELETE_FAILED: 'Failed to delete product package'
+    },
+    PRODUCT_PACKAGE_MAPPING: {
+        NOT_FOUND: 'Product package mapping not found',
+        UUID_NOT_VALID: 'ID not valid',
+        MAX_ATTEMPT_NOT_VALID: 'Max attempt not valid',
+        CREATE_FAILED: 'Failed to create product package mapping',
+        UPDATE_FAILED: 'Failed to update product package mapping',
+        DELETE_FAILED: 'Failed to delete product package mapping'
+    },
+    INTERVIEW_PACKAGE: {
+        NOT_FOUND: 'Interview package not found',
+        TITLE_NOT_VALID: 'Title not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information not valid',
+        PRICE_NOT_VALID: 'Price not valid',
+        TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total max attempt not valid',
+        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Default max attempt not valid',
+        PAYMENT_URL_NOT_VALID: 'Payment url not valid',
+        IS_ACTIVE_NOT_VALID: 'Active status not valid',
+        INTERVIEW_PACKAGE_MAPPINGS_NOT_VALID: 'Interview package mapping not valid',
+        EXTERNAL_PRODUCT_ID_NOT_VALID: 'Product/event id not valid',
+        EXTERNAL_PRODUCT_NAME_NOT_VALID: 'Product/event name not valid',
+        EXTERNAL_TICKET_ID_NOT_VALID: 'Ticket id not valid',
+        EXTERNAL_TICKET_NAME_NOT_VALID: 'Ticket name not valid',
+        CREATE_SUCCESS: 'Success to create interview package',
+        CREATE_FAILED: 'Failed to create interview package',
+        UPDATE_SUCCESS: 'Success to update interview package',
+        UPDATE_FAILED: 'Failed to update interview package',
+        DELETE_SUCCESS: 'Success to delete interview package',
+        DELETE_FAILED: 'Failed to delete interview package'
+    },
+    INTERVIEW_PACKAGE_MAPPING: {
+        NOT_FOUND: 'Interview package mapping not found',
+        UUID_NOT_VALID: 'ID not valid',
+        INTERVIEW_UUID_NOT_VALID: 'Interview ID not valid',
+        MAX_ATTEMPT_NOT_VALID: 'Max attempt not valid',
+        CREATE_FAILED: 'Failed to create interview package mapping',
+        UPDATE_FAILED: 'Failed to update interview package mapping',
+        DELETE_FAILED: 'Failed to delete interview package mapping'
     }
 });

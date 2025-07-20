@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
+        productPackageId: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true
+        },
         status: {
             type: DataTypes.STRING(30),
             allowNull: false,
@@ -83,6 +87,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'user_interview_id',
             onDelete: 'CASCADE',
             as: 'interviewSections'
+        });
+        UserInterview.belongsTo(models.ProductPackage, {
+            targetKey: 'id',
+            foreignKey: 'product_package_id',
+            as: 'productPackage'
         });
     };
 

@@ -1,12 +1,12 @@
-const UserPurchaseEssayPackageService = require('../../../services/v1/user_purchase_essay_package');
+const UserPurchaseInterviewPackageService = require('../../../services/v1/user_purchase_interview_package');
 const ListValidation = require('../../../validations/custom/list');
-const UserPurchaseEssayPackageTransformer = require('../../../transformers/v1/user-purchase/user_purchase_essay_package');
+const UserPurchaseInterviewPackageTransformer = require('../../../transformers/v1/user-purchase/user_purchase_interview_package');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.getUserPurchaseEssayPackageList = async (req, res) => {
+exports.getUserPurchaseInterviewPackageList = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
@@ -17,14 +17,14 @@ exports.getUserPurchaseEssayPackageList = async (req, res) => {
             return res.status(400).json({ message: err.message });
         }
 
-        const result = await UserPurchaseEssayPackageService.getUserPurchaseEssayPackageList(null, { lang, params });
+        const result = await UserPurchaseInterviewPackageService.getUserPurchaseInterviewPackageList(null, { lang, params });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
         return res.status(200).json({
-            data: UserPurchaseEssayPackageTransformer.userPurchaseEssayPackageList(result.data.rows, false),
+            data: UserPurchaseInterviewPackageTransformer.userPurchaseInterviewPackageList(result.data.rows, false),
             message: '',
             meta: {
                 page: params.page,
@@ -35,7 +35,7 @@ exports.getUserPurchaseEssayPackageList = async (req, res) => {
         });
     } catch (err) {
         LogUtils.loggingError({
-            function_name: 'getUserPurchaseEssayPackageList',
+            function_name: 'getUserPurchaseInterviewPackageList',
             message: err.message
         });
 

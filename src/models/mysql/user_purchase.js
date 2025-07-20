@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER().UNSIGNED,
             allowNull: true
         },
-        essayPackageId: {
+        productPackageId: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: true
         },
@@ -52,10 +52,10 @@ module.exports = (sequelize, DataTypes) => {
             targetKey: 'id',
             foreignKey: 'user_id'
         });
-        UserPurchase.belongsTo(models.EssayPackage, {
+        UserPurchase.belongsTo(models.ProductPackage, {
             targetKey: 'id',
-            foreignKey: 'essay_package_id',
-            as: 'essayPackage'
+            foreignKey: 'product_package_id',
+            as: 'productPackage'
         });
     };
 

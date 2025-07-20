@@ -1,3 +1,5 @@
+const ProductPackageConstants = require('../../constants/product_package');
+
 module.exports = (sequelize, DataTypes) => {
     const attributes = {
         id: {
@@ -10,6 +12,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.UUID,
             allowNull: false,
             defaultValue: DataTypes.UUIDV4
+        },
+        type: {
+            type: DataTypes.STRING(30),
+            allowNull: false,
+            defaultValue: ProductPackageConstants.TYPE.ESSAY
         },
         title: {
             type: DataTypes.STRING(255),
@@ -52,35 +59,35 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: true,
         paranoid: true,
         underscored: true,
-        tableName: 'essay_packages'
+        tableName: 'product_packages'
     };
 
-    const EssayPackage = sequelize.define('EssayPackage', attributes, options);
+    const ProductPackage = sequelize.define('ProductPackage', attributes, options);
 
-    EssayPackage.associate = (models) => {
-        EssayPackage.hasMany(models.EssayPackageMapping, {
+    ProductPackage.associate = (models) => {
+        ProductPackage.hasMany(models.ProductPackageMapping, {
             sourceKey: 'id',
-            foreignKey: 'essay_package_id',
+            foreignKey: 'product_package_id',
             onDelete: 'CASCADE',
-            as: 'essayPackageMappings'
+            as: 'productPackageMappings'
         });
-        EssayPackage.hasMany(models.UserPurchase, {
+        ProductPackage.hasMany(models.UserPurchase, {
             sourceKey: 'id',
-            foreignKey: 'essay_package_id',
+            foreignKey: 'product_package_id',
             as: 'userPurchases'
         });
-        EssayPackage.hasMany(models.UserEssay, {
+        ProductPackage.hasMany(models.UserEssay, {
             sourceKey: 'id',
-            foreignKey: 'essay_package_id',
+            foreignKey: 'product_package_id',
             as: 'userEssays'
         });
-        EssayPackage.hasOne(models.Product, {
+        ProductPackage.hasOne(models.Product, {
             sourceKey: 'id',
-            foreignKey: 'essay_package_id',
+            foreignKey: 'product_package_id',
             onDelete: 'CASCADE',
             as: 'product'
         });
     };
 
-    return EssayPackage;
+    return ProductPackage;
 };
