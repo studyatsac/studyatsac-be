@@ -10,7 +10,10 @@ exports.getDetailedUserInterview = async (req, res) => {
         lang = Language.getLanguage(req.locale);
 
         const { uuid } = req.params;
-        const result = await UserInterviewService.getUserInterview({ uuid }, { lang, isDetailed: true });
+        const result = await UserInterviewService.getUserInterview(
+            { uuid },
+            { lang, isDetailed: true, isDetailedWithQuestion: true }
+        );
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

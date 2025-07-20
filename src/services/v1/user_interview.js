@@ -24,14 +24,20 @@ const getUserInterview = async (input, opts = {}) => {
                         include: {
                             model: Models.InterviewSection,
                             as: 'interviewSections',
-                            include: { model: Models.InterviewSectionQuestion, as: 'interviewSectionQuestions' }
+                            ...(opts.isDetailedWithQuestion ? {
+                                include: { model: Models.InterviewSectionQuestion, as: 'interviewSectionQuestions' }
+                            } : {})
                         }
                     } : {})
                 },
                 {
                     model: Models.UserInterviewSection,
                     as: 'interviewSections',
-                    include: { model: Models.UserInterviewSectionAnswer, as: 'interviewSectionAnswers' }
+                    include: {
+                        model: Models.UserInterviewSectionAnswer,
+                        as: 'interviewSectionAnswers',
+                        include: { model: Models.InterviewSectionQuestion, as: 'interviewSectionQuestion' }
+                    }
                 }
             ]
         }
