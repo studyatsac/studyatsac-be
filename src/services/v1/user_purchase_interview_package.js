@@ -10,7 +10,7 @@ const createUserPurchaseInterviewPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
     return UserPurchaseService.createUserPurchase(
-        { ...input, productPackageUuid: input.essayPackageUuid },
+        { ...input, productPackageUuid: input.interviewPackageUuid },
         { ...opts, packageNotFoundMessage: language.INTERVIEW_PACKAGE.NOT_FOUND }
     );
 };
@@ -22,7 +22,7 @@ const claimUserPurchaseInterviewPackage = async (input, opts = {}) => {
         {
             ...input,
             type: ProductPackageConstants.TYPE.INTERVIEW,
-            productPackageUuid: input.essayPackageUuid
+            productPackageUuid: input.interviewPackageUuid
         },
         {
             ...opts,
