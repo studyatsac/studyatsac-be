@@ -4,7 +4,7 @@ const LogUtils = require('../../../utils/logger');
 
 let lang;
 
-exports.deleteUserPurchaseEssayPackage = async (req, res) => {
+exports.deleteUserPurchaseInterviewPackage = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
@@ -19,7 +19,7 @@ exports.deleteUserPurchaseEssayPackage = async (req, res) => {
         return res.status(200).json({ message: lang.USER_PURCHASE.DELETE_SUCCESS });
     } catch (err) {
         LogUtils.loggingError({
-            function_name: 'deleteUserPurchaseEssayPackage',
+            function_name: 'deleteUserPurchaseInterviewPackage',
             message: err.message
         });
 
