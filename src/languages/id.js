@@ -272,5 +272,36 @@ module.exports = Object.freeze({
         CREATE_FAILED: 'Gagal membuat item paket produk',
         UPDATE_FAILED: 'Gagal memperbarui item paket produk',
         DELETE_FAILED: 'Gagal menghapus item paket produk'
+    },
+    INTERVIEW_PACKAGE: {
+        NOT_FOUND: 'Paket wawancara tidak ditemukan',
+        TITLE_NOT_VALID: 'Judul tidak valid',
+        DESCRIPTION_NOT_VALID: 'Description tidak valid',
+        ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information tidak valid',
+        PRICE_NOT_VALID: 'Harga tidak valid',
+        TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total maksimal percobaan tidak valid',
+        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Jumlah default maksimal percobaan tidak valid',
+        PAYMENT_URL_NOT_VALID: 'Link pembayaran tidak valid',
+        IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
+        INTERVIEW_PACKAGE_MAPPINGS_NOT_VALID: 'Item paket wawancara tidak valid',
+        EXTERNAL_PRODUCT_ID_NOT_VALID: 'ID produk/event tidak valid',
+        EXTERNAL_PRODUCT_NAME_NOT_VALID: 'Nama produk/event tidak valid',
+        EXTERNAL_TICKET_ID_NOT_VALID: 'ID tiket tidak valid',
+        EXTERNAL_TICKET_NAME_NOT_VALID: 'Nama tiket tidak valid',
+        CREATE_SUCCESS: 'Berhasil membuat paket wawancara',
+        CREATE_FAILED: 'Gagal membuat paket wawancara',
+        UPDATE_SUCCESS: 'Berhasil memperbarui paket wawancara',
+        UPDATE_FAILED: 'Gagal memperbarui paket wawancara',
+        DELETE_SUCCESS: 'Berhasil menghapus paket wawancara',
+        DELETE_FAILED: 'Gagal menghapus paket wawancara'
+    },
+    INTERVIEW_PACKAGE_MAPPING: {
+        NOT_FOUND: 'Item paket wawancara tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        INTERVIEW_UUID_NOT_VALID: 'ID wawancara tidak valid',
+        MAX_ATTEMPT_NOT_VALID: 'Maksimal percobaan tidak valid',
+        CREATE_FAILED: 'Gagal membuat item paket wawancara',
+        UPDATE_FAILED: 'Gagal memperbarui item paket wawancara',
+        DELETE_FAILED: 'Gagal menghapus item paket wawancara'
     }
 });
