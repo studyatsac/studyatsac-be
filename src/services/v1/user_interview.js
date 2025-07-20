@@ -263,7 +263,7 @@ const updateUserInterview = async (input, opts = {}) => {
                 model: Models.InterviewSection,
                 as: 'interviewSections',
                 include: {
-                    model: Models.UserInterviewSectionQuestion,
+                    model: Models.InterviewSectionQuestion,
                     attributes: ['id', 'uuid'],
                     as: 'interviewSectionQuestions'
                 }
