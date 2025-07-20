@@ -101,6 +101,7 @@ module.exports = Object.freeze({
         ESSAY_ITEM_UUID_NOT_VALID: 'Essay item ID not valid',
         ANSWER_NOT_VALID: 'Answer not valid',
         REVIEW_NOT_VALID: 'Review not valid',
+        ALREADY_EXIST: 'User essay item already exist',
         CREATE_FAILED: 'Failed to create user essay item',
         UPDATE_FAILED: 'Failed to update user essay item',
         DELETE_FAILED: 'Failed to delete user essay item'
