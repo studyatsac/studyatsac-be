@@ -9,6 +9,16 @@ const STATUS = {
     CANCELLED: 'cancelled'
 };
 
+const SECTION_STATUS = {
+    NOT_STARTED: 'not_started',
+    PENDING: 'pending',
+    IN_PROGRESS: 'in_progress',
+    PAUSED: 'paused',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+    CANCELLED: 'cancelled'
+};
+
 const SECTION_ANSWER_STATUS = {
     NOT_STARTED: 'not_started',
     PENDING: 'pending',
@@ -21,4 +31,4 @@ const SECTION_ANSWER_STATUS = {
     CANCELLED: 'cancelled'
 };
 
-module.exports = { STATUS, SECTION_ANSWER_STATUS };
+module.exports = { STATUS, SECTION_STATUS, SECTION_ANSWER_STATUS };
