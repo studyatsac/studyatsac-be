@@ -10,7 +10,7 @@ exports.getInterview = async (req, res) => {
         lang = Language.getLanguage(req.locale);
 
         const { uuid } = req.params;
-        const result = await InterviewService.getInterview({ uuid }, { lang });
+        const result = await InterviewService.getInterview({ uuid }, { lang, isDetailed: true });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

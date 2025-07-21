@@ -15,7 +15,11 @@ const getInterview = async (input, opts = {}) => {
             include: {
                 model: Models.InterviewSection,
                 as: 'interviewSections',
-                include: { model: Models.InterviewSectionQuestion, as: 'interviewSectionQuestions' }
+                ...(
+                    opts.isDetailed
+                        ? { include: { model: Models.InterviewSectionQuestion, as: 'interviewSectionQuestions' } }
+                        : {}
+                )
             }
         }
     );

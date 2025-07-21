@@ -12,7 +12,7 @@ exports.getDetailedUserInterview = async (req, res) => {
         const { uuid } = req.params;
         const result = await UserInterviewService.getUserInterview(
             { uuid },
-            { lang, isDetailed: true, isDetailedWithQuestion: true }
+            { lang, isDetailed: true }
         );
 
         if (!result.status) {

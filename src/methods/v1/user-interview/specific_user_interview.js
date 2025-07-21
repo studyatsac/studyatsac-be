@@ -15,10 +15,7 @@ exports.getSpecificUserInterview = async (req, res) => {
         }
 
         const { uuid } = req.params;
-        const result = await UserInterviewService.getUserInterview(
-            { uuid, userId },
-            { lang, isDetailed: true }
-        );
+        const result = await UserInterviewService.getUserInterview({ uuid, userId }, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
