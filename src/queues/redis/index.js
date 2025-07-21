@@ -10,7 +10,7 @@ const queue = {};
 const basename = 'index.js';
 const dirname = `${__dirname}`;
 
-const config = path ? { path: redisPath } : { host, port };
+const config = redisPath ? { path: redisPath } : { host, port };
 const defaultJobOptions = {
     removeOnComplete: true,
     removeOnFail: { age: 3600 },

@@ -16,11 +16,10 @@ async function processEssayReviewEntryJob(job) {
         { id: userEssayId },
         { include: { model: Models.UserEssayItem, as: 'essayItems' } }
     );
-    const isSingleEssay = userEssay?.essayItems?.length === 1;
     if (
         !userEssay
-        || userEssay.itemReviewStatus !== UserEssayConstants.STATUS.PENDING
-        || (!isSingleEssay && userEssay.overallReviewStatus !== UserEssayConstants.STATUS.PENDING)
+        || (userEssay.itemReviewStatus !== UserEssayConstants.STATUS.PENDING
+        && userEssay.overallReviewStatus !== UserEssayConstants.STATUS.PENDING)
     ) {
         return;
     }
@@ -48,7 +47,7 @@ async function processEssayReviewEntryJob(job) {
         });
     }
 
-    if (isSingleEssay) return;
+    if (userEssay.overallReviewStatus !== UserEssayConstants.STATUS.PENDING) return;
 
     Queues.EssayReview.add(EssayReviewConstants.JOB_NAME.OVERALL, JSON.stringify({ userEssayId: userEssay.id }));
 }
