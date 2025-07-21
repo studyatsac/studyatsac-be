@@ -7,6 +7,7 @@ const Helpers = require('../../utils/helpers');
 const Queues = require('../../queues/redis');
 const UserEssayConstants = require('../../constants/user_essay');
 const EssayReviewConstants = require('../../constants/essay_review');
+const EssayReviewUtils = require('../../utils/essay_review');
 
 class UserEssayError extends Error {}
 
@@ -107,7 +108,7 @@ const createUserEssay = async (input, opts = {}) => {
 
     let inputEssayItems = [];
     if (input.essayItems && Array.isArray(input.essayItems)) {
-        inputEssayItems = input.essayItems;
+        inputEssayItems = EssayReviewUtils.uniqInputEssayItems(input.essayItems);
         for (let index = 0; index < inputEssayItems.length; index++) {
             const essayItem = essay.essayItems.find((item) => item.uuid === inputEssayItems[index].essayItemUuid);
             if (!essayItem) {
@@ -122,7 +123,7 @@ const createUserEssay = async (input, opts = {}) => {
             const hasEssayItems = input.essayItems
                 && Array.isArray(input.essayItems)
                 && !!input.essayItems.length;
-            const isSingleEssay = inputEssayItems.length === 1;
+            const shouldReviewOverall = inputEssayItems.length > 1 && inputEssayItems.length === essay.essayItems.length;
 
             const userEssay = await UserEssayRepository.create(
                 {
@@ -133,9 +134,9 @@ const createUserEssay = async (input, opts = {}) => {
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasEssayItems ? ({
-                            itemReviewStatus: UserEssayConstants.STATUS.PENDING
+                            itemReviewStatus: UserEssayConstants.STATUS.QUEUED
                         }) : {}),
-                        ...(!isSingleEssay ? ({ overallReviewStatus: UserEssayConstants.STATUS.PENDING }) : {})
+                        ...(shouldReviewOverall ? ({ overallReviewStatus: UserEssayConstants.STATUS.QUEUED }) : {})
                     }) : {}),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },
@@ -150,7 +151,7 @@ const createUserEssay = async (input, opts = {}) => {
                         essayItemId: item.essayItemId,
                         answer: item.answer,
                         ...(opts.withReview ? ({
-                            reviewStatus: UserEssayConstants.STATUS.PENDING
+                            reviewStatus: UserEssayConstants.STATUS.QUEUED
                         }) : {}),
                         ...(!opts.isRestricted ? { review: item.review } : {})
                     })),
@@ -204,7 +205,7 @@ const updateUserEssay = async (input, opts = {}) => {
 
     let inputEssayItems = [];
     if (input.essayItems && Array.isArray(input.essayItems)) {
-        inputEssayItems = input.essayItems;
+        inputEssayItems = EssayReviewUtils.uniqInputEssayItems(input.essayItems);
         for (let index = 0; index < inputEssayItems.length; index++) {
             // eslint-disable-next-line no-loop-func
             const essayItem = essay.essayItems.find((item) => item.uuid === inputEssayItems[index].essayItemUuid);
@@ -245,7 +246,7 @@ const updateUserEssay = async (input, opts = {}) => {
             }
 
             hasEssayItems = hasEssayItems && !!inputEssayItems.length;
-            const isSingleEssay = inputEssayItems.length === 1;
+            const shouldReviewOverall = inputEssayItems.length > 1 && inputEssayItems.length === essay.essayItems.length;
 
             const updatedItem = await UserEssayRepository.update(
                 {
@@ -254,14 +255,14 @@ const updateUserEssay = async (input, opts = {}) => {
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasEssayItems ? ({
-                            itemReviewStatus: UserEssayConstants.STATUS.PENDING
+                            itemReviewStatus: UserEssayConstants.STATUS.QUEUED
                         }) : {}),
-                        ...(!isSingleEssay ? ({ overallReviewStatus: UserEssayConstants.STATUS.PENDING }) : {})
+                        ...(shouldReviewOverall ? ({ overallReviewStatus: UserEssayConstants.STATUS.QUEUED }) : {})
                     }) : {
                         ...(hasEssayItems ? ({
                             itemReviewStatus: UserEssayConstants.STATUS.NEED_REVIEW
                         }) : {}),
-                        ...(!isSingleEssay ? ({ overallReviewStatus: UserEssayConstants.STATUS.NEED_REVIEW }) : {})
+                        ...(shouldReviewOverall ? ({ overallReviewStatus: UserEssayConstants.STATUS.NEED_REVIEW }) : {})
                     }),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },
@@ -278,7 +279,7 @@ const updateUserEssay = async (input, opts = {}) => {
                         essayItemId: item.essayItemId,
                         answer: item.answer,
                         ...(opts.withReview ? ({
-                            reviewStatus: UserEssayConstants.STATUS.PENDING
+                            reviewStatus: UserEssayConstants.STATUS.QUEUED
                         }) : {
                             reviewStatus: UserEssayConstants.STATUS.NEED_REVIEW
                         }),

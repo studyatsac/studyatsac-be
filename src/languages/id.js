@@ -100,6 +100,7 @@ module.exports = Object.freeze({
         ESSAY_ITEM_UUID_NOT_VALID: 'ID item esai tidak valid',
         ANSWER_NOT_VALID: 'Jwaban tidak valid',
         REVIEW_NOT_VALID: 'Review tidak valid',
+        ALREADY_EXIST: 'Item esai pengguna sudah ada',
         CREATE_FAILED: 'Gagal membuat item esai pengguna',
         UPDATE_FAILED: 'Gagal memperbarui item esai pengguna',
         DELETE_FAILED: 'Gagal menghapus item esai pengguna'
