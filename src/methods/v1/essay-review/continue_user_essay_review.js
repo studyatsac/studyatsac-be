@@ -10,16 +10,16 @@ exports.continueUserEssayReview = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        const userId = req.session.id;
-        if (!userId) {
-            return res.status(404).json({ message: lang.USER_NOT_FOUND });
-        }
-
         let input;
         try {
             input = await ContinueEssayReviewValidation(lang).validateAsync(req.body);
         } catch (err) {
             return res.status(400).json({ message: err.message });
+        }
+
+        input.userId = req.session.id;
+        if (!input.userId) {
+            return res.status(404).json({ message: lang.USER_NOT_FOUND });
         }
 
         input.uuid = req.params.uuid;
