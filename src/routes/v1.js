@@ -620,6 +620,11 @@ router.post(
     require('../methods/v1/essay-review/review_user_essay').reviewUserEssay
 );
 router.post(
+    '/essay-reviews/:uuid/continue',
+    [tokenMiddleware],
+    require('../methods/v1/essay-review/continue_user_essay_review').continueUserEssayReview
+);
+router.post(
     '/essay-reviews/:uuid/retry',
     [tokenMiddleware],
     require('../methods/v1/essay-review/retry_user_essay_review').retryUserEssayReview
