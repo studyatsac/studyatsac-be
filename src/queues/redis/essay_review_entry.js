@@ -1,6 +1,7 @@
 const { Queue, Worker } = require('bullmq');
 const LogUtils = require('../../utils/logger');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
+const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
 const UserEssayConstants = require('../../constants/user_essay');
 const EssayReviewConstants = require('../../constants/essay_review');
 const Models = require('../../models/mysql');
@@ -16,23 +17,16 @@ async function processEssayReviewEntryJob(job) {
         { id: userEssayId },
         { include: { model: Models.UserEssayItem, as: 'essayItems' } }
     );
-    if (
-        !userEssay
-        || (userEssay.itemReviewStatus !== UserEssayConstants.STATUS.PENDING
-        && userEssay.overallReviewStatus !== UserEssayConstants.STATUS.PENDING)
-    ) {
-        return;
-    }
 
     const Queues = require('.');
 
     const pendingUserEssayItemIds = userEssay.essayItems.filter(
-        (item) => item.reviewStatus === UserEssayConstants.STATUS.PENDING
+        (item) => item.reviewStatus === UserEssayConstants.STATUS.QUEUED
     ).map((item) => item.id);
     if (pendingUserEssayItemIds.length) {
-        await UserEssayRepository.update(
-            { itemReviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
-            { id: userEssay.id }
+        await UserEssayItemRepository.update(
+            { reviewStatus: UserEssayConstants.STATUS.PENDING },
+            { id: pendingUserEssayItemIds }
         );
 
         pendingUserEssayItemIds.forEach((essayItemId) => {
@@ -45,9 +39,19 @@ async function processEssayReviewEntryJob(job) {
                 })
             );
         });
+
+        await UserEssayRepository.update(
+            { itemReviewStatus: UserEssayConstants.STATUS.PENDING },
+            { id: userEssay.id }
+        );
     }
 
-    if (userEssay.overallReviewStatus !== UserEssayConstants.STATUS.PENDING) return;
+    if (userEssay.overallReviewStatus !== UserEssayConstants.STATUS.QUEUED) return;
+
+    await UserEssayRepository.update(
+        { overallReviewStatus: UserEssayConstants.STATUS.PENDING },
+        { id: userEssay.id }
+    );
 
     Queues.EssayReview.add(EssayReviewConstants.JOB_NAME.OVERALL, JSON.stringify({ userEssayId: userEssay.id }));
 }

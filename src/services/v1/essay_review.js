@@ -52,13 +52,13 @@ const retryEssayReview = async (input, opts = {}) => {
         await Models.sequelize.transaction(async (trx) => {
             let shouldUpdate = userEssay.overallReviewStatus === UserEssayConstants.STATUS.FAILED;
             let payload = {};
-            if (shouldUpdate) payload = { overallReviewStatus: UserEssayConstants.STATUS.PENDING };
+            if (shouldUpdate) payload = { overallReviewStatus: UserEssayConstants.STATUS.QUEUED };
 
             const failedItems = userEssay.essayItems.filter((item) => item.reviewStatus === UserEssayConstants.STATUS.FAILED);
             if (failedItems.length) {
                 const failedItemIds = failedItems.map((item) => item.id);
                 const updatedItem = await UserEssayItemRepository.update(
-                    { reviewStatus: UserEssayConstants.STATUS.PENDING },
+                    { reviewStatus: UserEssayConstants.STATUS.QUEUED },
                     { id: failedItemIds },
                     trx
                 );
@@ -68,7 +68,7 @@ const retryEssayReview = async (input, opts = {}) => {
                 shouldAddJob = true;
                 shouldUpdate = true;
 
-                payload.itemReviewStatus = UserEssayConstants.STATUS.PENDING;
+                payload.itemReviewStatus = UserEssayConstants.STATUS.QUEUED;
             }
 
             if (shouldUpdate) {
@@ -147,7 +147,7 @@ const continueEssayReview = async (input, opts = {}) => {
             let shouldUpdate = userEssay.overallReviewStatus === UserEssayConstants.STATUS.NOT_STARTED;
             shouldUpdate = shouldUpdate && (inputEssayItems.length + (userEssay.essayItems?.length ?? 0) === essay.essayItems.length);
             let payload = {};
-            if (shouldUpdate) payload = { overallReviewStatus: UserEssayConstants.STATUS.PENDING };
+            if (shouldUpdate) payload = { overallReviewStatus: UserEssayConstants.STATUS.QUEUED };
 
             if (inputEssayItems.length) {
                 const essayItems = await UserEssayItemRepository.createMany(
@@ -155,7 +155,7 @@ const continueEssayReview = async (input, opts = {}) => {
                         userEssayId: userEssay.id,
                         essayItemId: item.essayItemId,
                         answer: item.answer,
-                        reviewStatus: UserEssayConstants.STATUS.PENDING
+                        reviewStatus: UserEssayConstants.STATUS.QUEUED
                     })),
                     trx
                 );
@@ -166,7 +166,7 @@ const continueEssayReview = async (input, opts = {}) => {
                 shouldAddJob = true;
                 shouldUpdate = true;
 
-                payload.itemReviewStatus = UserEssayConstants.STATUS.PENDING;
+                payload.itemReviewStatus = UserEssayConstants.STATUS.QUEUED;
             }
 
             if (shouldUpdate) {

@@ -134,9 +134,9 @@ const createUserEssay = async (input, opts = {}) => {
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasEssayItems ? ({
-                            itemReviewStatus: UserEssayConstants.STATUS.PENDING
+                            itemReviewStatus: UserEssayConstants.STATUS.QUEUED
                         }) : {}),
-                        ...(shouldReviewOverall ? ({ overallReviewStatus: UserEssayConstants.STATUS.PENDING }) : {})
+                        ...(shouldReviewOverall ? ({ overallReviewStatus: UserEssayConstants.STATUS.QUEUED }) : {})
                     }) : {}),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },
@@ -151,7 +151,7 @@ const createUserEssay = async (input, opts = {}) => {
                         essayItemId: item.essayItemId,
                         answer: item.answer,
                         ...(opts.withReview ? ({
-                            reviewStatus: UserEssayConstants.STATUS.PENDING
+                            reviewStatus: UserEssayConstants.STATUS.QUEUED
                         }) : {}),
                         ...(!opts.isRestricted ? { review: item.review } : {})
                     })),
@@ -255,9 +255,9 @@ const updateUserEssay = async (input, opts = {}) => {
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasEssayItems ? ({
-                            itemReviewStatus: UserEssayConstants.STATUS.PENDING
+                            itemReviewStatus: UserEssayConstants.STATUS.QUEUED
                         }) : {}),
-                        ...(shouldReviewOverall ? ({ overallReviewStatus: UserEssayConstants.STATUS.PENDING }) : {})
+                        ...(shouldReviewOverall ? ({ overallReviewStatus: UserEssayConstants.STATUS.QUEUED }) : {})
                     }) : {
                         ...(hasEssayItems ? ({
                             itemReviewStatus: UserEssayConstants.STATUS.NEED_REVIEW
@@ -279,7 +279,7 @@ const updateUserEssay = async (input, opts = {}) => {
                         essayItemId: item.essayItemId,
                         answer: item.answer,
                         ...(opts.withReview ? ({
-                            reviewStatus: UserEssayConstants.STATUS.PENDING
+                            reviewStatus: UserEssayConstants.STATUS.QUEUED
                         }) : {
                             reviewStatus: UserEssayConstants.STATUS.NEED_REVIEW
                         }),
