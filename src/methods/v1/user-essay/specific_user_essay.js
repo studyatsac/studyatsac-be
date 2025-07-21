@@ -15,7 +15,10 @@ exports.getSpecificUserEssay = async (req, res) => {
         }
 
         const { uuid } = req.params;
-        const result = await UserEssayService.getUserEssay({ uuid, userId }, { lang });
+        const result = await UserEssayService.getUserEssay(
+            { uuid, userId },
+            { lang, isDetailed: true }
+        );
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

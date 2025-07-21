@@ -85,10 +85,7 @@ async function processEssayReviewOverallJob(job) {
             include: {
                 model: Models.UserEssayItem,
                 as: 'essayItems',
-                include: {
-                    model: Models.EssayItem,
-                    as: 'essayItem'
-                }
+                include: { model: Models.EssayItem, as: 'essayItem' }
             }
         }
     );
@@ -146,12 +143,19 @@ async function processEssayReviewItemJob(job) {
         return;
     }
 
+    if (userEssay.itemReviewStatus !== UserEssayConstants.STATUS.IN_PROGRESS) {
+        await UserEssayRepository.update(
+            { itemReviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
+            { id: userEssay.id }
+        );
+    }
+
     await UserEssayItemRepository.update(
         { reviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
         { id: userEssayItem.id }
     );
 
-    let reviewStatus = false;
+    let isReviewSuccess = false;
     try {
         const review = await callApiReview(
             userEssayId,
@@ -167,7 +171,7 @@ async function processEssayReviewItemJob(job) {
             { id: userEssayItem.id }
         );
 
-        reviewStatus = true;
+        isReviewSuccess = true;
     } catch (err) {
         LogUtils.loggingError({ functionName: 'processEssayReviewItemJob', message: err.message });
 
@@ -178,7 +182,7 @@ async function processEssayReviewItemJob(job) {
     }
 
     const pendingUserEssayItemIds = jobData.pendingUserEssayItemIds;
-    let itemReviewStatus = reviewStatus ? UserEssayConstants.STATUS.COMPLETED : UserEssayConstants.STATUS.PARTIALLY_COMPLETED;
+    let itemReviewStatus = isReviewSuccess ? UserEssayConstants.STATUS.COMPLETED : UserEssayConstants.STATUS.PARTIALLY_COMPLETED;
     if (pendingUserEssayItemIds && Array.isArray(pendingUserEssayItemIds)) {
         const userEssayItems = await UserEssayItemRepository.findAll({
             id: pendingUserEssayItemIds,
