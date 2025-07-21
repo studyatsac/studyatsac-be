@@ -108,7 +108,7 @@ const createUserEssay = async (input, opts = {}) => {
 
     let inputEssayItems = [];
     if (input.essayItems && Array.isArray(input.essayItems)) {
-        inputEssayItems = EssayReviewUtils.uniqEssayItems(input.essayItems);
+        inputEssayItems = EssayReviewUtils.uniqInputEssayItems(input.essayItems);
         for (let index = 0; index < inputEssayItems.length; index++) {
             const essayItem = essay.essayItems.find((item) => item.uuid === inputEssayItems[index].essayItemUuid);
             if (!essayItem) {
@@ -205,7 +205,7 @@ const updateUserEssay = async (input, opts = {}) => {
 
     let inputEssayItems = [];
     if (input.essayItems && Array.isArray(input.essayItems)) {
-        inputEssayItems = EssayReviewUtils.uniqEssayItems(input.essayItems);
+        inputEssayItems = EssayReviewUtils.uniqInputEssayItems(input.essayItems);
         for (let index = 0; index < inputEssayItems.length; index++) {
             // eslint-disable-next-line no-loop-func
             const essayItem = essay.essayItems.find((item) => item.uuid === inputEssayItems[index].essayItemUuid);

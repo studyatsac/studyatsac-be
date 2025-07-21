@@ -28,7 +28,12 @@ if ((redisPath || (host && port)) && Object.keys(queue).length === 0) {
         .filter((file) => (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js'))
         .forEach((file) => {
             const model = require(path.join(dirname, file))(redis, defaultJobOptions);
-            queue[model.name] = model;
+
+            let name = model.name;
+            const prefix = `${process.env.QUEUE_PREFIX}-`;
+            if (name.startsWith(prefix)) name = name.replace(prefix, '');
+
+            queue[name] = model;
         });
 }
 

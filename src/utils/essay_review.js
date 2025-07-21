@@ -1,16 +1,16 @@
-const uniqEssayItems = (essayItems) => {
+const uniqInputEssayItems = (essayItems) => {
     const essayItemUuids = [];
     const newEssayItems = [];
     essayItems?.forEach((essayItem) => {
-        if (essayItemUuids.includes(essayItem.uuid)) return;
+        if (essayItemUuids.includes(essayItem.essayItemUuid)) return;
 
         newEssayItems.push(essayItem);
-        essayItemUuids.push(essayItem.uuid);
+        essayItemUuids.push(essayItem.essayItemUuid);
     });
 
     return newEssayItems;
 };
 
-exports.uniqEssayItems = uniqEssayItems;
+exports.uniqInputEssayItems = uniqInputEssayItems;
 
 module.exports = exports;

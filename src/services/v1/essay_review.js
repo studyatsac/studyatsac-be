@@ -124,7 +124,7 @@ const continueEssayReview = async (input, opts = {}) => {
 
     let inputEssayItems = [];
     if (input.essayItems && Array.isArray(input.essayItems)) {
-        inputEssayItems = EssayReviewUtils.uniqEssayItems(input.essayItems);
+        inputEssayItems = EssayReviewUtils.uniqInputEssayItems(input.essayItems);
         for (let index = 0; index < inputEssayItems.length; index++) {
             const userEssayItem = userEssay.essayItems?.find(
                 (item) => item.essayItem.uuid === inputEssayItems[index].essayItemUuid
