@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         status: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserInterviewConstants.SECTION_STATUS.NOT_STARTED
         },
         startedAt: {
             type: DataTypes.DATE,

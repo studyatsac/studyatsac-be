@@ -182,7 +182,8 @@ const createUserInterview = async (input, opts = {}) => {
                         }) : {}),
                         ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.STATUS.QUEUED }) : {})
                     }) : {}),
-                    ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
+                    ...(!opts.isRestricted ? { overallReview: input.overallReview } : {}),
+                    ...(opts.withMock ? { status: UserInterviewConstants.SECTION_STATUS.PENDING } : {})
                 },
                 trx
             );
@@ -204,7 +205,8 @@ const createUserInterview = async (input, opts = {}) => {
                                 answerReviewStatus: UserInterviewConstants.STATUS.QUEUED
                             }) : {})
                         }) : {}),
-                        ...(!opts.isRestricted ? { review: item.review } : {})
+                        ...(!opts.isRestricted ? { review: item.review } : {}),
+                        ...(opts.withMock ? { status: UserInterviewConstants.SECTION_STATUS.PENDING } : {})
                     }, trx);
                     if (!userInterviewSection) throw new UserInterviewError(language.USER_INTERVIEW_SECTION.CREATE_FAILED);
 

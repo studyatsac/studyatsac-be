@@ -36,7 +36,7 @@ exports.startMockInterview = async (req, res) => {
 
         const result = await UserInterviewService.createUserInterview(
             input,
-            { lang, isRestricted: true }
+            { lang, isRestricted: true, withMock: true }
         );
 
         if (!result.status) {
