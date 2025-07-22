@@ -49,12 +49,12 @@ module.exports = (sequelize, DataTypes) => {
         sectionReviewStatus: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserInterviewConstants.REVIEW_STATUS.NOT_STARTED
         },
         overallReviewStatus: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserInterviewConstants.REVIEW_STATUS.NOT_STARTED
         },
         language: {
             type: DataTypes.STRING(20),

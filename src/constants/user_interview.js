@@ -1,4 +1,4 @@
-const STATUS = {
+const REVIEW_STATUS = {
     NOT_STARTED: 'not_started',
     NEED_REVIEW: 'need_review',
     QUEUED: 'queued',
@@ -10,7 +10,7 @@ const STATUS = {
     CANCELLED: 'cancelled'
 };
 
-const SECTION_STATUS = {
+const STATUS = {
     NOT_STARTED: 'not_started',
     PENDING: 'pending',
     IN_PROGRESS: 'in_progress',
@@ -19,6 +19,8 @@ const SECTION_STATUS = {
     FAILED: 'failed',
     CANCELLED: 'cancelled'
 };
+
+const SECTION_STATUS = { ...STATUS };
 
 const SECTION_ANSWER_STATUS = {
     NOT_STARTED: 'not_started',
@@ -32,4 +34,9 @@ const SECTION_ANSWER_STATUS = {
     CANCELLED: 'cancelled'
 };
 
-module.exports = { STATUS, SECTION_STATUS, SECTION_ANSWER_STATUS };
+module.exports = {
+    STATUS,
+    SECTION_STATUS,
+    SECTION_ANSWER_STATUS,
+    REVIEW_STATUS
+};

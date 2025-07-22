@@ -178,9 +178,9 @@ const createUserInterview = async (input, opts = {}) => {
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasInterviewSections ? ({
-                            sectionReviewStatus: UserInterviewConstants.STATUS.QUEUED
+                            sectionReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                         }) : {}),
-                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.STATUS.QUEUED }) : {})
+                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED }) : {})
                     }) : {}),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {}),
                     ...(opts.withMock ? { status: UserInterviewConstants.SECTION_STATUS.PENDING } : {})
@@ -200,9 +200,9 @@ const createUserInterview = async (input, opts = {}) => {
                         userInterviewId: userInterview.id,
                         interviewSectionId: item.interviewSectionId,
                         ...(opts.withReview ? ({
-                            reviewStatus: UserInterviewConstants.STATUS.QUEUED,
+                            reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED,
                             ...(hasInterviewSectionAnswers ? ({
-                                answerReviewStatus: UserInterviewConstants.STATUS.QUEUED
+                                answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                             }) : {})
                         }) : {}),
                         ...(!opts.isRestricted ? { review: item.review } : {}),
@@ -216,7 +216,7 @@ const createUserInterview = async (input, opts = {}) => {
                             interviewSectionQuestionId: answer.interviewSectionQuestionId,
                             answer: answer.answer,
                             ...(opts.withReview ? ({
-                                reviewStatus: UserInterviewConstants.STATUS.QUEUED
+                                reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                             }) : {}),
                             ...(!opts.isRestricted ? { review: answer.review } : {})
                         })), trx);
@@ -362,14 +362,14 @@ const updateUserInterview = async (input, opts = {}) => {
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasInterviewSections ? ({
-                            sectionReviewStatus: UserInterviewConstants.STATUS.QUEUED
+                            sectionReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                         }) : {}),
-                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.STATUS.QUEUED }) : {})
+                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED }) : {})
                     }) : {
                         ...(hasInterviewSections ? ({
-                            sectionReviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW
+                            sectionReviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW
                         }) : {}),
-                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW }) : {})
+                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW }) : {})
                     }),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },
@@ -419,14 +419,14 @@ const updateUserInterview = async (input, opts = {}) => {
                         userInterviewId: userInterview.id,
                         interviewSectionId: item.interviewSectionId,
                         ...(opts.withReview ? ({
-                            reviewStatus: UserInterviewConstants.STATUS.QUEUED,
+                            reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED,
                             ...(hasInterviewSectionAnswers ? ({
-                                answerReviewStatus: UserInterviewConstants.STATUS.QUEUED
+                                answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                             }) : {})
                         }) : {
-                            reviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW,
+                            reviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW,
                             ...(hasInterviewSectionAnswers ? ({
-                                answerReviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW
+                                answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW
                             }) : {})
                         }),
                         ...(!opts.isRestricted ? { review: item.review } : {})
@@ -448,9 +448,9 @@ const updateUserInterview = async (input, opts = {}) => {
                                 interviewSectionQuestionId: answer.interviewSectionQuestionId,
                                 answer: answer.answer,
                                 ...(opts.withReview ? ({
-                                    reviewStatus: UserInterviewConstants.STATUS.QUEUED
+                                    reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                                 }) : {
-                                    reviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW
+                                    reviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW
                                 }),
                                 ...(!opts.isRestricted ? { review: answer.review } : {})
                             }, trx);

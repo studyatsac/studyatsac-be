@@ -1,3 +1,4 @@
+const Moment = require('moment');
 const Response = require('../../utils/response');
 const ProductPackageRepository = require('../../repositories/mysql/product_package');
 const ProductPackageConstants = require('../../constants/product_package');
@@ -39,7 +40,7 @@ const startMockInterview = async (input, opts = {}) => {
     }
 
     const updateData = await UserInterviewRepository.update(
-        { status: UserInterviewConstants.STATUS.IN_PROGRESS },
+        { status: UserInterviewConstants.STATUS.IN_PROGRESS, startedAt: Moment().format() },
         { id: userInterview.id }
     );
     if (!updateData) {
