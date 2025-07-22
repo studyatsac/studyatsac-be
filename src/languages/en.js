@@ -312,6 +312,8 @@ module.exports = Object.freeze({
         DELETE_FAILED: 'Failed to delete interview package mapping'
     },
     MOCK_INTERVIEW: {
-        EXCEED_MAX_ATTEMPT: 'Mock interview trial is over'
+        EXCEED_MAX_ATTEMPT: 'Mock interview trial is over',
+        STARTED_IN_PROGRESS: 'Mock interview is already started or in progress',
+        CANNOT_STARTED: 'Mock interview can be not started yet'
     }
 });

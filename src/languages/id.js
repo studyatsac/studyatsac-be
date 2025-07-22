@@ -311,6 +311,8 @@ module.exports = Object.freeze({
         DELETE_FAILED: 'Gagal menghapus item paket wawancara'
     },
     MOCK_INTERVIEW: {
-        EXCEED_MAX_ATTEMPT: 'Percobaan mockup wawancara telah habis'
+        EXCEED_MAX_ATTEMPT: 'Percobaan mockup wawancara telah habis',
+        STARTED_IN_PROGRESS: 'Mockup wawancara sudah pernah dimulai atau sedang berlangsung',
+        CANNOT_STARTED: 'Mockup wawancara belum bisa dimulai'
     }
 });

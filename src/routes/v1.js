@@ -749,7 +749,12 @@ router.get(
 );
 
 router.post(
-    '/mock-interviews/start',
+    '/mock-interviews/init',
+    [tokenMiddleware],
+    require('../methods/v1/mock-interview/init_mock_interview').initMockInterview
+);
+router.post(
+    '/mock-interviews/:uuid/start',
     [tokenMiddleware],
     require('../methods/v1/mock-interview/start_mock_interview').startMockInterview
 );
