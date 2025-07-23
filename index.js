@@ -35,16 +35,14 @@ app.use('/v1', routerV1);
 
 io.use(socketConnectionMiddleware);
 io.on('connection', (client) => {
-    console.log('user connected', client?.id);
+    console.log(new Date(), 'socket user connected', client?.handshake?.auth?.user?.email);
     client.on('disconnect', () => {
-        console.log('user disconnected', client?.id);
-        console.log((new Date()));
+        console.log(new Date(), 'socket user disconnected', client?.handshake?.auth?.user?.email);
     });
 });
 
 const host = process.env.APP_URL;
 const port = process.env.APP_PORT;
 server.listen(port, () => {
-    console.log(`app running on ${host}:${port}`);
-    console.log((new Date()));
+    console.log(new Date(), `app running on ${host}:${port}`);
 });
