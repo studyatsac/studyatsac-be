@@ -29,6 +29,7 @@
     "nodemailer": "^6.10.1",
     "openai": "^5.8.4",
     "sequelize": "^6.37.3",
+    "socket.io": "^4.8.1",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
