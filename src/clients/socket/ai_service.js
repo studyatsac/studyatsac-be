@@ -14,8 +14,8 @@ if (!aiServiceSocket) {
         LogUtils.logError('ai service socket connection error', reason);
         delete closeCallbacks.disconnect;
     });
-    aiServiceSocket.on('disconnect', (reason, details) => {
-        LogUtils.logDebug('ai service socket disconnected', reason, details);
+    aiServiceSocket.on('disconnect', (reason) => {
+        LogUtils.logDebug('ai service socket disconnected', reason);
         delete closeCallbacks.disconnect;
     });
 }

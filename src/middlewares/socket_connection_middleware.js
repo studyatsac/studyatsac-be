@@ -14,7 +14,6 @@ module.exports = async (client, next) => {
         if (result?.password) { delete result.password; }
 
         client.handshake.auth.user = result;
-        console.log('coming');
 
         return next();
     } catch {
