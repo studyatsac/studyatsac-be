@@ -25,8 +25,6 @@ require('./src/workers/bullmq');
 require('./src/subscriptions/socket-io');
 
 const app = express();
-const server = http.createServer(app);
-const io = new socket.Server(server, { cors: { origin: '*' } });
 
 app.set('trust proxy', 1);
 
@@ -38,11 +36,13 @@ app.use(cors({
     credentials: true,
     optionsSuccessStatus: 200
 }));
-
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('./storage'));
 app.use('/v1', routerV1);
+
+const server = http.createServer(app);
+const io = new socket.Server(server, { cors: { origin: '*' } });
 
 io.use(socketConnectionMiddleware);
 io.on('connection', (client) => {

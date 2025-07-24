@@ -4,6 +4,9 @@ const ProductPackageRepository = require('../../repositories/mysql/product_packa
 const ProductPackageConstants = require('../../constants/product_package');
 const UserInterviewRepository = require('../../repositories/mysql/user_interview');
 const UserInterviewConstants = require('../../constants/user_interview');
+const MockInterviewUtils = require('../../utils/mock_interview');
+const Models = require('../../models/mysql');
+const AiServiceSocket = require('../../clients/socket/ai_service');
 
 const getPaidMockInterviewPackage = async (input, opts = {}) => {
     const language = opts.lang;
@@ -39,10 +42,17 @@ const startMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.STARTED_IN_PROGRESS);
     }
 
-    const updateData = await UserInterviewRepository.update(
-        { status: UserInterviewConstants.STATUS.IN_PROGRESS, startedAt: Moment().format() },
-        { id: userInterview.id }
-    );
+    const updateData = await Models.sequelize.transaction(async (trx) => {
+        const result = await UserInterviewRepository.update(
+            { status: UserInterviewConstants.STATUS.IN_PROGRESS, startedAt: Moment().format() },
+            { id: userInterview.id },
+            trx
+        );
+
+        await MockInterviewUtils.setMockInterviewCache(input.userId, input.uuid);
+
+        return result;
+    });
     if (!updateData) {
         return Response.formatServiceReturn(false, 500, null, language.USER_INTERVIEW.UPDATE_FAILED);
     }
@@ -50,7 +60,13 @@ const startMockInterview = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, userInterview, null);
 };
 
+const speakMockInterview = async (input) => {
+    if (!(await MockInterviewUtils.isMockInterviewRunning(input.userId, input.uuid))) return;
+    AiServiceSocket.emitSpeechEvent(input.uuid, input.buffer);
+};
+
 exports.getPaidMockInterviewPackage = getPaidMockInterviewPackage;
 exports.startMockInterview = startMockInterview;
+exports.speakMockInterview = speakMockInterview;
 
 module.exports = exports;
