@@ -1,9 +1,9 @@
 const AiServiceSocket = require('../../clients/socket/ai_service');
 
 module.exports = () => {
-    const listeners = [console.log];
+    const listeners = [];
 
-    const unsubscribeAll = AiServiceSocket.subscribeTranscribeEvent((...params) => {
+    const unsubscribeAll = AiServiceSocket.subscribeEvent('transcript', (...params) => {
         listeners.forEach((listener) => listener(...params));
     });
 

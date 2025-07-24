@@ -50,6 +50,7 @@ const startMockInterview = async (input, opts = {}) => {
         );
 
         await MockInterviewUtils.setMockInterviewCache(input.userId, input.uuid);
+        if (!(await AiServiceSocket.emitEventWithAck('init_speech', input.uuid))) throw new Error('init_speech failed');
 
         return result;
     });
@@ -62,7 +63,7 @@ const startMockInterview = async (input, opts = {}) => {
 
 const speakMockInterview = async (input) => {
     if (!(await MockInterviewUtils.isMockInterviewRunning(input.userId, input.uuid))) return;
-    AiServiceSocket.emitSpeechEvent(input.uuid, input.buffer);
+    AiServiceSocket.emitEvent('speech', input.uuid, input.buffer, console.log);
 };
 
 exports.getPaidMockInterviewPackage = getPaidMockInterviewPackage;

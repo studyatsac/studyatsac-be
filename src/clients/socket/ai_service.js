@@ -27,19 +27,21 @@ const closeSocket = () => {
     });
 };
 
-const emitSpeechEvent = (userInterviewUuid, buffer) => {
-    aiServiceSocket?.emit('speech', buffer, userInterviewUuid);
+const emitEvent = (event, ...params) => {
+    aiServiceSocket?.emit(event, ...params);
 };
 
-let transcriptionSubscriptionCounter = 0;
-const subscribeTranscribeEvent = (callback) => {
-    aiServiceSocket?.on('transcript', callback);
+const emitEventWithAck = async (event, ...params) => aiServiceSocket?.emitWithAck(event, ...params);
 
-    const unsubscribe = () => aiServiceSocket?.off('transcript', callback);
+let transcriptionSubscriptionCounter = 0;
+const subscribeEvent = (event, callback) => {
+    aiServiceSocket?.on(event, callback);
+
+    const unsubscribe = () => aiServiceSocket?.off(event, callback);
 
     transcriptionSubscriptionCounter += 1;
-    const closeCallbackName = `transcript${transcriptionSubscriptionCounter}`;
-    closeCallbacks[closeCallbackName] = () => aiServiceSocket?.off('transcript', callback);
+    const closeCallbackName = `${event}${transcriptionSubscriptionCounter}`;
+    closeCallbacks[closeCallbackName] = () => aiServiceSocket?.off(event, callback);
 
     return () => {
         unsubscribe();
@@ -49,7 +51,8 @@ const subscribeTranscribeEvent = (callback) => {
 
 exports.aiServiceSocket = aiServiceSocket;
 exports.closeSocket = closeSocket;
-exports.emitSpeechEvent = emitSpeechEvent;
-exports.subscribeTranscribeEvent = subscribeTranscribeEvent;
+exports.emitEvent = emitEvent;
+exports.emitEventWithAck = emitEventWithAck;
+exports.subscribeEvent = subscribeEvent;
 
 module.exports = exports;
