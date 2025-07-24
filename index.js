@@ -11,7 +11,18 @@ const cors = require('cors');
 const http = require('http');
 const socket = require('socket.io');
 const routerV1 = require('./src/routes/v1');
+const eventV1 = require('./src/events/v1');
 const socketConnectionMiddleware = require('./src/middlewares/socket_connection_middleware');
+
+// Init clients
+require('./src/clients/socket/ai_service');
+require('./src/clients/http/open_ai');
+
+// Init queue workers
+require('./src/workers/bullmq');
+
+// Init socket subscriptions
+require('./src/subscriptions/socket-io');
 
 const app = express();
 const server = http.createServer(app);
@@ -36,6 +47,9 @@ app.use('/v1', routerV1);
 io.use(socketConnectionMiddleware);
 io.on('connection', (client) => {
     console.log(new Date(), 'socket user connected', client?.handshake?.auth?.user?.email);
+    eventV1.forEach(({ event, callback }) => {
+        client.on(event, (...params) => callback(client, ...params));
+    });
     client.on('disconnect', () => {
         console.log(new Date(), 'socket user disconnected', client?.handshake?.auth?.user?.email);
     });
