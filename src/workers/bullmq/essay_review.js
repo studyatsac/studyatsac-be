@@ -1,5 +1,4 @@
-const { Queue, Worker } = require('bullmq');
-const OpenAI = require('openai');
+const { Worker } = require('bullmq');
 const LogUtils = require('../../utils/logger');
 const PromptUtils = require('../../utils/prompt');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
@@ -9,8 +8,8 @@ const CommonConstants = require('../../constants/common');
 const EssayReviewLogRepository = require('../../repositories/mysql/essay_review_log');
 const Models = require('../../models/mysql');
 const EssayReviewConstants = require('../../constants/essay_review');
-
-const openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const OpenAiUtils = require('../../clients/http/open_ai');
+const Queues = require('../../queues/bullmq');
 
 async function insertEssayReviewLog(payload, data, isSuccess = false) {
     try {
@@ -45,8 +44,7 @@ async function insertEssayReviewLog(payload, data, isSuccess = false) {
 
 async function callApiReview(userEssayId, content, topic = 'Overall Essay', criteria, language, backgroundDescription) {
     try {
-        const response = await openAi.chat.completions.create({
-            model: 'gpt-4o-mini',
+        const response = await OpenAiUtils.callOpenAiCompletion({
             messages: [
                 {
                     role: 'system',
@@ -59,9 +57,7 @@ async function callApiReview(userEssayId, content, topic = 'Overall Essay', crit
                         content
                     )
                 }
-            ],
-            temperature: 0.3,
-            max_tokens: 16384
+            ]
         });
 
         await insertEssayReviewLog({ userEssayId }, response, true);
@@ -210,34 +206,25 @@ async function processEssayReviewJob(job) {
     }
 }
 
-module.exports = (redis, defaultJobOptions) => {
-    const queueName = 'EssayReview';
-    const finalQueueName = `${process.env.QUEUE_PREFIX}-${queueName}`;
+module.exports = (redis) => {
+    const queue = Queues.EssayReview;
+    const queueName = queue.name;
 
-    const queue = new Queue(finalQueueName, { connection: redis.queue, defaultJobOptions });
-    const defaultWorker = new Worker(
-        finalQueueName,
+    const worker = new Worker(
+        queueName,
         processEssayReviewJob,
         {
-            connection: redis.worker,
+            connection: redis,
             autorun: true,
             concurrency: 1,
             limiter: { max: 3, duration: 60 * 1000 }
         }
     );
-
-    queue.defaultWorker = defaultWorker;
-
-    queue.on('error', (err) => {
-        LogUtils.loggingError(`Queue ${queueName} Error: ${err.message}`);
-    });
-    defaultWorker.on('error', (err) => {
+    worker.on('error', (err) => {
         LogUtils.loggingError(`Worker ${queueName} Error: ${err.message}`);
     });
 
-    queue.addDefaultJob = (data, opts) => {
-        queue.add('default', data, opts);
-    };
+    queue.defaultWorker = worker;
 
-    return queue;
+    return worker;
 };

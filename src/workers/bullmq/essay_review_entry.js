@@ -1,10 +1,11 @@
-const { Queue, Worker } = require('bullmq');
+const { Worker } = require('bullmq');
 const LogUtils = require('../../utils/logger');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
 const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
 const UserEssayConstants = require('../../constants/user_essay');
 const EssayReviewConstants = require('../../constants/essay_review');
 const Models = require('../../models/mysql');
+const Queues = require('../../queues/bullmq');
 
 async function processEssayReviewEntryJob(job) {
     if (job.name !== EssayReviewConstants.JOB_NAME.ENTRY) return;
@@ -17,8 +18,6 @@ async function processEssayReviewEntryJob(job) {
         { id: userEssayId },
         { include: { model: Models.UserEssayItem, as: 'essayItems' } }
     );
-
-    const Queues = require('.');
 
     const pendingUserEssayItemIds = userEssay.essayItems.filter(
         (item) => item.reviewStatus === UserEssayConstants.STATUS.QUEUED
@@ -56,25 +55,20 @@ async function processEssayReviewEntryJob(job) {
     Queues.EssayReview.add(EssayReviewConstants.JOB_NAME.OVERALL, JSON.stringify({ userEssayId: userEssay.id }));
 }
 
-module.exports = (redis, defaultJobOptions) => {
-    const queueName = 'EssayReviewEntry';
-    const finalQueueName = `${process.env.QUEUE_PREFIX}-${queueName}`;
+module.exports = (redis) => {
+    const queue = Queues.EssayReviewEntry;
+    const queueName = queue.name;
 
-    const queue = new Queue(finalQueueName, { connection: redis.queue, defaultJobOptions });
-    const defaultWorker = new Worker(
-        finalQueueName,
+    const worker = new Worker(
+        queueName,
         processEssayReviewEntryJob,
-        { connection: redis.worker, autorun: true }
+        { connection: redis, autorun: true }
     );
-
-    queue.defaultWorker = defaultWorker;
-
-    queue.on('error', (err) => {
-        LogUtils.loggingError(`Queue ${queueName} Error: ${err.message}`);
-    });
-    defaultWorker.on('error', (err) => {
+    worker.on('error', (err) => {
         LogUtils.loggingError(`Worker ${queueName} Error: ${err.message}`);
     });
 
-    return queue;
+    queue.defaultWorker = worker;
+
+    return worker;
 };

@@ -19,10 +19,7 @@ const defaultJobOptions = {
 };
 
 if ((redisPath || (host && port)) && Object.keys(queue).length === 0) {
-    const redisQueue = new Redis(config);
-    const redisWorker = new Redis({ ...config, maxRetriesPerRequest: null });
-
-    const redis = { queue: redisQueue, worker: redisWorker };
+    const redis = new Redis(config);
 
     fs.readdirSync(dirname)
         .filter((file) => (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js'))
