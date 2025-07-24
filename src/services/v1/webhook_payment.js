@@ -28,7 +28,7 @@ const insertPaymentLog = async (input) => {
 
         await PaymentLogRepository.createMany(payloads);
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'insertPaymentLog', message: err.message });
+        LogUtils.logError({ functionName: 'insertPaymentLog', message: err.message });
     }
 };
 

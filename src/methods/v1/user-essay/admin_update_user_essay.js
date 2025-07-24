@@ -36,7 +36,7 @@ exports.updateUserEssay = async (req, res) => {
             message: lang.USER_ESSAY.UPDATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'updateUserEssay',
             message: err.message
         });

@@ -21,7 +21,7 @@ exports.getActiveExam = async (req, res) => {
             data: ActiveExamTransformer.item(result.data)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getActiveExam',
             message: err.message
         });

@@ -34,7 +34,7 @@ exports.getEssayPackageList = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getEssayPackageList',
             message: err.message
         });

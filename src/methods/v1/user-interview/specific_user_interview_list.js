@@ -43,7 +43,7 @@ exports.getSpecificUserInterviewList = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getUserInterviewList',
             message: err.message
         });

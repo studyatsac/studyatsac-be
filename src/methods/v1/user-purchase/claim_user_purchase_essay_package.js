@@ -35,7 +35,7 @@ exports.claimUserPurchaseEssayPackage = async (req, res) => {
             message: lang.USER_PURCHASE.ESSAY_PACKAGE_CLAIM_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'claimUserPurchaseEssayPackage',
             message: err.message
         });

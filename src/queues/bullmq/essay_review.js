@@ -8,7 +8,7 @@ module.exports = (redis, defaultJobOptions) => {
     const queue = new Queue(finalQueueName, { connection: redis, defaultJobOptions });
 
     queue.on('error', (err) => {
-        LogUtils.loggingError(`Queue ${queueName} Error: ${err.message}`);
+        LogUtils.logError(`Queue ${queueName} Error: ${err.message}`);
     });
 
     return queue;

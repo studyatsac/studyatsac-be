@@ -33,7 +33,7 @@ exports.continueUserEssayReview = async (req, res) => {
             message: lang.USER_ESSAY.UPDATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'continueUserEssayReview',
             message: err.message
         });

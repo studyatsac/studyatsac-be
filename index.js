@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
     this code was written hastily and carelessly
     there is no design beforehand carefully, because it is done with a short free time
@@ -13,6 +12,7 @@ const socket = require('socket.io');
 const routerV1 = require('./src/routes/v1');
 const eventV1 = require('./src/events/v1');
 const socketConnectionMiddleware = require('./src/middlewares/socket_connection_middleware');
+const LogUtils = require('./src/utils/logger');
 
 // Init clients
 require('./src/clients/socket/ai_service');
@@ -46,17 +46,17 @@ app.use('/v1', routerV1);
 
 io.use(socketConnectionMiddleware);
 io.on('connection', (client) => {
-    console.log(new Date(), 'socket user connected', client?.handshake?.auth?.user?.email);
+    LogUtils.logDebug('socket user connected', client?.handshake?.auth?.user?.email);
     eventV1.forEach(({ event, callback }) => {
         client.on(event, (...params) => callback(client, ...params));
     });
     client.on('disconnect', () => {
-        console.log(new Date(), 'socket user disconnected', client?.handshake?.auth?.user?.email);
+        LogUtils.logDebug('socket user disconnected', client?.handshake?.auth?.user?.email);
     });
 });
 
 const host = process.env.APP_URL;
 const port = process.env.APP_PORT;
 server.listen(port, () => {
-    console.log(new Date(), `app running on ${host}:${port}`);
+    LogUtils.logDebug(`app running on ${host}:${port}`);
 });

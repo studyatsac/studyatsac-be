@@ -17,7 +17,7 @@ exports.deleteInterview = async (req, res) => {
 
         return res.status(200).json({ message: lang.INTERVIEW.DELETE_SUCCESS });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'deleteInterview',
             message: err.message
         });

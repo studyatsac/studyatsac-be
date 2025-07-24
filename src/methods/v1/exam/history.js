@@ -41,7 +41,7 @@ exports.getExamHistory = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getExamHistory',
             message: err.message
         });

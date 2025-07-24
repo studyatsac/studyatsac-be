@@ -24,7 +24,7 @@ exports.getDetailedUserInterview = async (req, res) => {
             message: ''
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getDetailedUserInterview',
             message: err.message
         });

@@ -48,7 +48,7 @@ exports.initMockInterview = async (req, res) => {
             message: lang.USER_INTERVIEW.CREATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'initMockInterview',
             message: err.message
         });

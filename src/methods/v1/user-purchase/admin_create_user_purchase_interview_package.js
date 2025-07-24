@@ -28,7 +28,7 @@ exports.createUserPurchaseInterviewPackage = async (req, res) => {
             message: lang.USER_PURCHASE.CREATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'createUserPurchaseInterviewPackage',
             message: err.message
         });

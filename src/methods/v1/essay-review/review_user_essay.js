@@ -51,7 +51,7 @@ exports.reviewUserEssay = async (req, res) => {
 
         return res.status(200).json({ data: UserEssayTransformer.userEssayItem(result.data), message: lang.USER_ESSAY.CREATE_SUCCESS });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'reviewUserEssay',
             message: err.message
         });

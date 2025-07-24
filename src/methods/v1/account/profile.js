@@ -23,7 +23,7 @@ exports.getAccountProfile = async (req, res) => {
             data: AccountProfileTransformer.item(result.data)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getAccountProfile',
             message: err.message
         });

@@ -5,6 +5,6 @@ const addEvent = (event, callback) => {
     events.push({ event, callback });
 };
 
-addEvent('speak', require('../handlers/v1/mock-interview/speak-mock-interview').speakMockInterview);
+addEvent('speak', require('../handlers/v1/mock-interview/speak_mock_interview').speakMockInterview);
 
 module.exports = events;

@@ -34,7 +34,7 @@ exports.getUserPurchaseInterviewPackageList = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getUserPurchaseInterviewPackageList',
             message: err.message
         });

@@ -38,7 +38,7 @@ async function insertEssayReviewLog(payload, data, isSuccess = false) {
 
         await EssayReviewLogRepository.create({ ...payload, metadata });
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'insertEssayReviewLog', message: err.message });
+        LogUtils.logError({ functionName: 'insertEssayReviewLog', message: err.message });
     }
 }
 
@@ -111,7 +111,7 @@ async function processEssayReviewOverallJob(job) {
             { id: userEssay.id }
         );
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'processEssayReviewOverallJob', message: err.message });
+        LogUtils.logError({ functionName: 'processEssayReviewOverallJob', message: err.message });
 
         await UserEssayRepository.update(
             { overallReviewStatus: UserEssayConstants.STATUS.FAILED },
@@ -169,7 +169,7 @@ async function processEssayReviewItemJob(job) {
 
         isReviewSuccess = true;
     } catch (err) {
-        LogUtils.loggingError({ functionName: 'processEssayReviewItemJob', message: err.message });
+        LogUtils.logError({ functionName: 'processEssayReviewItemJob', message: err.message });
 
         await UserEssayItemRepository.update(
             { reviewStatus: UserEssayConstants.STATUS.FAILED },
@@ -221,7 +221,7 @@ module.exports = (redis) => {
         }
     );
     worker.on('error', (err) => {
-        LogUtils.loggingError(`Worker ${queueName} Error: ${err.message}`);
+        LogUtils.logError(`Worker ${queueName} Error: ${err.message}`);
     });
 
     queue.defaultWorker = worker;

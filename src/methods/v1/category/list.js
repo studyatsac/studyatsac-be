@@ -39,7 +39,7 @@ exports.getListCategory = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getListCategory',
             message: err.message
         });

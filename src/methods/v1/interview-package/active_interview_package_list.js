@@ -17,7 +17,7 @@ exports.getActiveInterviewPackageList = async (req, res) => {
 
         return res.status(200).json({ data: InterviewPackageTransformer.interviewPackageList(result.data), message: '' });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getActiveInterviewPackageList',
             message: err.message
         });

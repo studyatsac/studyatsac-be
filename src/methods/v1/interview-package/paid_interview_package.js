@@ -19,7 +19,7 @@ exports.getPaidInterviewPackage = async (req, res) => {
 
         return res.status(200).json({ data: InterviewPackageTransformer.interviewPackageItem(result.data, false), message: '' });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getPaidInterviewPackage',
             message: err.message
         });

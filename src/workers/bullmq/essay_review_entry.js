@@ -65,7 +65,7 @@ module.exports = (redis) => {
         { connection: redis, autorun: true }
     );
     worker.on('error', (err) => {
-        LogUtils.loggingError(`Worker ${queueName} Error: ${err.message}`);
+        LogUtils.logError(`Worker ${queueName} Error: ${err.message}`);
     });
 
     queue.defaultWorker = worker;

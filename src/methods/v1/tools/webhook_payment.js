@@ -22,7 +22,7 @@ exports.postWebhookPayment = async (req, res) => {
             message: 'ok'
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'postWebhookPayment',
             message: err.message
         });

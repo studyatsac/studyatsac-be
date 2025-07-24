@@ -26,7 +26,7 @@ exports.getSpecificUserInterview = async (req, res) => {
             message: ''
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getUserInterview',
             message: err.message
         });

@@ -21,7 +21,7 @@ exports.getDetailedUserEssay = async (req, res) => {
             message: ''
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getDetailedUserEssay',
             message: err.message
         });
