@@ -10,7 +10,7 @@ const Queues = require('../../queues/bullmq');
 async function processEssayReviewEntryJob(job) {
     if (job.name !== EssayReviewConstants.JOB_NAME.ENTRY) return;
 
-    const jobData = JSON.parse(job.data);
+    const jobData = job.data;
     const userEssayId = jobData.userEssayId;
     if (!userEssayId) return;
 
@@ -31,11 +31,11 @@ async function processEssayReviewEntryJob(job) {
         pendingUserEssayItemIds.forEach((essayItemId) => {
             Queues.EssayReview.add(
                 EssayReviewConstants.JOB_NAME.ITEM,
-                JSON.stringify({
+                {
                     userEssayItemId: essayItemId,
                     pendingUserEssayItemIds,
                     userEssayId: userEssay.id
-                })
+                }
             );
         });
 
@@ -52,7 +52,7 @@ async function processEssayReviewEntryJob(job) {
         { id: userEssay.id }
     );
 
-    Queues.EssayReview.add(EssayReviewConstants.JOB_NAME.OVERALL, JSON.stringify({ userEssayId: userEssay.id }));
+    Queues.EssayReview.add(EssayReviewConstants.JOB_NAME.OVERALL, { userEssayId: userEssay.id });
 }
 
 module.exports = (redis) => {

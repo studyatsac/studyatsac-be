@@ -119,6 +119,7 @@ const createUserEssay = async (input, opts = {}) => {
         }
     }
 
+    let job;
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
             const hasEssayItems = input.essayItems
@@ -163,18 +164,23 @@ const createUserEssay = async (input, opts = {}) => {
                 userEssay.essayItems = essayItems;
             }
 
+            if (userEssay && opts.withReview) {
+                job = await Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    { userEssayId: userEssay.id },
+                    { delay: EssayReviewConstants.JOB_DELAY }
+                );
+            }
+
             return userEssay;
         });
 
-        if (result.id && opts.withReview) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: result.id })
-            );
-        }
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
+        if (job) await job.remove();
+
         if (err instanceof UserEssayError) {
             return Response.formatServiceReturn(false, 500, null, err.message);
         }
@@ -217,6 +223,7 @@ const updateUserEssay = async (input, opts = {}) => {
         }
     }
 
+    let job;
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
             let hasEssayItems = input.essayItems && Array.isArray(input.essayItems);
@@ -298,18 +305,23 @@ const updateUserEssay = async (input, opts = {}) => {
                 userEssay.essayItems = inputEssayItems;
             }
 
+            if (userEssay && opts.withReview) {
+                job = await Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    { userEssayId: userEssay.id },
+                    { delay: EssayReviewConstants.JOB_DELAY }
+                );
+            }
+
             return userEssay;
         });
 
-        if (result.id && opts.withReview) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: result.id })
-            );
-        }
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
+        if (job) await job.remove();
+
         if (err instanceof UserEssayError) {
             return Response.formatServiceReturn(false, 500, null, err.message);
         }

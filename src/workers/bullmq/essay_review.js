@@ -71,7 +71,7 @@ async function callApiReview(userEssayId, content, topic = 'Overall Essay', crit
 }
 
 async function processEssayReviewOverallJob(job) {
-    const jobData = JSON.parse(job.data);
+    const jobData = job.data;
     const userEssayId = jobData.userEssayId;
     if (!userEssayId) return;
 
@@ -121,7 +121,7 @@ async function processEssayReviewOverallJob(job) {
 }
 
 async function processEssayReviewItemJob(job) {
-    const jobData = JSON.parse(job.data);
+    const jobData = job.data;
     const userEssayId = jobData.userEssayId;
     const userEssayItemId = jobData.userEssayItemId;
     if (!userEssayId || !userEssayItemId) return;

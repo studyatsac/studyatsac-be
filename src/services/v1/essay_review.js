@@ -49,6 +49,7 @@ const retryEssayReview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_ESSAY.NOT_FOUND);
     }
 
+    let job;
     try {
         let shouldAddJob = false;
         await Models.sequelize.transaction(async (trx) => {
@@ -82,17 +83,22 @@ const retryEssayReview = async (input, opts = {}) => {
 
                 shouldAddJob = true;
             }
+
+            if (shouldAddJob && userEssay) {
+                job = await Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    { userEssayId: userEssay.id },
+                    { delay: EssayReviewConstants.JOB_DELAY }
+                );
+            }
         });
 
-        if (shouldAddJob && userEssay) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: userEssay.id })
-            );
-        }
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
 
         return Response.formatServiceReturn(true, 200, userEssay, null);
     } catch (err) {
+        if (job) await job.remove();
+
         if (err instanceof EssayReviewError) {
             return Response.formatServiceReturn(false, 500, null, err.message);
         }
@@ -145,6 +151,7 @@ const continueEssayReview = async (input, opts = {}) => {
         }
     }
 
+    let job;
     try {
         let shouldAddJob = false;
         await Models.sequelize.transaction(async (trx) => {
@@ -182,17 +189,22 @@ const continueEssayReview = async (input, opts = {}) => {
 
                 shouldAddJob = true;
             }
+
+            if (shouldAddJob && userEssay) {
+                job = await Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    { userEssayId: userEssay.id },
+                    { delay: EssayReviewConstants.JOB_DELAY }
+                );
+            }
         });
 
-        if (shouldAddJob && userEssay) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: userEssay.id })
-            );
-        }
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
 
         return Response.formatServiceReturn(true, 200, userEssay, null);
     } catch (err) {
+        if (job) await job.remove();
+
         if (err instanceof EssayReviewError) {
             return Response.formatServiceReturn(false, 500, null, err.message);
         }
