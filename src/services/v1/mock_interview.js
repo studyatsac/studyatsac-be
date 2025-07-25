@@ -44,27 +44,34 @@ const startMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.STARTED_IN_PROGRESS);
     }
 
-    const updateData = await Models.sequelize.transaction(async (trx) => {
-        const result = await UserInterviewRepository.update(
-            { status: UserInterviewConstants.STATUS.IN_PROGRESS, startedAt: Moment().format() },
-            { id: userInterview.id },
-            trx
-        );
+    let job;
+    try {
+        const updateData = await Models.sequelize.transaction(async (trx) => {
+            const result = await UserInterviewRepository.update(
+                { status: UserInterviewConstants.STATUS.IN_PROGRESS, startedAt: Moment().format() },
+                { id: userInterview.id },
+                trx
+            );
 
-        await MockInterviewUtils.setMockInterviewCache(input.userId, input.uuid);
+            job = await Queues.MockInterview.add(
+                MockInterviewConstants.JOB_NAME.PAUSE,
+                { userInterviewId: userInterview.id },
+                { delay: MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS }
+            );
 
-        await Queues.MockInterview.add(
-            MockInterviewConstants.JOB_NAME.PAUSE,
-            { userInterviewId: userInterview.id },
-            { delay: MockInterviewConstants.MAX_SESSION_TIME_IN_MILLISECONDS }
-        );
+            await MockInterviewUtils.setMockInterviewCache(input.userId, input.uuid, job.id);
 
-        if (!(await AiServiceSocket.emitEventWithAck('init_speech', input.uuid))) throw new Error();
+            if (!(await AiServiceSocket.emitEventWithAck('init_speech', input.uuid))) throw new Error();
 
-        return result;
-    });
-    if (!updateData) {
-        return Response.formatServiceReturn(false, 500, null, language.USER_INTERVIEW.UPDATE_FAILED);
+            return result;
+        });
+        if (!updateData) {
+            return Response.formatServiceReturn(false, 500, null, language.USER_INTERVIEW.UPDATE_FAILED);
+        }
+    } catch (err) {
+        if (job) await job.remove();
+
+        throw err;
     }
 
     return Response.formatServiceReturn(true, 200, userInterview, null);
@@ -72,7 +79,37 @@ const startMockInterview = async (input, opts = {}) => {
 
 const speakMockInterview = async (input) => {
     if (!(await MockInterviewUtils.isMockInterviewRunning(input.userId, input.uuid))) return;
-    AiServiceSocket.emitEvent('speech', input.uuid, input.buffer, console.log);
+
+    AiServiceSocket.emitEvent('speech', input.uuid, input.buffer, async (data) => {
+        if (typeof data !== 'object' || !data || !!data.error) return;
+        if (!('texts' in data) || !Array.isArray(data.texts) || data.texts.length === 0) {
+            // If no speech for 3 seconds
+            if (data.duration == null || data.duration <= 3) return;
+
+            const texts = await MockInterviewUtils.getMockInterviewSpeechTexts(input.userId, input.uuid);
+            if (!texts || !Array.isArray(texts) || texts.length === 0) return;
+
+            console.log(
+                texts.sort((text, textB) => {
+                    if (text?.startTime !== textB?.startTime) return text.startTime - textB.startTime;
+                    return text?.segmentStartTime - textB?.segmentStartTime;
+                }).map((text) => text?.content).join('')
+            );
+
+            return;
+        }
+
+        await MockInterviewUtils.saveMockInterviewSpeechTexts(input.userId, input.uuid, data.texts);
+
+        const jobId = await MockInterviewUtils.getMockInterviewCache(input.userId, input.uuid);
+        if (!jobId) return;
+
+        const job = await Queues.MockInterview.getJob(jobId);
+        if (!job || !(await job.isDelayed())) return;
+
+        await MockInterviewUtils.setMockInterviewCache(input.userId, input.uuid, jobId);
+        await job.changeDelay(MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS);
+    });
 };
 
 exports.getPaidMockInterviewPackage = getPaidMockInterviewPackage;
