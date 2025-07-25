@@ -7,6 +7,8 @@ const UserInterviewConstants = require('../../constants/user_interview');
 const MockInterviewUtils = require('../../utils/mock_interview');
 const Models = require('../../models/mysql');
 const AiServiceSocket = require('../../clients/socket/ai_service');
+const Queues = require('../../queues/bullmq');
+const MockInterviewConstants = require('../../constants/mock_interview');
 
 const getPaidMockInterviewPackage = async (input, opts = {}) => {
     const language = opts.lang;
@@ -50,7 +52,14 @@ const startMockInterview = async (input, opts = {}) => {
         );
 
         await MockInterviewUtils.setMockInterviewCache(input.userId, input.uuid);
-        if (!(await AiServiceSocket.emitEventWithAck('init_speech', input.uuid))) throw new Error('init_speech failed');
+
+        await Queues.MockInterview.add(
+            MockInterviewConstants.JOB_NAME.PAUSE,
+            { userInterviewId: userInterview.id },
+            { delay: MockInterviewConstants.MAX_SESSION_TIME_IN_MILLISECONDS }
+        );
+
+        if (!(await AiServiceSocket.emitEventWithAck('init_speech', input.uuid))) throw new Error();
 
         return result;
     });
