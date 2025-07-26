@@ -312,9 +312,10 @@ module.exports = Object.freeze({
     },
     MOCK_INTERVIEW: {
         EXCEED_MAX_ATTEMPT: 'Percobaan mockup wawancara telah habis',
-        STARTED_IN_PROGRESS: 'Mockup wawancara sudah pernah dimulai atau sedang berlangsung',
-        CANNOT_STARTED: 'Mockup wawancara belum bisa dimulai',
-        NOT_STARTED: 'Mockup wawancara belum dimulai',
-        NOT_IN_PROGRESS: 'Mockup wawancara tidak sedang berlangsung'
+        NOT_STARTED: 'Mockup wawancara belum dibuat',
+        PENDING: 'Mockup wawancara belum dimulai',
+        NOT_PENDING: 'Mockup wawancara sudah dimulai atau sedang berlangsung',
+        NOT_IN_PROGRESS: 'Mockup wawancara tidak sedang berjalan',
+        NOT_PAUSED: 'Mockup wawancara tidak sedang dijeda'
     }
 });
