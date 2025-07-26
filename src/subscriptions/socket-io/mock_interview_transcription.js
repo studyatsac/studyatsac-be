@@ -3,7 +3,7 @@ const AiServiceSocket = require('../../clients/socket/ai_service');
 module.exports = () => {
     const listeners = [];
 
-    const unsubscribeAll = AiServiceSocket.subscribeEvent('transcript', (...params) => {
+    const unsubscribeAll = AiServiceSocket.subscribeAiServiceEvent('transcript', (...params) => {
         listeners.forEach((listener) => listener(...params));
     });
 

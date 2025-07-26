@@ -2,36 +2,38 @@ const fs = require('fs');
 const path = require('path');
 const Redis = require('ioredis');
 
-const redisPath = process.env.REDIS_PATH;
-const host = process.env.REDIS_HOST;
-const port = process.env.REDIS_PORT;
+const queues = {};
 
-const queue = {};
-const basename = 'index.js';
-const dirname = `${__dirname}`;
+const setupQueue = () => {
+    const redisPath = process.env.REDIS_PATH;
+    const host = process.env.REDIS_HOST;
+    const port = process.env.REDIS_PORT;
 
-const config = redisPath ? { path: redisPath } : { host, port };
-const defaultJobOptions = {
-    removeOnComplete: true,
-    removeOnFail: { age: 3600 },
-    attempts: 3,
-    backoff: { type: 'fixed', delay: 3000 }
-};
+    const basename = 'index.js';
+    const dirname = `${__dirname}`;
 
-if ((redisPath || (host && port)) && Object.keys(queue).length === 0) {
+    const config = redisPath ? { path: redisPath } : { host, port };
+    const defaultJobOptions = {
+        removeOnComplete: true,
+        removeOnFail: { age: 3600 },
+        attempts: 3,
+        backoff: { type: 'fixed', delay: 3000 }
+    };
     const redis = new Redis(config);
 
     fs.readdirSync(dirname)
         .filter((file) => (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js'))
         .forEach((file) => {
-            const model = require(path.join(dirname, file))(redis, defaultJobOptions);
+            const queue = require(path.join(dirname, file))(redis, defaultJobOptions);
 
-            let name = model.name;
+            let name = queue.name;
             const prefix = `${process.env.QUEUE_PREFIX}-`;
             if (name.startsWith(prefix)) name = name.replace(prefix, '');
 
-            queue[name] = model;
+            queues[name] = queue;
         });
-}
+};
 
-module.exports = queue;
+module.exports = Object.assign(queues, {
+    setupQueue
+});

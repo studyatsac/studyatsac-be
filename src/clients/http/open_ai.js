@@ -1,18 +1,28 @@
-const OpenAI = require('openai');
+const openai = require('openai');
 
+/**
+ * @type {openai.OpenAI}
+ */
 let openAi;
-if (!openAi) {
-    openAi = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 
-const callOpenAiCompletion = (body) => openAi?.chat.completions.create({
+const initializeOpenAiClient = () => {
+    openAi = new openai.OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+};
+
+const getOpenAiClient = () => {
+    if (!openAi) throw new Error('OpenAI client not initialized');
+    return openAi;
+};
+
+const callOpenAiCompletion = (body) => getOpenAiClient().chat.completions.create({
     model: 'gpt-4o-mini',
     temperature: 0.3,
     max_tokens: 16384,
     ...body
 });
 
-exports.openAiClient = openAi;
+exports.initializeOpenAiClient = initializeOpenAiClient;
+exports.getOpenAiClient = getOpenAiClient;
 exports.callOpenAiCompletion = callOpenAiCompletion;
 
 module.exports = exports;

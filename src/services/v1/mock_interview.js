@@ -10,6 +10,7 @@ const AiServiceSocket = require('../../clients/socket/ai_service');
 const Queues = require('../../queues/bullmq');
 const MockInterviewConstants = require('../../constants/mock_interview');
 const LogUtils = require('../../utils/logger');
+const SocketServer = require('../../servers/socket/main');
 
 const getPaidMockInterviewPackage = async (input, opts = {}) => {
     const language = opts.lang;
@@ -62,7 +63,7 @@ const startMockInterview = async (input, opts = {}) => {
 
             await MockInterviewUtils.setMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid, job.id);
 
-            if (!(await AiServiceSocket.emitEventWithAck('init_speech', userInterview.uuid))) throw new Error();
+            if (!(await AiServiceSocket.emitAiServiceEventWithAck(MockInterviewConstants.AI_SERVICE_EVENT_NAME.INIT_SPEECH, userInterview.uuid))) throw new Error();
 
             return result;
         });
@@ -118,7 +119,7 @@ const pauseMockInterview = async (input, opts = {}) => {
                 await MockInterviewUtils.deleteMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid);
             }
 
-            if (!(await AiServiceSocket.emitEventWithAck('end_speech', userInterview.uuid))) throw new Error();
+            if (!(await AiServiceSocket.emitAiServiceEventWithAck(MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_SPEECH, userInterview.uuid))) throw new Error();
 
             return result;
         });
@@ -171,7 +172,7 @@ const continueMockInterview = async (input, opts = {}) => {
 
             await MockInterviewUtils.setMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid, job.id);
 
-            if (!(await AiServiceSocket.emitEventWithAck('init_speech', userInterview.uuid))) throw new Error();
+            if (!(await AiServiceSocket.emitAiServiceEventWithAck(MockInterviewConstants.AI_SERVICE_EVENT_NAME.INIT_SPEECH, userInterview.uuid))) throw new Error();
 
             return result;
         });
@@ -227,7 +228,7 @@ const stopMockInterview = async (input, opts = {}) => {
                 await MockInterviewUtils.deleteMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid);
             }
 
-            if (!(await AiServiceSocket.emitEventWithAck('end_speech', userInterview.uuid))) throw new Error();
+            if (!(await AiServiceSocket.emitAiServiceEventWithAck(MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_SPEECH, userInterview.uuid))) throw new Error();
 
             return result;
         });
@@ -243,18 +244,26 @@ const stopMockInterview = async (input, opts = {}) => {
         throw err;
     }
 
+    try {
+        await MockInterviewUtils.deleteMockInterviewSid(userInterview.userId, userInterview.uuid);
+    } catch (err) {
+        LogUtils.logError({ functionName: 'stopMockInterview', message: err.message });
+    }
+
     return Response.formatServiceReturn(true, 200, userInterview, null);
 };
 
 const speakMockInterview = async (input) => {
+    if (!(await MockInterviewUtils.isMockInterviewRunning(input.userId, input.uuid))) return;
+
     let isIncremented = false;
     try {
-        if (!(await MockInterviewUtils.isMockInterviewRunning(input.userId, input.uuid))) return;
+        if (input.sid != null) await MockInterviewUtils.setMockInterviewSid(input.userId, input.uuid, input.sid);
 
         await MockInterviewUtils.incrementMockInterviewSpeechCounter(input.userId, input.uuid);
         isIncremented = true;
 
-        const data = await AiServiceSocket.emitEventWithAck('speech', input.uuid, input.buffer);
+        const data = await AiServiceSocket.emitAiServiceEventWithAck(MockInterviewConstants.AI_SERVICE_EVENT_NAME.SPEECH, input.uuid, input.buffer);
 
         const counter = await MockInterviewUtils.decrementMockInterviewSpeechCounter(input.userId, input.uuid);
 
@@ -303,6 +312,14 @@ const speakMockInterview = async (input) => {
                 && totalSpeechDuration > 5;
             if (shouldAddRespondJob) await addRespondJob();
             else if (data.isTalking) await cancelRespondJob();
+
+            if (data.isTalking && input.sid != null) {
+                SocketServer.emitEventToClient(
+                    input.sid,
+                    MockInterviewConstants.EVENT_NAME.STATUS,
+                    MockInterviewConstants.STATUS.LISTENING
+                );
+            }
 
             return;
         }

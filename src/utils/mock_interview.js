@@ -2,10 +2,26 @@ const Cache = require('../clients/cache/main');
 const MockInterviewConstants = require('../constants/mock_interview');
 
 const MOCK_INTERVIEW_PREFIX_KEY = 'mock_interview';
+const MOCK_INTERVIEW_SID_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_sid`;
 const MOCK_INTERVIEW_PAUSE_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_pause`;
 const MOCK_INTERVIEW_RESPOND_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_respond`;
 const MOCK_INTERVIEW_SPEECH_TEXTS_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_texts`;
 const MOCK_INTERVIEW_SPEECH_COUNTER_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_counter`;
+
+const getMockInterviewSid = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_SID_KEY}-${userId}-${userInterviewUuid}`;
+    return Cache.get(key);
+};
+
+const setMockInterviewSid = async (userId, userInterviewUuid, sid) => {
+    const key = `${MOCK_INTERVIEW_SID_KEY}-${userId}-${userInterviewUuid}`;
+    await Cache.set(key, sid, 'EX', MockInterviewConstants.MAX_SESSION_TIME_IN_SECONDS + (5 * 60));
+};
+
+const deleteMockInterviewSid = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_SID_KEY}-${userId}-${userInterviewUuid}`;
+    await Cache.del(key);
+};
 
 const setMockInterviewPauseJobCache = async (userId, userInterviewUuid, jobId) => {
     const key = `${MOCK_INTERVIEW_PAUSE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
@@ -98,6 +114,9 @@ const decrementMockInterviewSpeechCounter = async (userId, userInterviewUuid) =>
     return next;
 };
 
+exports.getMockInterviewSid = getMockInterviewSid;
+exports.setMockInterviewSid = setMockInterviewSid;
+exports.deleteMockInterviewSid = deleteMockInterviewSid;
 exports.setMockInterviewPauseJobCache = setMockInterviewPauseJobCache;
 exports.getMockInterviewPauseJobCache = getMockInterviewPauseJobCache;
 exports.isMockInterviewRunning = isMockInterviewRunning;
