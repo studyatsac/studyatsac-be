@@ -5,6 +5,7 @@ const MOCK_INTERVIEW_PREFIX_KEY = 'mock_interview';
 const MOCK_INTERVIEW_PAUSE_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_pause`;
 const MOCK_INTERVIEW_RESPOND_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_respond`;
 const MOCK_INTERVIEW_SPEECH_TEXTS_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_texts`;
+const MOCK_INTERVIEW_SPEECH_COUNTER_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_counter`;
 
 const setMockInterviewPauseJobCache = async (userId, userInterviewUuid, jobId) => {
     const key = `${MOCK_INTERVIEW_PAUSE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
@@ -25,7 +26,7 @@ const deleteMockInterviewPauseJobCache = async (userId, userInterviewUuid) => {
 
 const setMockInterviewRespondJobCache = async (userId, userInterviewUuid, jobId) => {
     const key = `${MOCK_INTERVIEW_RESPOND_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
-    await Cache.set(key, jobId, 'EX', MockInterviewConstants.RESPOND_TIME_IN_SECONDS + 1);
+    await Cache.set(key, jobId, 'EX', MockInterviewConstants.RESPOND_TIME_IN_SECONDS + (3 * 60));
 };
 
 const getMockInterviewRespondJobCache = async (userId, userInterviewUuid) => {
@@ -49,23 +50,52 @@ const getMockInterviewSpeechTexts = async (userId, userInterviewUuid) => {
     return texts;
 };
 
-const saveMockInterviewSpeechTexts = async (userId, userInterviewUuid, texts) => {
-    let currentTexts = await getMockInterviewSpeechTexts(userId, userInterviewUuid);
+const hasMockInterviewSpeechTexts = async (userId, userInterviewUuid, texts) => {
+    const targetTexts = texts || await getMockInterviewSpeechTexts(userId, userInterviewUuid);
+    return !!targetTexts && Array.isArray(targetTexts) && targetTexts.length > 0;
+};
+
+const updateMockInterviewSpeechTexts = async (userId, userInterviewUuid, texts, previousTexts) => {
+    let currentTexts = previousTexts || await getMockInterviewSpeechTexts(userId, userInterviewUuid);
     if (!currentTexts) currentTexts = [];
 
     currentTexts.push(...texts);
-    currentTexts.sort((text, textB) => {
-        if (text?.startTime !== textB?.startTime) return text.startTime - textB.startTime;
-        return text?.segmentStartTime - textB?.segmentStartTime;
-    });
+    currentTexts.sort((text, textB) => text.startTime - textB.startTime);
 
     const key = `${MOCK_INTERVIEW_SPEECH_TEXTS_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
     await Cache.set(key, JSON.stringify(currentTexts), 'EX', 60);
+
+    return currentTexts;
 };
 
 const deleteMokInterviewSpeechTexts = async (userId, userInterviewUuid) => {
     const key = `${MOCK_INTERVIEW_SPEECH_TEXTS_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
     await Cache.del(key);
+};
+
+const getMockInterviewSpeechCounter = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_SPEECH_COUNTER_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    return Number(await Cache.get(key)) || 0;
+};
+
+const incrementMockInterviewSpeechCounter = async (userId, userInterviewUuid) => {
+    const current = await getMockInterviewSpeechCounter(userId, userInterviewUuid);
+
+    const key = `${MOCK_INTERVIEW_SPEECH_COUNTER_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    const next = current + 1;
+    await Cache.set(key, next, 'EX', 60);
+
+    return next;
+};
+
+const decrementMockInterviewSpeechCounter = async (userId, userInterviewUuid) => {
+    const current = await getMockInterviewSpeechCounter(userId, userInterviewUuid);
+
+    const key = `${MOCK_INTERVIEW_SPEECH_COUNTER_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    const next = Math.max(current - 1, 0);
+    await Cache.set(key, next, 'EX', 60);
+
+    return next;
 };
 
 exports.setMockInterviewPauseJobCache = setMockInterviewPauseJobCache;
@@ -75,8 +105,12 @@ exports.deleteMockInterviewPauseJobCache = deleteMockInterviewPauseJobCache;
 exports.setMockInterviewRespondJobCache = setMockInterviewRespondJobCache;
 exports.getMockInterviewRespondJobCache = getMockInterviewRespondJobCache;
 exports.deleteMockInterviewRespondJobCache = deleteMockInterviewRespondJobCache;
+exports.hasMockInterviewSpeechTexts = hasMockInterviewSpeechTexts;
 exports.getMockInterviewSpeechTexts = getMockInterviewSpeechTexts;
-exports.saveMockInterviewSpeechTexts = saveMockInterviewSpeechTexts;
+exports.updateMockInterviewSpeechTexts = updateMockInterviewSpeechTexts;
 exports.deleteMockInterviewSpeechTexts = deleteMokInterviewSpeechTexts;
+exports.getMockInterviewSpeechCounter = getMockInterviewSpeechCounter;
+exports.incrementMockInterviewSpeechCounter = incrementMockInterviewSpeechCounter;
+exports.decrementMockInterviewSpeechCounter = decrementMockInterviewSpeechCounter;
 
 module.exports = exports;

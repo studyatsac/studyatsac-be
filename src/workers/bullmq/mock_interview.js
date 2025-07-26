@@ -42,8 +42,6 @@ async function processMockInterviewRespondJob(job) {
     const userInterviewUuid = jobData.userInterviewUuid;
     if (!userInterviewUuid) return;
 
-    await MockInterviewUtils.deleteMockInterviewRespondJobCache(userId, userInterviewUuid);
-
     const userInterview = await UserInterviewRepository.findOne(
         { uuid: userInterviewUuid, userId },
         { attributes: ['id', 'uuid', 'status', 'userId'] }
@@ -53,13 +51,19 @@ async function processMockInterviewRespondJob(job) {
     const texts = await MockInterviewUtils.getMockInterviewSpeechTexts(userInterview.userId, userInterview.uuid);
     if (!texts || !Array.isArray(texts) || texts.length === 0) return;
 
-    await MockInterviewUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
-
     console.log(
         'Time to respond',
         userInterview.uuid,
-        texts.map((text) => text?.content).join('')
+        texts.map((text) => text?.content).join(' ')
     );
+
+    const speechTextsOwner = await MockInterviewUtils.getMockInterviewRespondJobCache(userId, userInterviewUuid);
+    if (speechTextsOwner === job.id) {
+        await MockInterviewUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
+        await MockInterviewUtils.deleteMockInterviewRespondJobCache(userId, userInterviewUuid);
+    }
+
+    console.log(speechTextsOwner, job.id);
 }
 
 async function processMockInterviewJob(job) {
