@@ -96,8 +96,7 @@ const pauseMockInterview = async (input, opts = {}) => {
     }
 
     let job;
-    let isMoved = false;
-    let currentDelay;
+    let isUpdated = false;
     try {
         const updateData = await Models.sequelize.transaction(async (trx) => {
             const result = await UserInterviewRepository.update(
@@ -110,16 +109,9 @@ const pauseMockInterview = async (input, opts = {}) => {
             if (jobId) {
                 job = await Queues.MockInterview.getJob(jobId);
 
-                if (job) {
-                    const state = await job.getState();
-
-                    if (state === 'delayed') {
-                        currentDelay = job.delay;
-                    }
-                    if (state !== 'completed') {
-                        await job.moveToCompleted(undefined);
-                        isMoved = true;
-                    }
+                if (job && !(await job.isCompleted())) {
+                    await job.updateData({});
+                    isUpdated = true;
                 }
 
                 await MockInterviewUtils.deleteMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid);
@@ -134,7 +126,7 @@ const pauseMockInterview = async (input, opts = {}) => {
         }
     } catch (err) {
         if (job) {
-            if (isMoved && currentDelay != null) await job.moveToDelayed(currentDelay);
+            if (isUpdated) await job.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
             await MockInterviewUtils.setMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid, job.id);
         }
 
@@ -213,8 +205,7 @@ const stopMockInterview = async (input, opts = {}) => {
     }
 
     let job;
-    let isMoved = false;
-    let currentDelay;
+    let isUpdated = false;
     try {
         const updateData = await Models.sequelize.transaction(async (trx) => {
             const result = await UserInterviewRepository.update(
@@ -227,16 +218,9 @@ const stopMockInterview = async (input, opts = {}) => {
             if (jobId) {
                 job = await Queues.MockInterview.getJob(jobId);
 
-                if (job) {
-                    const state = await job.getState();
-
-                    if (state === 'delayed') {
-                        currentDelay = job.delay;
-                    }
-                    if (state !== 'completed') {
-                        await job.moveToCompleted(undefined);
-                        isMoved = true;
-                    }
+                if (job && !(await job.isCompleted())) {
+                    await job.updateData({});
+                    isUpdated = true;
                 }
 
                 await MockInterviewUtils.deleteMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid);
@@ -251,7 +235,7 @@ const stopMockInterview = async (input, opts = {}) => {
         }
     } catch (err) {
         if (job) {
-            if (isMoved && currentDelay != null) await job.moveToDelayed(currentDelay);
+            if (isUpdated) await job.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
             await MockInterviewUtils.setMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid, job.id);
         }
 

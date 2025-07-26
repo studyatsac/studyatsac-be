@@ -5,7 +5,7 @@ const MockInterviewService = require('../../../services/v1/mock_interview');
 
 let lang;
 
-exports.pauseMockInterview = async (req, res) => {
+exports.stopMockInterview = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
@@ -15,7 +15,7 @@ exports.pauseMockInterview = async (req, res) => {
         }
 
         const { uuid } = req.params;
-        const result = await MockInterviewService.pauseMockInterview({ uuid, userId }, { lang });
+        const result = await MockInterviewService.stopMockInterview({ uuid, userId }, { lang });
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
@@ -26,7 +26,7 @@ exports.pauseMockInterview = async (req, res) => {
         });
     } catch (err) {
         LogUtils.logError({
-            functionName: 'pauseMockInterview',
+            functionName: 'stopMockInterview',
             message: err.message
         });
 
