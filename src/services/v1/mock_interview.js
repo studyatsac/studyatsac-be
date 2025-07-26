@@ -77,6 +77,73 @@ const startMockInterview = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, userInterview, null);
 };
 
+const pauseMockInterview = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    const userInterview = await UserInterviewRepository.findOne({ uuid: input.uuid, userId: input.userId });
+    if (!userInterview) {
+        return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
+    }
+    if (userInterview.status === UserInterviewConstants.STATUS.NOT_STARTED) {
+        return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.CANNOT_STARTED);
+    }
+    if (userInterview.status === UserInterviewConstants.STATUS.PENDING) {
+        return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_STARTED);
+    }
+    if (userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) {
+        return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_IN_PROGRESS);
+    }
+
+    let job;
+    let isMoved = false;
+    let currentDelay;
+    try {
+        const updateData = await Models.sequelize.transaction(async (trx) => {
+            const result = await UserInterviewRepository.update(
+                { status: UserInterviewConstants.STATUS.PAUSED, pausedAt: Moment().format() },
+                { id: userInterview.id },
+                trx
+            );
+
+            const jobId = await MockInterviewUtils.getMockInterviewCache(input.userId, input.uuid);
+            if (jobId) {
+                job = await Queues.MockInterview.getJob(jobId);
+
+                if (job) {
+                    const state = await job.getState();
+
+                    if (state === 'delayed') {
+                        currentDelay = job.delay;
+                    }
+                    if (state !== 'completed') {
+                        await job.moveToCompleted(undefined);
+                        isMoved = true;
+                    }
+                }
+
+                await MockInterviewUtils.deleteMockInterviewCache(input.userId, input.uuid);
+            }
+
+            if (!(await AiServiceSocket.emitEventWithAck('end_speech', input.uuid))) throw new Error();
+
+            return result;
+        });
+        if (!updateData) {
+            return Response.formatServiceReturn(false, 500, null, language.USER_INTERVIEW.UPDATE_FAILED);
+        }
+    } catch (err) {
+        if (job) {
+            await MockInterviewUtils.setMockInterviewCache(input.userId, input.uuid, job.id);
+
+            if (isMoved && currentDelay != null) await job.moveToDelayed(currentDelay);
+        }
+
+        throw err;
+    }
+
+    return Response.formatServiceReturn(true, 200, userInterview, null);
+};
+
 const speakMockInterview = async (input) => {
     if (!(await MockInterviewUtils.isMockInterviewRunning(input.userId, input.uuid))) return;
 
@@ -114,6 +181,7 @@ const speakMockInterview = async (input) => {
 
 exports.getPaidMockInterviewPackage = getPaidMockInterviewPackage;
 exports.startMockInterview = startMockInterview;
+exports.pauseMockInterview = pauseMockInterview;
 exports.speakMockInterview = speakMockInterview;
 
 module.exports = exports;

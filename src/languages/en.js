@@ -314,6 +314,8 @@ module.exports = Object.freeze({
     MOCK_INTERVIEW: {
         EXCEED_MAX_ATTEMPT: 'Mock interview trial is over',
         STARTED_IN_PROGRESS: 'Mock interview is already started or in progress',
-        CANNOT_STARTED: 'Mock interview can be not started yet'
+        CANNOT_STARTED: 'Mock interview can not be started yet',
+        NOT_STARTED: 'Mock interview is not started yet',
+        NOT_IN_PROGRESS: 'Mock interview is not in progress'
     }
 });
