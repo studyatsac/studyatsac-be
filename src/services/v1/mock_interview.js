@@ -278,8 +278,8 @@ const speakMockInterview = async (input) => {
             const job = await getRespondJob();
             if (job && !(await job.isCompleted())) await job.updateData({});
         };
-        const addRespondJob = async () => {
-            await cancelRespondJob();
+        const addRespondJob = async (force = false) => {
+            if (!force && !!(await getRespondJob())) return;
 
             const job = await Queues.MockInterview.add(
                 MockInterviewConstants.JOB_NAME.RESPOND,
@@ -306,8 +306,6 @@ const speakMockInterview = async (input) => {
 
             shouldAddRespondJob = shouldAddRespondJob
                 && !data.isTalking
-                // More than 3 seconds of silence
-                && (data.noSpeechDuration != null && data.noSpeechDuration > 3)
                 // More than 5 seconds of speech
                 && totalSpeechDuration > 5;
             if (shouldAddRespondJob) await addRespondJob();
@@ -328,7 +326,10 @@ const speakMockInterview = async (input) => {
 
         const totalSpeechDuration = getSpeechDuration(texts);
         // More than 5 seconds of speech
-        if (shouldAddRespondJob && totalSpeechDuration > 5) await addRespondJob();
+        if (shouldAddRespondJob && totalSpeechDuration > 5) {
+            await cancelRespondJob();
+            await addRespondJob(true);
+        }
 
         const jobId = await MockInterviewUtils.getMockInterviewPauseJobCache(input.userId, input.uuid);
         if (!jobId) return;

@@ -1,3 +1,4 @@
+// Setup configuration
 require('dotenv').config();
 
 const express = require('express');
@@ -46,4 +47,5 @@ const Workers = require('./src/workers/bullmq');
 Queues.setupQueue();
 Workers.setupWorker();
 
+// Start the sever
 Server.startServer();
