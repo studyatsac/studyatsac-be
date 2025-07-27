@@ -397,7 +397,12 @@ const speakMockInterview = async (input) => {
         await MockInterviewUtils.incrementMockInterviewSpeechCounter(input.userId, input.uuid);
         isIncremented = true;
 
-        const data = await AiServiceSocket.emitAiServiceEventWithAck(MockInterviewConstants.AI_SERVICE_EVENT_NAME.SPEECH, sessionId, input.buffer);
+        const data = await AiServiceSocket.emitAiServiceEventWithAck(
+            MockInterviewConstants.AI_SERVICE_EVENT_NAME.SPEECH,
+            sessionId,
+            input.buffer,
+            input.language
+        );
 
         const counter = await MockInterviewUtils.decrementMockInterviewSpeechCounter(input.userId, input.uuid);
 

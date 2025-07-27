@@ -61,7 +61,7 @@ async function processMockInterviewRespondJob(job) {
 
     const userInterview = await UserInterviewRepository.findOne(
         { uuid: userInterviewUuid, userId },
-        { attributes: ['id', 'uuid', 'status', 'userId'] }
+        { attributes: ['id', 'uuid', 'status', 'userId', 'language'] }
     );
     if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
 
@@ -75,12 +75,13 @@ async function processMockInterviewRespondJob(job) {
 
     const text = texts.map((item) => item?.content ?? '').filter(Boolean).join(' ');
     AiServiceSocket.emitAiServiceEvent(
-        'client_process',
+        MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
         sessionId,
         'Identitas',
         'Siapa kamu?',
         text,
-        ['Keluarga mu ada berapa?', 'Kamu lahir tanggal berapa?']
+        ['Keluarga mu ada berapa?', 'Kamu lahir tanggal berapa?'],
+        userInterview.language
     );
 
     await MockInterviewUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);

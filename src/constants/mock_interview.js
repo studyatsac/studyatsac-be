@@ -44,7 +44,8 @@ const AI_SERVICE_EVENT_NAME = {
     SPEECH: 'speech',
     END_SPEECH: 'end_client',
     TEXT: 'text',
-    CLIENT_TEXT: 'client_text'
+    CLIENT_TEXT: 'client_text',
+    CLIENT_PROCESS: 'client_process'
 };
 
 module.exports = {
