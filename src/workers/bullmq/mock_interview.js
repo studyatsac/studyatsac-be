@@ -56,19 +56,14 @@ async function processMockInterviewRespondJob(job) {
     const texts = await MockInterviewUtils.getMockInterviewSpeechTexts(userInterview.userId, userInterview.uuid);
     if (!texts || !Array.isArray(texts) || texts.length === 0) return;
 
-    console.log(
-        'Time to respond',
-        userInterview.uuid,
-        texts.map((text) => text?.content).join(' ')
-    );
-
     const speechTextsOwner = await MockInterviewUtils.getMockInterviewRespondJobCache(userId, userInterviewUuid);
-    if (speechTextsOwner === job.id) {
-        await MockInterviewUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
-        await MockInterviewUtils.deleteMockInterviewRespondJobCache(userId, userInterviewUuid);
-    }
+    if (speechTextsOwner !== job.id) return;
 
-    console.log(speechTextsOwner, job.id);
+    const text = texts.map((item) => item?.content ?? '').filter(Boolean).join(' ');
+    AiServiceSocket.emitAiServiceEvent('client_text', userInterviewUuid, text);
+
+    await MockInterviewUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
+    await MockInterviewUtils.deleteMockInterviewRespondJobCache(userId, userInterviewUuid);
 }
 
 async function processMockInterviewJob(job) {

@@ -3,7 +3,7 @@ const MockInterviewService = require('../../services/v1/mock_interview');
 const LogUtils = require('../../utils/logger');
 const MockInterviewUtils = require('../../utils/mock_interview');
 
-const listenTextEvent = async (data) => {
+const listenClientTextEvent = async (data) => {
     try {
         const {
             userId,
@@ -15,14 +15,14 @@ const listenTextEvent = async (data) => {
 
         await MockInterviewService.recordMockInterviewText({ userId, uuid, counter }, restData);
     } catch (err) {
-        LogUtils.logError({ functionName: 'listenTextEvent', message: err.message });
+        LogUtils.logError({ functionName: 'listenClientTextEvent', message: err.message });
     }
 };
 
 module.exports = () => {
-    const listeners = [listenTextEvent];
+    const listeners = [listenClientTextEvent];
 
-    const unsubscribeAll = AiServiceSocket.subscribeAiServiceEvent('text', (...params) => {
+    const unsubscribeAll = AiServiceSocket.subscribeAiServiceEvent('client_text', (...params) => {
         listeners.forEach((listener) => listener(...params));
     });
 

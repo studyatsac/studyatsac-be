@@ -283,13 +283,20 @@ const recordMockInterviewText = async (input, data) => {
         if (jobId) return Queues.MockInterview.getJob(jobId);
         return undefined;
     };
-    const cancelRespondJob = async () => {
-        const job = await getRespondJob();
-        if (job && !(await job.isCompleted())) await job.updateData({});
+    const cancelRespondJob = async (job) => {
+        const targetJob = job || (await getRespondJob());
+        if (targetJob && !(await targetJob.isCompleted())) {
+            await targetJob.updateData({});
+            await MockInterviewUtils.deleteMockInterviewRespondJobCache(input.userId, input.uuid);
+        }
     };
-    const addRespondJob = async (force = false) => {
-        if (!force && !!(await getRespondJob())) return;
-
+    const delayRespondJob = async (job) => {
+        const targetJob = job || (await getRespondJob());
+        if (targetJob && (await targetJob.isDelayed())) {
+            await targetJob.changeDelay(MockInterviewConstants.RESPOND_TIME_IN_MILLISECONDS);
+        }
+    };
+    const addRespondJob = async () => {
         const job = await Queues.MockInterview.add(
             MockInterviewConstants.JOB_NAME.RESPOND,
             { userInterviewUuid: input.uuid, userId: input.userId },
@@ -314,11 +321,14 @@ const recordMockInterviewText = async (input, data) => {
         const totalSpeechDuration = getSpeechDuration(texts);
 
         shouldAddRespondJob = shouldAddRespondJob
-                && !data.isTalking
-                // More than 5 seconds of speech
-                && totalSpeechDuration > 5;
-        if (shouldAddRespondJob) await addRespondJob();
-        else if (data.isTalking) await cancelRespondJob();
+            && !data.isTalking
+            // More than 5 seconds of speech
+            && totalSpeechDuration > 5;
+        if (shouldAddRespondJob) {
+            const job = await addRespondJob();
+            if (job) await delayRespondJob(job);
+            else await addRespondJob();
+        } else if (data.isTalking) await cancelRespondJob();
 
         if (data.isTalking && input.sid != null) {
             SocketServer.emitEventToClient(
@@ -336,7 +346,8 @@ const recordMockInterviewText = async (input, data) => {
     const totalSpeechDuration = getSpeechDuration(texts);
     // More than 5 seconds of speech
     if (shouldAddRespondJob && totalSpeechDuration > 5) {
-        await cancelRespondJob();
+        const job = await getRespondJob();
+        if (job) await cancelRespondJob();
         await addRespondJob(true);
     }
 
