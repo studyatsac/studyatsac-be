@@ -22,6 +22,7 @@ exports.userInterviewItem = (data, isRestricted = true) => {
         backgroundDescription: data.backgroundDescription,
         interviewSectionCount: data.interviewSectionCount ?? data.dataValues?.interviewSectionCount,
         interviewSections: UserInterviewSectionTransformer.userInterviewSectionList(data.interviewSections, isRestricted),
+        sessionId: data.sessionId || undefined,
         createdAt: data.created_at
     };
 };

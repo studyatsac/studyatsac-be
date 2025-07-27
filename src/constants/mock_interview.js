@@ -40,10 +40,11 @@ const EVENT_NAME = {
 };
 
 const AI_SERVICE_EVENT_NAME = {
-    INIT_SPEECH: 'init_speech',
+    INIT_CLIENT: 'init_client',
     SPEECH: 'speech',
-    END_SPEECH: 'end_speech',
-    TEXT: 'text'
+    END_SPEECH: 'end_client',
+    TEXT: 'text',
+    CLIENT_TEXT: 'client_text'
 };
 
 module.exports = {

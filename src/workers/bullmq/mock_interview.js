@@ -21,24 +21,36 @@ async function processMockInterviewPauseJob(job) {
     );
     if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
 
-    await Models.sequelize.transaction(async (trx) => {
-        const result = await UserInterviewRepository.update(
-            { status: UserInterviewConstants.STATUS.PAUSED, pausedAt: Moment().format() },
-            { id: userInterview.id },
-            trx
-        );
+    const sessionId = await MockInterviewUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-        await MockInterviewUtils.deleteMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid);
+    try {
+        await Models.sequelize.transaction(async (trx) => {
+            const result = await UserInterviewRepository.update(
+                { status: UserInterviewConstants.STATUS.PAUSED, pausedAt: Moment().format() },
+                { id: userInterview.id },
+                trx
+            );
 
-        if (
-            !(await AiServiceSocket.emitAiServiceEventWithAck(
-                MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_SPEECH,
-                userInterview.uuid
-            ))
-        ) throw new Error();
+            await MockInterviewUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-        return result;
-    });
+            await MockInterviewUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
+
+            if (
+                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                    MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_SPEECH,
+                    sessionId
+                ))
+            ) throw new Error();
+
+            return result;
+        });
+    } catch (err) {
+        await MockInterviewUtils.setMockInterviewSessionId(userInterview.userId, userInterview.uuid, sessionId);
+
+        LogUtils.logError({ functionName: 'processMockInterviewPauseJob', message: err.message });
+
+        throw err;
+    }
 }
 
 async function processMockInterviewRespondJob(job) {
@@ -53,16 +65,18 @@ async function processMockInterviewRespondJob(job) {
     );
     if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
 
+    const sessionId = await MockInterviewUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+
     const texts = await MockInterviewUtils.getMockInterviewSpeechTexts(userInterview.userId, userInterview.uuid);
     if (!texts || !Array.isArray(texts) || texts.length === 0) return;
 
-    const speechTextsOwner = await MockInterviewUtils.getMockInterviewRespondJobCache(userId, userInterviewUuid);
+    const speechTextsOwner = await MockInterviewUtils.getMockInterviewRespondJobId(userId, userInterviewUuid);
     if (speechTextsOwner !== job.id) return;
 
     const text = texts.map((item) => item?.content ?? '').filter(Boolean).join(' ');
     AiServiceSocket.emitAiServiceEvent(
         'client_process',
-        userInterviewUuid,
+        sessionId,
         'Identitas',
         'Siapa kamu?',
         text,
@@ -70,7 +84,7 @@ async function processMockInterviewRespondJob(job) {
     );
 
     await MockInterviewUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
-    await MockInterviewUtils.deleteMockInterviewRespondJobCache(userId, userInterviewUuid);
+    await MockInterviewUtils.deleteMockInterviewRespondJobId(userId, userInterviewUuid);
 }
 
 async function processMockInterviewJob(job) {
