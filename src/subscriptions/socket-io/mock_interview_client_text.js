@@ -8,7 +8,7 @@ const listenClientTextEvent = async (data) => {
     try {
         const {
             userId,
-            id: uuid,
+            uuid,
             counter,
             ...restData
         } = data;
