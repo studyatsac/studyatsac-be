@@ -60,7 +60,14 @@ async function processMockInterviewRespondJob(job) {
     if (speechTextsOwner !== job.id) return;
 
     const text = texts.map((item) => item?.content ?? '').filter(Boolean).join(' ');
-    AiServiceSocket.emitAiServiceEvent('client_text', userInterviewUuid, text);
+    AiServiceSocket.emitAiServiceEvent(
+        'client_process',
+        userInterviewUuid,
+        'Identitas',
+        'Siapa kamu?',
+        text,
+        ['Keluarga mu ada berapa?', 'Kamu lahir tanggal berapa?']
+    );
 
     await MockInterviewUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
     await MockInterviewUtils.deleteMockInterviewRespondJobCache(userId, userInterviewUuid);
