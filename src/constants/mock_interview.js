@@ -42,7 +42,8 @@ const EVENT_NAME = {
 const AI_SERVICE_EVENT_NAME = {
     INIT_SPEECH: 'init_speech',
     SPEECH: 'speech',
-    END_SPEECH: 'end_speech'
+    END_SPEECH: 'end_speech',
+    TEXT: 'text'
 };
 
 module.exports = {

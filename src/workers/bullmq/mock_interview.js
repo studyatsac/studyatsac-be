@@ -30,7 +30,12 @@ async function processMockInterviewPauseJob(job) {
 
         await MockInterviewUtils.deleteMockInterviewPauseJobCache(userInterview.userId, userInterview.uuid);
 
-        if (!(await AiServiceSocket.emitAiServiceEventWithAck(MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_SPEECH, userInterview.uuid))) throw new Error();
+        if (
+            !(await AiServiceSocket.emitAiServiceEventWithAck(
+                MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_SPEECH,
+                userInterview.uuid
+            ))
+        ) throw new Error();
 
         return result;
     });

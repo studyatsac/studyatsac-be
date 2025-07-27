@@ -11,7 +11,10 @@ let aiServiceSocket;
 const closeCallbacks = {};
 
 const initializeAiServiceSocket = () => {
-    aiServiceSocket = socket.connect(process.env.AI_SERVICE_SOCKET_URL);
+    aiServiceSocket = socket.connect(
+        process.env.AI_SERVICE_SOCKET_URL,
+        { auth: { key: process.env.AI_SERVICE_SOCKET_KEY } }
+    );
 
     aiServiceSocket.on('connect', () => {
         LogUtils.logDebug('ai service socket connected');
