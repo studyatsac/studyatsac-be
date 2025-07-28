@@ -54,6 +54,14 @@ const AI_SERVICE_EVENT_NAME = {
     CLIENT_PROCESS: 'client_process'
 };
 
+const AI_SERVICE_PROCESS_EVENT_TAG = {
+    OPENING: 'opening',
+    CONTINUING: 'continuing',
+    TRANSITIONING: 'transitioning',
+    RESPONDING: 'responding',
+    CLOSING: 'closing'
+};
+
 module.exports = {
     JOB_NAME,
     JOB_DELAY,
@@ -65,5 +73,6 @@ module.exports = {
     RESPOND_TIME_IN_MILLISECONDS,
     STATUS,
     EVENT_NAME,
-    AI_SERVICE_EVENT_NAME
+    AI_SERVICE_EVENT_NAME,
+    AI_SERVICE_PROCESS_EVENT_TAG
 };

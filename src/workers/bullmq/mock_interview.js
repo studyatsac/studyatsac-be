@@ -89,7 +89,8 @@ async function processMockInterviewOpeningJob(job) {
             prompt,
             lastAnswer?.answer ?? '',
             hint,
-            userInterview.language
+            userInterview.language,
+            MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.CONTINUING
         );
     } else if (completedInterviewSection) {
         const lastAnswer = completedInterviewSection?.interviewSectionAnswers?.[completedInterviewSection.interviewSectionAnswers.length - 1];
@@ -115,7 +116,8 @@ async function processMockInterviewOpeningJob(job) {
             prompt,
             lastAnswer?.answer ?? '',
             hint,
-            userInterview.language
+            userInterview.language,
+            MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.TRANSITIONING
         );
     } else {
         const { prompt, hint } = MockInterviewUtils.getMockInterviewOpeningSystemPrompt(
@@ -134,7 +136,8 @@ async function processMockInterviewOpeningJob(job) {
             prompt,
             '',
             hint,
-            userInterview.language
+            userInterview.language,
+            MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.OPENING
         );
     }
 }
@@ -201,7 +204,8 @@ async function processMockInterviewRespondJob(job) {
         prompt,
         text,
         hint,
-        userInterview.language
+        userInterview.language,
+        MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.RESPONDING
     );
 
     await MockInterviewUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
