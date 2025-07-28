@@ -1,6 +1,5 @@
 const { Worker } = require('bullmq');
 const LogUtils = require('../../utils/logger');
-const PromptUtils = require('../../utils/prompt');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
 const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
 const UserEssayConstants = require('../../constants/user_essay');
@@ -10,6 +9,7 @@ const Models = require('../../models/mysql');
 const EssayReviewConstants = require('../../constants/essay_review');
 const OpenAiUtils = require('../../clients/http/open_ai');
 const Queues = require('../../queues/bullmq');
+const EssayReviewUtils = require('../../utils/essay_review');
 
 async function insertEssayReviewLog(payload, data, isSuccess = false) {
     try {
@@ -48,11 +48,15 @@ async function callApiReview(userEssayId, content, topic = 'Overall Essay', crit
             messages: [
                 {
                     role: 'system',
-                    content: PromptUtils.getBasePrompt(backgroundDescription, topic, CommonConstants.LANGUAGE_LABELS[language] || 'English')
+                    content: EssayReviewUtils.getEssayReviewSystemPrompt(
+                        backgroundDescription,
+                        topic,
+                        CommonConstants.LANGUAGE_LABELS[language] || 'English'
+                    )
                 },
                 {
                     role: 'user',
-                    content: PromptUtils.getReviewSystemPrompt(
+                    content: EssayReviewUtils.getEssayReviewUserPrompt(
                         criteria,
                         content
                     )

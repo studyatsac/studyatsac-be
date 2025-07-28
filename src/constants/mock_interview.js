@@ -1,7 +1,13 @@
 const JOB_NAME = {
     PAUSE: 'pause',
+    OPENING: 'opening',
     RESPOND: 'respond'
 };
+
+/**
+ * 30 Seconds
+ */
+const JOB_DELAY = 30 * 1000;
 
 /**
  * 4 Hours
@@ -50,6 +56,7 @@ const AI_SERVICE_EVENT_NAME = {
 
 module.exports = {
     JOB_NAME,
+    JOB_DELAY,
     MAX_SESSION_TIME_IN_SECONDS,
     MAX_SESSION_TIME_IN_MILLISECONDS,
     MAX_IDLE_TIME_IN_SECONDS,

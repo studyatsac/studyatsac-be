@@ -1,5 +1,4 @@
 const { Worker } = require('bullmq');
-const Moment = require('moment');
 const LogUtils = require('../../utils/logger');
 const UserInterviewRepository = require('../../repositories/mysql/user_interview');
 const UserInterviewConstants = require('../../constants/user_interview');
@@ -9,47 +8,134 @@ const Queues = require('../../queues/bullmq');
 const MockInterviewUtils = require('../../utils/mock_interview');
 const AiServiceSocket = require('../../clients/socket/ai_service');
 
-async function processMockInterviewPauseJob(job) {
+const getNotAskedInterviewSectionQuestions = (interviewSectionAnswers, interviewSectionQuestions) => {
+    const notAskedInterviewSectionQuestions = [];
+    if (interviewSectionAnswers && Array.isArray(interviewSectionAnswers)) {
+        interviewSectionAnswers.forEach((item) => {
+            const question = interviewSectionQuestions.find((questionItem) => questionItem.id === item.interviewSectionQuestionId);
+            if (!question) notAskedInterviewSectionQuestions.push(question);
+        });
+    }
+
+    return notAskedInterviewSectionQuestions;
+};
+
+async function processMockInterviewOpeningJob(job) {
     const jobData = job.data;
     const userId = jobData.userId;
     const userInterviewUuid = jobData.userInterviewUuid;
-    if (!userInterviewUuid) return;
+    if (!userId || !userInterviewUuid) return;
 
     const userInterview = await UserInterviewRepository.findOne(
         { uuid: userInterviewUuid, userId },
-        { attributes: ['id', 'uuid', 'status', 'userId'] }
+        {
+            include: {
+                model: Models.UserInterviewSection,
+                as: 'interviewSections',
+                include: [
+                    {
+                        model: Models.InterviewSection,
+                        as: 'interviewSection',
+                        include: { model: Models.InterviewSectionQuestion, as: 'interviewSectionQuestions' }
+                    },
+                    {
+                        model: Models.UserInterviewSectionAnswer,
+                        as: 'interviewSectionAnswers'
+                    }
+                ]
+            }
+        }
     );
-    if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
+    if (
+        !userInterview
+        || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS
+        || !userInterview?.interviewSections?.length
+    ) return;
 
     const sessionId = await MockInterviewUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-    try {
-        await Models.sequelize.transaction(async (trx) => {
-            const result = await UserInterviewRepository.update(
-                { status: UserInterviewConstants.STATUS.PAUSED, pausedAt: Moment().format() },
-                { id: userInterview.id },
-                trx
-            );
+    let targetInterviewSection;
+    let completedInterviewSection;
+    userInterview?.interviewSections?.forEach((item) => {
+        if (targetInterviewSection == null && item.status === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS) {
+            targetInterviewSection = item;
+        }
+        if (completedInterviewSection == null && item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED) {
+            completedInterviewSection = item;
+        }
+    });
+    if (!targetInterviewSection) return;
 
-            await MockInterviewUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+    if (targetInterviewSection.interviewSectionAnswers?.length) {
+        const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[targetInterviewSection.interviewSectionAnswers.length - 1];
+        const lastQuestion = targetInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
+            (item) => item.id === lastAnswer?.interviewSectionQuestionId
+        );
 
-            await MockInterviewUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
+        const { prompt, hint } = MockInterviewUtils.getMockInterviewContinuingSystemPrompt(
+            userInterview.backgroundDescription,
+            targetInterviewSection?.interviewSection?.title,
+            lastQuestion?.question,
+            getNotAskedInterviewSectionQuestions(
+                targetInterviewSection?.interviewSectionAnswers ?? [],
+                targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
+            ),
+            userInterview.language
+        );
 
-            if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
-                    MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_SPEECH,
-                    sessionId
-                ))
-            ) throw new Error();
+        AiServiceSocket.emitAiServiceEvent(
+            MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
+            sessionId,
+            prompt,
+            lastAnswer?.answer ?? '',
+            hint,
+            userInterview.language
+        );
+    } else if (completedInterviewSection) {
+        const lastAnswer = completedInterviewSection?.interviewSectionAnswers?.[completedInterviewSection.interviewSectionAnswers.length - 1];
+        const lastQuestion = completedInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
+            (item) => item.id === lastAnswer?.interviewSectionQuestionId
+        );
 
-            return result;
-        });
-    } catch (err) {
-        await MockInterviewUtils.setMockInterviewSessionId(userInterview.userId, userInterview.uuid, sessionId);
+        const { prompt, hint } = MockInterviewUtils.getMockInterviewRespondTransitionSystemPrompt(
+            userInterview.backgroundDescription,
+            targetInterviewSection?.interviewSection?.title,
+            getNotAskedInterviewSectionQuestions(
+                targetInterviewSection?.interviewSectionAnswers ?? [],
+                targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
+            ),
+            completedInterviewSection?.interviewSection?.title,
+            lastQuestion?.question,
+            userInterview.language
+        );
 
-        LogUtils.logError({ functionName: 'processMockInterviewPauseJob', message: err.message });
+        AiServiceSocket.emitAiServiceEvent(
+            MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
+            sessionId,
+            prompt,
+            lastAnswer?.answer ?? '',
+            hint,
+            userInterview.language
+        );
+    } else {
+        const { prompt, hint } = MockInterviewUtils.getMockInterviewOpeningSystemPrompt(
+            userInterview.backgroundDescription,
+            targetInterviewSection?.interviewSection?.title,
+            getNotAskedInterviewSectionQuestions(
+                targetInterviewSection?.interviewSectionAnswers ?? [],
+                targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
+            ),
+            userInterview.language
+        );
 
-        throw err;
+        AiServiceSocket.emitAiServiceEvent(
+            MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
+            sessionId,
+            prompt,
+            '',
+            hint,
+            userInterview.language
+        );
     }
 }
 
@@ -57,11 +143,27 @@ async function processMockInterviewRespondJob(job) {
     const jobData = job.data;
     const userId = jobData.userId;
     const userInterviewUuid = jobData.userInterviewUuid;
-    if (!userInterviewUuid) return;
+    if (!userId || !userInterviewUuid) return;
 
     const userInterview = await UserInterviewRepository.findOne(
         { uuid: userInterviewUuid, userId },
-        { attributes: ['id', 'uuid', 'status', 'userId', 'language'] }
+        {
+            include: {
+                model: Models.UserInterviewSection,
+                as: 'interviewSections',
+                include: [
+                    {
+                        model: Models.InterviewSection,
+                        as: 'interviewSection',
+                        include: { model: Models.InterviewSectionQuestion, as: 'interviewSectionQuestions' }
+                    },
+                    {
+                        model: Models.UserInterviewSectionAnswer,
+                        as: 'interviewSectionAnswers'
+                    }
+                ]
+            }
+        }
     );
     if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
 
@@ -74,13 +176,31 @@ async function processMockInterviewRespondJob(job) {
     if (speechTextsOwner !== job.id) return;
 
     const text = texts.map((item) => item?.content ?? '').filter(Boolean).join(' ');
+
+    const targetInterviewSection = userInterview?.interviewSections?.findLast(
+        (item) => item.status === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
+    );
+    const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[targetInterviewSection.interviewSectionAnswers.length - 1];
+    const lastQuestion = targetInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
+        (item) => item.id === lastAnswer?.interviewSectionQuestionId
+    );
+
+    const { prompt, hint } = MockInterviewUtils.getMockInterviewRespondSystemPrompt(
+        userInterview.backgroundDescription,
+        userInterview.topic,
+        lastQuestion?.question,
+        getNotAskedInterviewSectionQuestions(
+            targetInterviewSection?.interviewSectionAnswers ?? [],
+            targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
+        ),
+        userInterview.language
+    );
     AiServiceSocket.emitAiServiceEvent(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
         sessionId,
-        'Identitas',
-        'Siapa kamu?',
+        prompt,
         text,
-        ['Keluarga mu ada berapa?', 'Kamu lahir tanggal berapa?'],
+        hint,
         userInterview.language
     );
 
@@ -90,8 +210,8 @@ async function processMockInterviewRespondJob(job) {
 
 async function processMockInterviewJob(job) {
     switch (job.name) {
-    case MockInterviewConstants.JOB_NAME.PAUSE:
-        processMockInterviewPauseJob(job);
+    case MockInterviewConstants.JOB_NAME.OPENING:
+        processMockInterviewOpeningJob(job);
         break;
     case MockInterviewConstants.JOB_NAME.RESPOND:
         processMockInterviewRespondJob(job);

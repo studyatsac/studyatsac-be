@@ -11,6 +11,9 @@ const Queues = require('../../queues/bullmq');
 const MockInterviewConstants = require('../../constants/mock_interview');
 const LogUtils = require('../../utils/logger');
 const SocketServer = require('../../servers/socket/main');
+const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
+
+class MockInterviewError extends Error {}
 
 const getPaidMockInterviewPackage = async (input, opts = {}) => {
     const language = opts.lang;
@@ -35,7 +38,15 @@ const getPaidMockInterviewPackage = async (input, opts = {}) => {
 const startMockInterview = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const userInterview = await UserInterviewRepository.findOne({ uuid: input.uuid, userId: input.userId });
+    const userInterview = await UserInterviewRepository.findOne(
+        { uuid: input.uuid, userId: input.userId },
+        {
+            include: {
+                model: Models.UserInterviewSection,
+                as: 'interviewSections'
+            }
+        }
+    );
     if (!userInterview) {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
     }
@@ -46,24 +57,46 @@ const startMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_PENDING);
     }
 
-    let job;
+    const targetInterviewSection = userInterview.interviewSections.find(
+        (item) => item.state === UserInterviewConstants.SECTION_STATUS.NOT_STARTED
+    );
+    if (!targetInterviewSection) {
+        return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
+    }
+
+    let pauseJob;
+    let openingJob;
     try {
-        const updateData = await Models.sequelize.transaction(async (trx) => {
-            const result = await UserInterviewRepository.update(
+        await Models.sequelize.transaction(async (trx) => {
+            let result = await UserInterviewRepository.update(
                 { status: UserInterviewConstants.STATUS.IN_PROGRESS, startedAt: Moment().format() },
                 { id: userInterview.id },
                 trx
             );
+            if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+
+            result = await UserInterviewSectionRepository.update(
+                { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS, startedAt: Moment().format() },
+                { id: targetInterviewSection.id },
+                trx
+            );
+            if (!result) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
 
             const sessionId = await MockInterviewUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-            job = await Queues.MockInterview.add(
+            openingJob = await Queues.MockInterviewOpening.add(
+                MockInterviewConstants.JOB_NAME.OPENING,
+                { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+                { delay: MockInterviewConstants.JOB_DELAY }
+            );
+
+            pauseJob = await Queues.MockInterviewControl.add(
                 MockInterviewConstants.JOB_NAME.PAUSE,
                 { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
                 { delay: MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS }
             );
 
-            await MockInterviewUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, job.id);
+            await MockInterviewUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, pauseJob.id);
 
             if (
                 !(await AiServiceSocket.emitAiServiceEventWithAck(
@@ -76,13 +109,15 @@ const startMockInterview = async (input, opts = {}) => {
 
             return result;
         });
-        if (!updateData) {
-            return Response.formatServiceReturn(false, 500, null, language.USER_INTERVIEW.UPDATE_FAILED);
-        }
+
+        if (openingJob && (await openingJob.isDelayed())) await openingJob.changeDelay(0);
     } catch (err) {
-        if (job) await job.remove();
+        if (openingJob) await openingJob.remove();
+        if (pauseJob) await pauseJob.remove();
         await MockInterviewUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
         await MockInterviewUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+
+        if (err instanceof MockInterviewError) return Response.formatServiceReturn(false, 500, null, err.message);
 
         throw err;
     }
@@ -93,7 +128,15 @@ const startMockInterview = async (input, opts = {}) => {
 const pauseMockInterview = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const userInterview = await UserInterviewRepository.findOne({ uuid: input.uuid, userId: input.userId });
+    const userInterview = await UserInterviewRepository.findOne(
+        { uuid: input.uuid, userId: input.userId },
+        {
+            include: {
+                model: Models.UserInterviewSection,
+                as: 'interviewSections'
+            }
+        }
+    );
     if (!userInterview) {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
     }
@@ -109,24 +152,38 @@ const pauseMockInterview = async (input, opts = {}) => {
 
     const sessionId = await MockInterviewUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-    let job;
+    const targetInterviewSection = userInterview.interviewSections.find(
+        (item) => item.state === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
+    );
+
+    let pauseJob;
     let isUpdated = false;
     try {
-        const updateData = await Models.sequelize.transaction(async (trx) => {
-            const result = await UserInterviewRepository.update(
+        await Models.sequelize.transaction(async (trx) => {
+            let result = await UserInterviewRepository.update(
                 { status: UserInterviewConstants.STATUS.PAUSED, pausedAt: Moment().format() },
                 { id: userInterview.id },
                 trx
             );
+            if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+
+            if (targetInterviewSection) {
+                result = await UserInterviewSectionRepository.update(
+                    { status: UserInterviewConstants.SECTION_STATUS.PAUSED, pausedAt: Moment().format() },
+                    { id: targetInterviewSection.id },
+                    trx
+                );
+                if (!result) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+            }
 
             await MockInterviewUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
             const jobId = await MockInterviewUtils.getMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
             if (jobId) {
-                job = await Queues.MockInterview.getJob(jobId);
+                pauseJob = await Queues.MockInterview.getJob(jobId);
 
-                if (job && !(await job.isCompleted())) {
-                    await job.updateData({});
+                if (pauseJob && !(await pauseJob.isCompleted())) {
+                    await pauseJob.updateData({});
                     isUpdated = true;
                 }
 
@@ -142,16 +199,14 @@ const pauseMockInterview = async (input, opts = {}) => {
 
             return result;
         });
-
-        if (!updateData) {
-            return Response.formatServiceReturn(false, 500, null, language.USER_INTERVIEW.UPDATE_FAILED);
-        }
     } catch (err) {
-        if (job) {
-            if (isUpdated) await job.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
-            await MockInterviewUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, job.id);
+        if (pauseJob) {
+            if (isUpdated) await pauseJob.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
+            await MockInterviewUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, pauseJob.id);
         }
         await MockInterviewUtils.setMockInterviewSessionId(userInterview.userId, userInterview.uuid, sessionId);
+
+        if (err instanceof MockInterviewError) return Response.formatServiceReturn(false, 500, null, err.message);
 
         throw err;
     }
@@ -168,7 +223,15 @@ const pauseMockInterview = async (input, opts = {}) => {
 const continueMockInterview = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const userInterview = await UserInterviewRepository.findOne({ uuid: input.uuid, userId: input.userId });
+    const userInterview = await UserInterviewRepository.findOne(
+        { uuid: input.uuid, userId: input.userId },
+        {
+            include: {
+                model: Models.UserInterviewSection,
+                as: 'interviewSections'
+            }
+        }
+    );
     if (!userInterview) {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
     }
@@ -182,24 +245,51 @@ const continueMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_PAUSED);
     }
 
-    let job;
+    let targetInterviewSection = userInterview.interviewSections.find(
+        (item) => item.state === UserInterviewConstants.SECTION_STATUS.PAUSED
+    );
+    if (!targetInterviewSection) {
+        targetInterviewSection = userInterview.interviewSections.find(
+            (item) => item.state === UserInterviewConstants.SECTION_STATUS.NOT_STARTED
+        );
+    }
+    if (!targetInterviewSection) {
+        return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
+    }
+
+    let openingJob;
+    let pauseJob;
     try {
-        const updateData = await Models.sequelize.transaction(async (trx) => {
-            const result = await UserInterviewRepository.update(
+        await Models.sequelize.transaction(async (trx) => {
+            let result = await UserInterviewRepository.update(
                 { status: UserInterviewConstants.STATUS.IN_PROGRESS },
                 { id: userInterview.id },
                 trx
             );
+            if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+
+            result = await UserInterviewSectionRepository.update(
+                { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
+                { id: targetInterviewSection.id },
+                trx
+            );
+            if (!result) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
 
             const sessionId = await MockInterviewUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-            job = await Queues.MockInterview.add(
+            openingJob = await Queues.MockInterviewOpening.add(
+                MockInterviewConstants.JOB_NAME.OPENING,
+                { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+                { delay: MockInterviewConstants.JOB_DELAY }
+            );
+
+            pauseJob = await Queues.MockInterviewControl.add(
                 MockInterviewConstants.JOB_NAME.PAUSE,
                 { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
                 { delay: MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS }
             );
 
-            await MockInterviewUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, job.id);
+            await MockInterviewUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, pauseJob.id);
 
             if (
                 !(await AiServiceSocket.emitAiServiceEventWithAck(
@@ -212,13 +302,15 @@ const continueMockInterview = async (input, opts = {}) => {
 
             return result;
         });
-        if (!updateData) {
-            return Response.formatServiceReturn(false, 500, null, language.USER_INTERVIEW.UPDATE_FAILED);
-        }
+
+        if (openingJob && (await openingJob.isDelayed())) await openingJob.changeDelay(0);
     } catch (err) {
-        if (job) await job.remove();
+        if (openingJob) await openingJob.remove();
+        if (pauseJob) await pauseJob.remove();
         await MockInterviewUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
         await MockInterviewUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+
+        if (err instanceof MockInterviewError) return Response.formatServiceReturn(false, 500, null, err.message);
 
         throw err;
     }
@@ -229,7 +321,15 @@ const continueMockInterview = async (input, opts = {}) => {
 const stopMockInterview = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const userInterview = await UserInterviewRepository.findOne({ uuid: input.uuid, userId: input.userId });
+    const userInterview = await UserInterviewRepository.findOne(
+        { uuid: input.uuid, userId: input.userId },
+        {
+            include: {
+                model: Models.UserInterviewSection,
+                as: 'interviewSections'
+            }
+        }
+    );
     if (!userInterview) {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
     }
@@ -243,17 +343,31 @@ const stopMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_IN_PROGRESS);
     }
 
+    const targetInterviewSections = userInterview.interviewSections.filter(
+        (item) => item.state !== UserInterviewConstants.SECTION_STATUS.NOT_STARTED
+    );
+
     const sessionId = await MockInterviewUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
     let job;
     let isUpdated = false;
     try {
-        const updateData = await Models.sequelize.transaction(async (trx) => {
-            const result = await UserInterviewRepository.update(
+        await Models.sequelize.transaction(async (trx) => {
+            let result = await UserInterviewRepository.update(
                 { status: UserInterviewConstants.STATUS.COMPLETED, completedAt: Moment().format() },
                 { id: userInterview.id },
                 trx
             );
+            if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+
+            if (targetInterviewSections.length) {
+                result = await UserInterviewSectionRepository.update(
+                    { status: UserInterviewConstants.SECTION_STATUS.COMPLETED, completedAt: Moment().format() },
+                    { id: targetInterviewSections.map((item) => item.id) },
+                    trx
+                );
+                if (!result) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+            }
 
             await MockInterviewUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
@@ -278,15 +392,14 @@ const stopMockInterview = async (input, opts = {}) => {
 
             return result;
         });
-        if (!updateData) {
-            return Response.formatServiceReturn(false, 500, null, language.USER_INTERVIEW.UPDATE_FAILED);
-        }
     } catch (err) {
         if (job) {
             if (isUpdated) await job.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
             await MockInterviewUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, job.id);
         }
         await MockInterviewUtils.setMockInterviewSessionId(userInterview.userId, userInterview.uuid, sessionId);
+
+        if (err instanceof MockInterviewError) return Response.formatServiceReturn(false, 500, null, err.message);
 
         throw err;
     }
