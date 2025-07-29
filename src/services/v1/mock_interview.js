@@ -10,7 +10,6 @@ const AiServiceSocket = require('../../clients/socket/ai_service');
 const Queues = require('../../queues/bullmq');
 const MockInterviewConstants = require('../../constants/mock_interview');
 const LogUtils = require('../../utils/logger');
-const SocketServer = require('../../servers/socket/main');
 const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
 
 class MockInterviewError extends Error {}
@@ -468,14 +467,6 @@ const recordMockInterviewText = async (input, data) => {
             else await addRespondJob();
         } else if (data.isTalking) await cancelRespondJob();
 
-        if (data.isTalking && input.sid != null) {
-            SocketServer.emitEventToClient(
-                input.sid,
-                MockInterviewConstants.EVENT_NAME.STATUS,
-                MockInterviewConstants.STATUS.LISTENING
-            );
-        }
-
         return;
     }
 
@@ -505,8 +496,6 @@ const speakMockInterview = async (input) => {
 
     let isIncremented = false;
     try {
-        if (input.sid != null) await MockInterviewCacheUtils.setMockInterviewSid(input.userId, input.uuid, input.sid);
-
         await MockInterviewCacheUtils.incrementMockInterviewSpeechCounter(input.userId, input.uuid);
         isIncremented = true;
 

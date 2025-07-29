@@ -6,5 +6,6 @@ const addEvent = (event, callback) => {
 };
 
 addEvent('speak', require('../handlers/v1/mock-interview/speak_mock_interview').speakMockInterview);
+addEvent('ping', require('../handlers/v1/mock-interview/ping_mock_interview').pingMockInterview);
 
 module.exports = events;

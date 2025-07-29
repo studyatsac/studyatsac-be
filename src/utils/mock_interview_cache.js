@@ -52,12 +52,18 @@ const deleteMockInterviewSid = async (userId, userInterviewUuid) => {
 
 const setMockInterviewStatus = async (userId, userInterviewUuid, status) => {
     const key = `${MOCK_INTERVIEW_STATUS_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
-    await Cache.setCache(key, status, MockInterviewConstants.MAX_SESSION_TIME_IN_MILLISECONDS + (5 * 60 * 1000));
+    await Cache.setCache(
+        key,
+        JSON.stringify(status),
+        MockInterviewConstants.MAX_SESSION_TIME_IN_MILLISECONDS + (5 * 60 * 1000)
+    );
 };
 
 const getMockInterviewStatus = async (userId, userInterviewUuid) => {
     const key = `${MOCK_INTERVIEW_STATUS_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
-    return Cache.getCache(key);
+    const status = await Cache.getCache(key);
+
+    return status && JSON.parse(status);
 };
 
 const deleteMockInterviewStatus = async (userId, userInterviewUuid) => {

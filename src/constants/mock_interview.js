@@ -35,10 +35,19 @@ const RESPOND_TIME_IN_SECONDS = 3;
 const RESPOND_TIME_IN_MILLISECONDS = RESPOND_TIME_IN_SECONDS * 1000;
 
 const STATUS = {
+    NO_ACTIVITY: 'no_activity',
     LISTENING: 'listening',
+    LISTENING_FAILED: 'listening_failed',
+    LISTENING_DONE: 'listening_done',
     TRANSCRIBING: 'transcribing',
+    TRANSCRIBING_FAILED: 'transcribing_failed',
+    TRANSCRIBING_DONE: 'transcribing_done',
     PROCESSING: 'processing',
-    SPEAKING: 'speaking'
+    PROCESSING_FAILED: 'processing_failed',
+    PROCESSING_DONE: 'processing_done',
+    SPEAKING: 'speaking',
+    SPEAKING_FAILED: 'speaking_failed',
+    SPEAKING_DONE: 'speaking_done'
 };
 
 const EVENT_NAME = {
