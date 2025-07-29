@@ -20,6 +20,16 @@ CacheClient.initializeCacheClient();
 OpenAiClient.initializeOpenAiClient();
 AiServiceSocketClient.initializeAiServiceSocket();
 
+// Setup models
+const Models = require('./src/models/mysql');
+
+Models.setupModel();
+
+// Setup queues
+const Queues = require('./src/queues/bullmq');
+
+Queues.setupQueue();
+
 // Setup app
 const routerV1 = require('./src/routes/v1');
 
@@ -29,22 +39,18 @@ Server.addAppRoute('/v1', routerV1);
 // Setup socket
 const eventV1 = require('./src/events/v1');
 const socketConnectionMiddleware = require('./src/middlewares/socket_connection_middleware');
-const Subscriptions = require('./src/subscriptions/socket-io');
 
 SocketServer.addSocketMiddleware(socketConnectionMiddleware);
 SocketServer.addSocketEvent(eventV1);
+
+// Setup subscriptions
+const Subscriptions = require('./src/subscriptions/socket-io');
+
 Subscriptions.setupSubscription();
 
-// Setup models
-const Models = require('./src/models/mysql');
-
-Models.setupModel();
-
-// Setup queues
-const Queues = require('./src/queues/bullmq');
+// Setup workers
 const Workers = require('./src/workers/bullmq');
 
-Queues.setupQueue();
 Workers.setupWorker();
 
 // Start the sever

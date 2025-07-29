@@ -36,13 +36,13 @@ const RESPOND_TIME_IN_MILLISECONDS = RESPOND_TIME_IN_SECONDS * 1000;
 
 const STATUS = {
     LISTENING: 'listening',
+    TRANSCRIBING: 'transcribing',
     PROCESSING: 'processing',
     SPEAKING: 'speaking'
 };
 
 const EVENT_NAME = {
-    STATUS: 'status',
-    RESPOND: 'respond'
+    STATUS: 'status'
 };
 
 const AI_SERVICE_EVENT_NAME = {

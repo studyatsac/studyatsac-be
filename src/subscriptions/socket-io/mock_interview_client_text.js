@@ -1,7 +1,7 @@
 const AiServiceSocket = require('../../clients/socket/ai_service');
 const MockInterviewService = require('../../services/v1/mock_interview');
 const LogUtils = require('../../utils/logger');
-const MockInterviewUtils = require('../../utils/mock_interview');
+const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
 const MockInterviewConstants = require('../../constants/mock_interview');
 
 const listenClientTextEvent = async (data) => {
@@ -9,10 +9,10 @@ const listenClientTextEvent = async (data) => {
         const {
             userId,
             uuid,
-            counter,
+            listeningCount: counter,
             ...restData
         } = data;
-        if (!(await MockInterviewUtils.isMockInterviewRunning(userId, uuid))) return;
+        if (!(await MockInterviewCacheUtils.isMockInterviewRunning(userId, uuid))) return;
 
         await MockInterviewService.recordMockInterviewText({ userId, uuid, counter }, restData);
     } catch (err) {
@@ -33,7 +33,7 @@ module.exports = () => {
     const listen = (callback) => listeners.push(callback);
 
     return {
-        name: 'MockInterviewTranscription',
+        name: 'MockInterviewClientText',
         listen,
         unsubscribeAll
     };

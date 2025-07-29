@@ -6,7 +6,7 @@ const UserInterviewConstants = require('../../constants/user_interview');
 const MockInterviewConstants = require('../../constants/mock_interview');
 const Models = require('../../models/mysql');
 const Queues = require('../../queues/bullmq');
-const MockInterviewUtils = require('../../utils/mock_interview');
+const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
 const AiServiceSocket = require('../../clients/socket/ai_service');
 
 async function processMockInterviewControlPauseJob(job) {
@@ -21,7 +21,7 @@ async function processMockInterviewControlPauseJob(job) {
     );
     if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
 
-    const sessionId = await MockInterviewUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+    const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
     try {
         await Models.sequelize.transaction(async (trx) => {
@@ -31,9 +31,9 @@ async function processMockInterviewControlPauseJob(job) {
                 trx
             );
 
-            await MockInterviewUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+            await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-            await MockInterviewUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
+            await MockInterviewCacheUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
 
             if (
                 !(await AiServiceSocket.emitAiServiceEventWithAck(
@@ -45,7 +45,7 @@ async function processMockInterviewControlPauseJob(job) {
             return result;
         });
     } catch (err) {
-        await MockInterviewUtils.setMockInterviewSessionId(userInterview.userId, userInterview.uuid, sessionId);
+        await MockInterviewCacheUtils.setMockInterviewSessionId(userInterview.userId, userInterview.uuid, sessionId);
 
         LogUtils.logError({ functionName: 'processMockInterviewControlPauseJob', message: err.message });
 

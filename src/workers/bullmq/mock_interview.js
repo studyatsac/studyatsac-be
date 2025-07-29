@@ -5,7 +5,8 @@ const UserInterviewConstants = require('../../constants/user_interview');
 const MockInterviewConstants = require('../../constants/mock_interview');
 const Models = require('../../models/mysql');
 const Queues = require('../../queues/bullmq');
-const MockInterviewUtils = require('../../utils/mock_interview');
+const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
+const MockInterviewPromptUtils = require('../../utils/mock_interview_prompt');
 const AiServiceSocket = require('../../clients/socket/ai_service');
 
 const getNotAskedInterviewSectionQuestions = (interviewSectionAnswers, interviewSectionQuestions) => {
@@ -52,7 +53,7 @@ async function processMockInterviewOpeningJob(job) {
         || !userInterview?.interviewSections?.length
     ) return;
 
-    const sessionId = await MockInterviewUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+    const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
     let targetInterviewSection;
     let completedInterviewSection;
@@ -72,7 +73,7 @@ async function processMockInterviewOpeningJob(job) {
             (item) => item.id === lastAnswer?.interviewSectionQuestionId
         );
 
-        const { prompt, hint } = MockInterviewUtils.getMockInterviewContinuingSystemPrompt(
+        const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewContinuingSystemPrompt(
             userInterview.backgroundDescription,
             targetInterviewSection?.interviewSection?.title,
             lastQuestion?.question,
@@ -98,7 +99,7 @@ async function processMockInterviewOpeningJob(job) {
             (item) => item.id === lastAnswer?.interviewSectionQuestionId
         );
 
-        const { prompt, hint } = MockInterviewUtils.getMockInterviewRespondTransitionSystemPrompt(
+        const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondTransitionSystemPrompt(
             userInterview.backgroundDescription,
             targetInterviewSection?.interviewSection?.title,
             getNotAskedInterviewSectionQuestions(
@@ -120,7 +121,7 @@ async function processMockInterviewOpeningJob(job) {
             MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.TRANSITIONING
         );
     } else {
-        const { prompt, hint } = MockInterviewUtils.getMockInterviewOpeningSystemPrompt(
+        const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewOpeningSystemPrompt(
             userInterview.backgroundDescription,
             targetInterviewSection?.interviewSection?.title,
             getNotAskedInterviewSectionQuestions(
@@ -170,12 +171,12 @@ async function processMockInterviewRespondJob(job) {
     );
     if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
 
-    const sessionId = await MockInterviewUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+    const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-    const texts = await MockInterviewUtils.getMockInterviewSpeechTexts(userInterview.userId, userInterview.uuid);
+    const texts = await MockInterviewCacheUtils.getMockInterviewSpeechTexts(userInterview.userId, userInterview.uuid);
     if (!texts || !Array.isArray(texts) || texts.length === 0) return;
 
-    const speechTextsOwner = await MockInterviewUtils.getMockInterviewRespondJobId(userId, userInterviewUuid);
+    const speechTextsOwner = await MockInterviewCacheUtils.getMockInterviewRespondJobId(userId, userInterviewUuid);
     if (speechTextsOwner !== job.id) return;
 
     const text = texts.map((item) => item?.content ?? '').filter(Boolean).join(' ');
@@ -188,7 +189,7 @@ async function processMockInterviewRespondJob(job) {
         (item) => item.id === lastAnswer?.interviewSectionQuestionId
     );
 
-    const { prompt, hint } = MockInterviewUtils.getMockInterviewRespondSystemPrompt(
+    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondSystemPrompt(
         userInterview.backgroundDescription,
         userInterview.topic,
         lastQuestion?.question,
@@ -208,8 +209,8 @@ async function processMockInterviewRespondJob(job) {
         MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.RESPONDING
     );
 
-    await MockInterviewUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
-    await MockInterviewUtils.deleteMockInterviewRespondJobId(userId, userInterviewUuid);
+    await MockInterviewCacheUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
+    await MockInterviewCacheUtils.deleteMockInterviewRespondJobId(userId, userInterviewUuid);
 }
 
 async function processMockInterviewJob(job) {

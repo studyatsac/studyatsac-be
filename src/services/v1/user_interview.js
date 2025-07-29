@@ -6,7 +6,7 @@ const Response = require('../../utils/response');
 const Models = require('../../models/mysql');
 const Helpers = require('../../utils/helpers');
 const UserInterviewConstants = require('../../constants/user_interview');
-const MockInterviewUtils = require('../../utils/mock_interview');
+const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
 
 class UserInterviewError extends Error {}
 
@@ -51,7 +51,7 @@ const getUserInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
     }
 
-    const sessionId = await MockInterviewUtils.getMockInterviewSessionId(interview.userId, interview.uuid);
+    const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(interview.userId, interview.uuid);
     interview.sessionId = sessionId;
 
     return Response.formatServiceReturn(true, 200, interview, null);
