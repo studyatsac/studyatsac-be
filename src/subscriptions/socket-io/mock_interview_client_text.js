@@ -24,7 +24,7 @@ module.exports = () => {
     const listeners = [listenClientTextEvent];
 
     const unsubscribeAll = AiServiceSocket.subscribeAiServiceEvent(
-        MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_TEXT,
+        MockInterviewConstants.AI_SERVICE_EVENT_NAME.SERVER_TEXT,
         (...params) => {
             listeners.forEach((listener) => listener(...params));
         }

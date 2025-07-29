@@ -56,10 +56,9 @@ const EVENT_NAME = {
 
 const AI_SERVICE_EVENT_NAME = {
     INIT_CLIENT: 'init_client',
-    SPEECH: 'speech',
+    SERVER_SPEECH: 'server_speech',
     END_SPEECH: 'end_client',
-    TEXT: 'text',
-    CLIENT_TEXT: 'client_text',
+    SERVER_TEXT: 'server_text',
     CLIENT_PROCESS: 'client_process'
 };
 

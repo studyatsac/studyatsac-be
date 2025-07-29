@@ -500,7 +500,7 @@ const speakMockInterview = async (input) => {
         isIncremented = true;
 
         const data = await AiServiceSocket.emitAiServiceEventWithAck(
-            MockInterviewConstants.AI_SERVICE_EVENT_NAME.SPEECH,
+            MockInterviewConstants.AI_SERVICE_EVENT_NAME.SERVER_SPEECH,
             sessionId,
             input.buffer,
             input.language
