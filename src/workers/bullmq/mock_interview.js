@@ -1,4 +1,4 @@
-const { Worker } = require('bullmq');
+const { Worker, DelayedError } = require('bullmq');
 const LogUtils = require('../../utils/logger');
 const UserInterviewRepository = require('../../repositories/mysql/user_interview');
 const UserInterviewConstants = require('../../constants/user_interview');
@@ -21,7 +21,7 @@ const getNotAskedInterviewSectionQuestions = (interviewSectionAnswers, interview
     return notAskedInterviewSectionQuestions;
 };
 
-async function processMockInterviewOpeningJob(job) {
+async function processMockInterviewOpeningJob(job, token) {
     const jobData = job.data;
     const userId = jobData.userId;
     const userInterviewUuid = jobData.userInterviewUuid;
@@ -67,6 +67,7 @@ async function processMockInterviewOpeningJob(job) {
     });
     if (!targetInterviewSection) return;
 
+    let result = true;
     if (targetInterviewSection.interviewSectionAnswers?.length) {
         const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[targetInterviewSection.interviewSectionAnswers.length - 1];
         const lastQuestion = targetInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
@@ -84,7 +85,7 @@ async function processMockInterviewOpeningJob(job) {
             userInterview.language
         );
 
-        AiServiceSocket.emitAiServiceEvent(
+        result = await AiServiceSocket.emitAiServiceEventWithAck(
             MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
             sessionId,
             prompt,
@@ -111,7 +112,7 @@ async function processMockInterviewOpeningJob(job) {
             userInterview.language
         );
 
-        AiServiceSocket.emitAiServiceEvent(
+        result = await AiServiceSocket.emitAiServiceEventWithAck(
             MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
             sessionId,
             prompt,
@@ -131,7 +132,7 @@ async function processMockInterviewOpeningJob(job) {
             userInterview.language
         );
 
-        AiServiceSocket.emitAiServiceEvent(
+        result = await AiServiceSocket.emitAiServiceEventWithAck(
             MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
             sessionId,
             prompt,
@@ -141,9 +142,13 @@ async function processMockInterviewOpeningJob(job) {
             MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.OPENING
         );
     }
+    if (!result) {
+        await job.moveToDelayed(Date.now() + 1000, token);
+        throw new DelayedError();
+    }
 }
 
-async function processMockInterviewRespondJob(job) {
+async function processMockInterviewRespondJob(job, token) {
     const jobData = job.data;
     const userId = jobData.userId;
     const userInterviewUuid = jobData.userInterviewUuid;
@@ -199,7 +204,7 @@ async function processMockInterviewRespondJob(job) {
         ),
         userInterview.language
     );
-    AiServiceSocket.emitAiServiceEvent(
+    const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
         sessionId,
         prompt,
@@ -208,18 +213,22 @@ async function processMockInterviewRespondJob(job) {
         userInterview.language,
         MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.RESPONDING
     );
+    if (!result) {
+        await job.moveToDelayed(Date.now() + 1000, token);
+        throw new DelayedError();
+    }
 
     await MockInterviewCacheUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
     await MockInterviewCacheUtils.deleteMockInterviewRespondJobId(userId, userInterviewUuid);
 }
 
-async function processMockInterviewJob(job) {
+async function processMockInterviewJob(job, token) {
     switch (job.name) {
     case MockInterviewConstants.JOB_NAME.OPENING:
-        processMockInterviewOpeningJob(job);
+        await processMockInterviewOpeningJob(job, token);
         break;
     case MockInterviewConstants.JOB_NAME.RESPOND:
-        processMockInterviewRespondJob(job);
+        await processMockInterviewRespondJob(job, token);
         break;
     default:
         break;

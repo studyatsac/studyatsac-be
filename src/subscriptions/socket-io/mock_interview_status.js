@@ -15,20 +15,26 @@ const listenStatusEvent = async (data) => {
             processStatus,
             speakStatus
         } = data;
+
         if (!(await MockInterviewCacheUtils.isMockInterviewRunning(userId, uuid))) return;
 
-        await MockInterviewCacheUtils.setMockInterviewStatus(userId, uuid, {
+        const statusObject = {
             status,
             listenStatus,
             transcribeStatus,
             processStatus,
             speakStatus
-        });
+        };
+        await MockInterviewCacheUtils.setMockInterviewStatus(userId, uuid, statusObject);
 
         const clientSid = await MockInterviewCacheUtils.getMockInterviewSid(userId, uuid);
         if (!clientSid) return;
 
-        SocketServer.emitEventToClient(clientSid, MockInterviewConstants.SOCKET_EVENT_NAME.STATUS, status);
+        SocketServer.emitEventToClient(
+            clientSid,
+            MockInterviewConstants.SOCKET_EVENT_NAME.STATUS,
+            statusObject
+        );
     } catch (err) {
         LogUtils.logError({ functionName: 'listenStatusEvent', message: err.message });
     }
@@ -38,7 +44,7 @@ module.exports = () => {
     const listeners = [listenStatusEvent];
 
     const unsubscribeAll = AiServiceSocket.subscribeAiServiceEvent(
-        MockInterviewConstants.AI_SERVICE_EVENT_NAME.SERVER_TEXT,
+        MockInterviewConstants.AI_SERVICE_EVENT_NAME.SERVER_STATUS,
         (...params) => {
             listeners.forEach((listener) => listener(...params));
         }

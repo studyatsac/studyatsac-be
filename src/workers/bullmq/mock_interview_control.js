@@ -56,7 +56,7 @@ async function processMockInterviewControlPauseJob(job) {
 async function processMockInterviewControlJob(job) {
     switch (job.name) {
     case MockInterviewConstants.JOB_NAME.PAUSE:
-        processMockInterviewControlPauseJob(job);
+        await processMockInterviewControlPauseJob(job);
         break;
     default:
         break;

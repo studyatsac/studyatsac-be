@@ -200,10 +200,10 @@ async function processEssayReviewItemJob(job) {
 async function processEssayReviewJob(job) {
     switch (job.name) {
     case EssayReviewConstants.JOB_NAME.OVERALL:
-        processEssayReviewOverallJob(job);
+        await processEssayReviewOverallJob(job);
         break;
     case EssayReviewConstants.JOB_NAME.ITEM:
-        processEssayReviewItemJob(job);
+        await processEssayReviewItemJob(job);
         break;
     default:
         break;

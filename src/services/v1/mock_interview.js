@@ -57,7 +57,7 @@ const startMockInterview = async (input, opts = {}) => {
     }
 
     const targetInterviewSection = userInterview.interviewSections.find(
-        (item) => item.state === UserInterviewConstants.SECTION_STATUS.NOT_STARTED
+        (item) => item.status === UserInterviewConstants.SECTION_STATUS.PENDING
     );
     if (!targetInterviewSection) {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
@@ -83,7 +83,7 @@ const startMockInterview = async (input, opts = {}) => {
 
             const sessionId = await MockInterviewCacheUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-            openingJob = await Queues.MockInterviewOpening.add(
+            openingJob = await Queues.MockInterview.add(
                 MockInterviewConstants.JOB_NAME.OPENING,
                 { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
                 { delay: MockInterviewConstants.JOB_DELAY }
@@ -152,7 +152,7 @@ const pauseMockInterview = async (input, opts = {}) => {
     const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
     const targetInterviewSection = userInterview.interviewSections.find(
-        (item) => item.state === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
+        (item) => item.status === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
     );
 
     let pauseJob;
@@ -179,7 +179,7 @@ const pauseMockInterview = async (input, opts = {}) => {
 
             const jobId = await MockInterviewCacheUtils.getMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
             if (jobId) {
-                pauseJob = await Queues.MockInterview.getJob(jobId);
+                pauseJob = await Queues.MockInterviewControl.getJob(jobId);
 
                 if (pauseJob && !(await pauseJob.isCompleted())) {
                     await pauseJob.updateData({});
@@ -245,11 +245,11 @@ const continueMockInterview = async (input, opts = {}) => {
     }
 
     let targetInterviewSection = userInterview.interviewSections.find(
-        (item) => item.state === UserInterviewConstants.SECTION_STATUS.PAUSED
+        (item) => item.status === UserInterviewConstants.SECTION_STATUS.PAUSED
     );
     if (!targetInterviewSection) {
         targetInterviewSection = userInterview.interviewSections.find(
-            (item) => item.state === UserInterviewConstants.SECTION_STATUS.NOT_STARTED
+            (item) => item.status === UserInterviewConstants.SECTION_STATUS.NOT_STARTED
         );
     }
     if (!targetInterviewSection) {
@@ -276,7 +276,7 @@ const continueMockInterview = async (input, opts = {}) => {
 
             const sessionId = await MockInterviewCacheUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-            openingJob = await Queues.MockInterviewOpening.add(
+            openingJob = await Queues.MockInterview.add(
                 MockInterviewConstants.JOB_NAME.OPENING,
                 { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
                 { delay: MockInterviewConstants.JOB_DELAY }
@@ -343,7 +343,7 @@ const stopMockInterview = async (input, opts = {}) => {
     }
 
     const targetInterviewSections = userInterview.interviewSections.filter(
-        (item) => item.state !== UserInterviewConstants.SECTION_STATUS.NOT_STARTED
+        (item) => item.status !== UserInterviewConstants.SECTION_STATUS.NOT_STARTED
     );
 
     const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
@@ -372,7 +372,7 @@ const stopMockInterview = async (input, opts = {}) => {
 
             const jobId = await MockInterviewCacheUtils.getMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
             if (jobId) {
-                job = await Queues.MockInterview.getJob(jobId);
+                job = await Queues.MockInterviewControl.getJob(jobId);
 
                 if (job && !(await job.isCompleted())) {
                     await job.updateData({});
@@ -483,7 +483,7 @@ const recordMockInterviewText = async (input, data) => {
     const jobId = await MockInterviewCacheUtils.getMockInterviewPauseJobId(input.userId, input.uuid);
     if (!jobId) return;
 
-    const job = await Queues.MockInterview.getJob(jobId);
+    const job = await Queues.MockInterviewControl.getJob(jobId);
     if (!job || !(await job.isDelayed())) return;
 
     await MockInterviewCacheUtils.setMockInterviewPauseJobId(input.userId, input.uuid, jobId);
