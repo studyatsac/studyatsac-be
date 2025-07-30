@@ -1,4 +1,5 @@
 const { Worker, DelayedError } = require('bullmq');
+const Moment = require('moment');
 const LogUtils = require('../../utils/logger');
 const UserInterviewRepository = require('../../repositories/mysql/user_interview');
 const UserInterviewConstants = require('../../constants/user_interview');
@@ -8,6 +9,7 @@ const Queues = require('../../queues/bullmq');
 const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
 const MockInterviewPromptUtils = require('../../utils/mock_interview_prompt');
 const AiServiceSocket = require('../../clients/socket/ai_service');
+const UserInterviewSectionAnswerRepository = require('../../repositories/mysql/user_interview_section_answer');
 
 const getNotAskedInterviewSectionQuestions = (interviewSectionAnswers, interviewSectionQuestions) => {
     const notAskedInterviewSectionQuestions = [];
@@ -199,36 +201,50 @@ async function processMockInterviewRespondJob(job, token) {
         (item) => item.status === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
     );
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[targetInterviewSection.interviewSectionAnswers.length - 1];
+    if (!lastAnswer) return;
+
     const lastQuestion = targetInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
         (item) => item.id === lastAnswer?.interviewSectionQuestionId
     );
 
-    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondSystemPrompt(
-        userInterview.backgroundDescription,
-        userInterview.topic,
-        lastQuestion?.question,
-        getNotAskedInterviewSectionQuestions(
-            targetInterviewSection?.interviewSectionAnswers ?? [],
-            targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
-        ),
-        userInterview.language
-    );
-    const result = await AiServiceSocket.emitAiServiceEventWithAck(
-        MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
-        sessionId,
-        prompt,
-        text,
-        hint,
-        userInterview.language,
-        MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.RESPONDING
-    );
-    if (!result) {
-        await job.moveToDelayed(Date.now() + 1000, token);
-        throw new DelayedError();
-    }
+    await Models.sequelize.transaction(async (trx) => {
+        await UserInterviewSectionAnswerRepository.update(
+            {
+                answer: text,
+                status: UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED,
+                answeredAt: Moment().format()
+            },
+            { id: lastAnswer?.id },
+            trx
+        );
 
-    await MockInterviewCacheUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
-    await MockInterviewCacheUtils.deleteMockInterviewRespondJobId(userId, userInterviewUuid);
+        const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondSystemPrompt(
+            userInterview.backgroundDescription,
+            userInterview.topic,
+            lastQuestion?.question || lastAnswer?.question || '',
+            getNotAskedInterviewSectionQuestions(
+                targetInterviewSection?.interviewSectionAnswers ?? [],
+                targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
+            ),
+            userInterview.language
+        );
+        const result = await AiServiceSocket.emitAiServiceEventWithAck(
+            MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
+            sessionId,
+            prompt,
+            text,
+            hint,
+            userInterview.language,
+            MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.RESPONDING
+        );
+        if (!result) {
+            await job.moveToDelayed(Date.now() + 1000, token);
+            throw new DelayedError();
+        }
+
+        await MockInterviewCacheUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
+        await MockInterviewCacheUtils.deleteMockInterviewRespondJobId(userId, userInterviewUuid);
+    });
 }
 
 async function processMockInterviewJob(job, token) {
