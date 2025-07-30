@@ -28,11 +28,17 @@ async function processMockInterviewOpeningJob(job, token) {
     if (!userId || !userInterviewUuid) return;
 
     const userInterview = await UserInterviewRepository.findOne(
-        { uuid: userInterviewUuid, userId },
+        { uuid: userInterviewUuid, userId, status: UserInterviewConstants.STATUS.IN_PROGRESS },
         {
             include: {
                 model: Models.UserInterviewSection,
                 as: 'interviewSections',
+                where: {
+                    [Models.Sequelize.Op.or]: [
+                        { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
+                        { status: UserInterviewConstants.SECTION_STATUS.COMPLETED }
+                    ]
+                },
                 include: [
                     {
                         model: Models.InterviewSection,
@@ -155,11 +161,12 @@ async function processMockInterviewRespondJob(job, token) {
     if (!userId || !userInterviewUuid) return;
 
     const userInterview = await UserInterviewRepository.findOne(
-        { uuid: userInterviewUuid, userId },
+        { uuid: userInterviewUuid, userId, status: UserInterviewConstants.STATUS.IN_PROGRESS },
         {
             include: {
                 model: Models.UserInterviewSection,
                 as: 'interviewSections',
+                where: { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
                 include: [
                     {
                         model: Models.InterviewSection,
@@ -170,7 +177,9 @@ async function processMockInterviewRespondJob(job, token) {
                         model: Models.UserInterviewSectionAnswer,
                         as: 'interviewSectionAnswers'
                     }
-                ]
+                ],
+                limit: 1,
+                order: [['startedAt', 'DESC']]
             }
         }
     );

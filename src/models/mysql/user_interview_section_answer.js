@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         interviewSectionQuestionId: {
             type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: false
+            allowNull: true
         },
         status: {
             type: DataTypes.STRING(30),
@@ -32,6 +32,14 @@ module.exports = (sequelize, DataTypes) => {
         },
         answeredAt: {
             type: DataTypes.DATE,
+            allowNull: true
+        },
+        questionNumber: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        question: {
+            type: DataTypes.TEXT,
             allowNull: true
         },
         answer: {

@@ -1,5 +1,9 @@
 const Models = require('../../models/mysql');
 
+exports.create = function (payload, trx = null) {
+    return Models.UserInterviewSectionAnswer.create(payload, { transaction: trx });
+};
+
 exports.createMany = function (payload, trx = null) {
     return Models.UserInterviewSectionAnswer.bulkCreate(payload, { transaction: trx });
 };

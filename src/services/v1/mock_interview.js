@@ -11,6 +11,8 @@ const Queues = require('../../queues/bullmq');
 const MockInterviewConstants = require('../../constants/mock_interview');
 const LogUtils = require('../../utils/logger');
 const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
+const InterviewSectionQuestionRepository = require('../../repositories/mysql/interview_section_question');
+const UserInterviewSectionAnswerRepository = require('../../repositories/mysql/user_interview_section_answer');
 
 class MockInterviewError extends Error {}
 
@@ -451,21 +453,19 @@ const recordMockInterviewText = async (input, data) => {
         return totalSpeechDuration;
     };
 
-    let shouldAddRespondJob = input.counter === 0;
     let texts;
     if (!('texts' in data) || !Array.isArray(data.texts) || data.texts.length === 0 || !data.isTalking) {
+        // Have other processes
+        if (input.counter > 0) return;
+
         texts = await MockInterviewCacheUtils.getMockInterviewSpeechTexts(input.userId, input.uuid);
         const totalSpeechDuration = getSpeechDuration(texts);
+        // Less than 5 seconds of speech
+        if (totalSpeechDuration < 5) return;
 
-        shouldAddRespondJob = shouldAddRespondJob
-            && !data.isTalking
-            // More than 5 seconds of speech
-            && totalSpeechDuration > 5;
-        if (shouldAddRespondJob) {
-            const job = await addRespondJob();
-            if (job) await delayRespondJob(job);
-            else await addRespondJob();
-        } else if (data.isTalking) await cancelRespondJob();
+        const job = await getRespondJob();
+        if (data.isTalking) await delayRespondJob(job);
+        else if (!job) await addRespondJob();
 
         return;
     }
@@ -473,21 +473,12 @@ const recordMockInterviewText = async (input, data) => {
     texts = await MockInterviewCacheUtils.updateMockInterviewSpeechTexts(input.userId, input.uuid, data.texts, texts);
 
     const totalSpeechDuration = getSpeechDuration(texts);
-    // More than 5 seconds of speech
-    if (shouldAddRespondJob && totalSpeechDuration > 5) {
-        const job = await getRespondJob();
-        if (job) await cancelRespondJob();
-        await addRespondJob(true);
-    }
+    // Have other processes or less than 5 seconds of speech
+    if (input.counter > 0 || totalSpeechDuration < 5) return;
 
-    const jobId = await MockInterviewCacheUtils.getMockInterviewPauseJobId(input.userId, input.uuid);
-    if (!jobId) return;
-
-    const job = await Queues.MockInterviewControl.getJob(jobId);
-    if (!job || !(await job.isDelayed())) return;
-
-    await MockInterviewCacheUtils.setMockInterviewPauseJobId(input.userId, input.uuid, jobId);
-    await job.changeDelay(MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS);
+    const job = await getRespondJob();
+    if (job) await cancelRespondJob();
+    await addRespondJob(true);
 };
 
 const speakMockInterview = async (input) => {
@@ -516,6 +507,52 @@ const speakMockInterview = async (input) => {
     }
 };
 
+const recordMockInterviewProcess = async (input, data) => {
+    if (typeof data !== 'object' || !data || !!data.error) return;
+    // Does not contain any text
+    if (!('texts' in data) || !Array.isArray(data.texts) || data.texts.length === 0) return;
+
+    const fullText = data.texts
+        .sort((text, textB) => text.startTime - textB.startTime)
+        .map((item) => item.content)
+        .filter(Boolean)
+        .join(' ');
+    if (!fullText.trim()) return;
+
+    const userInterview = await UserInterviewRepository.findOne(
+        { uuid: input.uuid, userId: input.userId, status: UserInterviewConstants.STATUS.IN_PROGRESS },
+        {
+            include: {
+                model: Models.UserInterviewSection,
+                as: 'interviewSections',
+                where: { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
+                limit: 1,
+                order: [['startedAt', 'DESC']]
+            }
+        }
+    );
+    if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
+
+    let questionId = data.questionNumber;
+    if (questionId != null && questionId >= 0) {
+        const count = await InterviewSectionQuestionRepository.count({ id: questionId });
+        if (!count) questionId = null;
+    }
+
+    const targetInterviewSection = userInterview.interviewSections.find(
+        (item) => item.status === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
+    );
+    if (!targetInterviewSection) return;
+
+    await UserInterviewSectionAnswerRepository.create({
+        userInterviewSectionId: targetInterviewSection.id,
+        interviewSectionQuestionId: questionId,
+        status: UserInterviewConstants.SECTION_ANSWER_STATUS.PENDING,
+        questionNumber: Number(data.questionNumber) || -1,
+        question: fullText
+    });
+};
+
 exports.getPaidMockInterviewPackage = getPaidMockInterviewPackage;
 exports.startMockInterview = startMockInterview;
 exports.pauseMockInterview = pauseMockInterview;
@@ -523,5 +560,6 @@ exports.continueMockInterview = continueMockInterview;
 exports.stopMockInterview = stopMockInterview;
 exports.recordMockInterviewText = recordMockInterviewText;
 exports.speakMockInterview = speakMockInterview;
+exports.recordMockInterviewProcess = recordMockInterviewProcess;
 
 module.exports = exports;
