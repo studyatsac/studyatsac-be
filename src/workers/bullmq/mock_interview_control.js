@@ -2,6 +2,7 @@ const { Worker } = require('bullmq');
 const Moment = require('moment');
 const LogUtils = require('../../utils/logger');
 const UserInterviewRepository = require('../../repositories/mysql/user_interview');
+const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
 const UserInterviewConstants = require('../../constants/user_interview');
 const MockInterviewConstants = require('../../constants/mock_interview');
 const Models = require('../../models/mysql');
@@ -25,9 +26,14 @@ async function processMockInterviewControlPauseJob(job) {
 
     try {
         await Models.sequelize.transaction(async (trx) => {
-            const result = await UserInterviewRepository.update(
+            await UserInterviewRepository.update(
                 { status: UserInterviewConstants.STATUS.PAUSED, pausedAt: Moment().format() },
                 { id: userInterview.id },
+                trx
+            );
+            await UserInterviewSectionRepository.update(
+                { status: UserInterviewConstants.SECTION_STATUS.PAUSED, pausedAt: Moment().format() },
+                { userInterviewId: userInterview.id, status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
                 trx
             );
 
@@ -41,8 +47,6 @@ async function processMockInterviewControlPauseJob(job) {
                     sessionId
                 ))
             ) throw new Error();
-
-            return result;
         });
     } catch (err) {
         await MockInterviewCacheUtils.setMockInterviewSessionId(userInterview.userId, userInterview.uuid, sessionId);
