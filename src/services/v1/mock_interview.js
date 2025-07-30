@@ -533,10 +533,10 @@ const recordMockInterviewProcess = async (input, data) => {
     );
     if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
 
-    let questionId = data.questionNumber;
-    if (questionId != null && questionId >= 0) {
-        const count = await InterviewSectionQuestionRepository.count({ id: questionId });
-        if (!count) questionId = null;
+    let questionId;
+    if (data.questionNumber != null && data.questionNumber >= 0) {
+        const count = await InterviewSectionQuestionRepository.count({ id: data.questionNumber });
+        if (count) questionId = data.questionNumber;
     }
 
     const targetInterviewSection = userInterview.interviewSections.find(

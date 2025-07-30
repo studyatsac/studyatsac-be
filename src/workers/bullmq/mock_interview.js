@@ -200,14 +200,39 @@ async function processMockInterviewRespondJob(job, token) {
     const targetInterviewSection = userInterview?.interviewSections?.findLast(
         (item) => item.status === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
     );
-    const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[targetInterviewSection.interviewSectionAnswers.length - 1];
-    if (!lastAnswer) return;
-
-    const lastQuestion = targetInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
-        (item) => item.id === lastAnswer?.interviewSectionQuestionId
-    );
+    if (!targetInterviewSection) return;
 
     await Models.sequelize.transaction(async (trx) => {
+        let lastAnswer = targetInterviewSection?.interviewSectionAnswers?.findLast(
+            (item) => item?.status !== UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED
+        );
+        const hasAnswer = !!lastAnswer;
+        if (!hasAnswer) {
+            lastAnswer = await UserInterviewSectionAnswerRepository.create(
+                {
+                    userInterviewSectionId: targetInterviewSection.id,
+                    answer: text,
+                    status: UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED,
+                    answeredAt: Moment().format()
+                },
+                trx
+            );
+        } else {
+            await UserInterviewSectionAnswerRepository.update(
+                {
+                    answer: text,
+                    status: UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED,
+                    answeredAt: Moment().format()
+                },
+                { id: lastAnswer?.id },
+                trx
+            );
+        }
+
+        const lastQuestion = targetInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
+            (item) => item.id === lastAnswer?.interviewSectionQuestionId
+        );
+
         await UserInterviewSectionAnswerRepository.update(
             {
                 answer: text,

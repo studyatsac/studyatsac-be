@@ -33,7 +33,7 @@ const listenServerStatusEvent = async (data) => {
 
         SocketServer.emitEventToClient(
             clientSid,
-            MockInterviewConstants.SOCKET_EVENT_NAME.STATUS,
+            MockInterviewConstants.EVENT_NAME.STATUS,
             statusObject
         );
 
@@ -45,7 +45,7 @@ const listenServerStatusEvent = async (data) => {
 
         await job.changeDelay(MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS);
     } catch (err) {
-        LogUtils.logError({ functionName: 'listenStatusEvent', message: err.message });
+        LogUtils.logError({ functionName: 'listenServerStatusEvent', message: err.message });
     }
 };
 
