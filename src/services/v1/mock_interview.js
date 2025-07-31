@@ -510,14 +510,7 @@ const speakMockInterview = async (input) => {
 const recordMockInterviewProcess = async (input, data) => {
     if (typeof data !== 'object' || !data || !!data.error) return;
     // Does not contain any text
-    if (!('texts' in data) || !Array.isArray(data.texts) || data.texts.length === 0) return;
-
-    const fullText = data.texts
-        .sort((text, textB) => text.startTime - textB.startTime)
-        .map((item) => item.content)
-        .filter(Boolean)
-        .join(' ');
-    if (!fullText.trim()) return;
+    if (!data?.fullText || !data.fullText?.trim()) return;
 
     const userInterview = await UserInterviewRepository.findOne(
         { uuid: input.uuid, userId: input.userId, status: UserInterviewConstants.STATUS.IN_PROGRESS },
@@ -534,8 +527,8 @@ const recordMockInterviewProcess = async (input, data) => {
     if (!userInterview || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) return;
 
     let questionId;
-    if (data.questionNumber != null && data.questionNumber >= 0) {
-        const count = await InterviewSectionQuestionRepository.count({ id: data.questionNumber });
+    if (data?.questionNumber != null && data?.questionNumber >= 0) {
+        const count = await InterviewSectionQuestionRepository.countAll({ id: data.questionNumber });
         if (count) questionId = data.questionNumber;
     }
 
@@ -544,13 +537,60 @@ const recordMockInterviewProcess = async (input, data) => {
     );
     if (!targetInterviewSection) return;
 
-    await UserInterviewSectionAnswerRepository.create({
-        userInterviewSectionId: targetInterviewSection.id,
-        interviewSectionQuestionId: questionId,
-        status: UserInterviewConstants.SECTION_ANSWER_STATUS.PENDING,
-        questionNumber: Number(data.questionNumber) || -1,
-        question: fullText
+    Models.sequelize.transaction(async (trx) => {
+        const interviewSectionAnswer = await UserInterviewSectionAnswerRepository.create({
+            userInterviewSectionId: targetInterviewSection.id,
+            interviewSectionQuestionId: questionId,
+            status: UserInterviewConstants.SECTION_ANSWER_STATUS.PENDING,
+            questionNumber: data?.questionNumber || -1,
+            question: data.fullText
+        }, trx);
+
+        await MockInterviewCacheUtils.setMockInterviewProcessTarget(input.userId, input.uuid, {
+            userInterviewAnswerSectionId: interviewSectionAnswer.id,
+            questionNumber: data?.questionNumber || -1,
+            question: data.fullText
+        });
     });
+};
+
+const recordMockInterviewSpeech = async (input, data) => {
+    if (typeof data !== 'object' || !data || !!data.error) return;
+    // No texts at all
+    if (!data?.currentText || !data?.targetText) return;
+
+    const processTarget = await MockInterviewCacheUtils.getMockInterviewProcessTarget(input.userId, input.uuid);
+    if (!processTarget) {
+        await MockInterviewCacheUtils.setMockInterviewProcessTarget(input.userId, input.uuid, {
+            questionNumber: data?.questionNumber || -1,
+            question: data?.targetText || ''
+        });
+
+        return;
+    }
+    // Not the same in processing
+    if (processTarget?.questionNumber !== data?.questionNumber) return;
+
+    if (processTarget.question === data.targetText) {
+        if (processTarget.userInterviewAnswerSectionId != null) {
+            Models.sequelize.transaction(async (trx) => {
+                await UserInterviewSectionAnswerRepository.update({
+                    status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKED,
+                    askedAt: Moment().format()
+                }, { id: processTarget.userInterviewAnswerSectionId }, trx);
+
+                await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(input.userId, input.uuid);
+            });
+        } else await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(input.userId, input.uuid);
+
+        return;
+    }
+
+    if (processTarget.question.includes(data.currentText) && processTarget.userInterviewAnswerSectionId != null) {
+        await UserInterviewSectionAnswerRepository.update({
+            status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKING
+        }, { id: processTarget.userInterviewAnswerSectionId });
+    }
 };
 
 exports.getPaidMockInterviewPackage = getPaidMockInterviewPackage;
@@ -561,5 +601,6 @@ exports.stopMockInterview = stopMockInterview;
 exports.recordMockInterviewText = recordMockInterviewText;
 exports.speakMockInterview = speakMockInterview;
 exports.recordMockInterviewProcess = recordMockInterviewProcess;
+exports.recordMockInterviewSpeech = recordMockInterviewSpeech;
 
 module.exports = exports;

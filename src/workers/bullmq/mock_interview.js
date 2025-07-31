@@ -10,6 +10,7 @@ const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
 const MockInterviewPromptUtils = require('../../utils/mock_interview_prompt');
 const AiServiceSocket = require('../../clients/socket/ai_service');
 const UserInterviewSectionAnswerRepository = require('../../repositories/mysql/user_interview_section_answer');
+const InterviewSectionQuestionRepository = require('../../repositories/mysql/interview_section_question');
 
 const getNotAskedInterviewSectionQuestions = (interviewSectionAnswers, interviewSectionQuestions) => {
     const notAskedInterviewSectionQuestions = [];
@@ -202,18 +203,37 @@ async function processMockInterviewRespondJob(job, token) {
     );
     if (!targetInterviewSection) return;
 
+    let additionalPayload = {};
+    const processTarget = await MockInterviewCacheUtils.getMockInterviewProcessTarget(userId, userInterviewUuid);
+    if (processTarget && processTarget?.userInterviewSectionAnswerId == null) {
+        let questionId;
+        if (processTarget?.questionNumber != null && processTarget?.questionNumber >= 0) {
+            const count = await InterviewSectionQuestionRepository.countAll({ id: processTarget.questionNumber });
+            if (count) questionId = processTarget.questionNumber;
+        }
+        additionalPayload = {
+            interviewSectionQuestionId: questionId,
+            question: processTarget?.question,
+            questionNumber: processTarget?.questionNumber
+        };
+    }
+
     await Models.sequelize.transaction(async (trx) => {
-        let lastAnswer = targetInterviewSection?.interviewSectionAnswers?.findLast(
-            (item) => item?.status !== UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED
+        let targetAnswer = targetInterviewSection?.interviewSectionAnswers?.findLast(
+            (item) => (processTarget?.userInterviewSectionAnswerId == null
+                ? item?.status !== UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED
+                : (processTarget?.userInterviewSectionAnswerId === item.id
+                    && item?.status !== UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED))
         );
-        const hasAnswer = !!lastAnswer;
+        const hasAnswer = !!targetAnswer;
         if (!hasAnswer) {
-            lastAnswer = await UserInterviewSectionAnswerRepository.create(
+            targetAnswer = await UserInterviewSectionAnswerRepository.create(
                 {
                     userInterviewSectionId: targetInterviewSection.id,
                     answer: text,
                     status: UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED,
-                    answeredAt: Moment().format()
+                    answeredAt: Moment().format(),
+                    ...additionalPayload
                 },
                 trx
             );
@@ -222,31 +242,22 @@ async function processMockInterviewRespondJob(job, token) {
                 {
                     answer: text,
                     status: UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED,
-                    answeredAt: Moment().format()
+                    answeredAt: Moment().format(),
+                    ...additionalPayload
                 },
-                { id: lastAnswer?.id },
+                { id: targetAnswer?.id },
                 trx
             );
         }
 
         const lastQuestion = targetInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
-            (item) => item.id === lastAnswer?.interviewSectionQuestionId
-        );
-
-        await UserInterviewSectionAnswerRepository.update(
-            {
-                answer: text,
-                status: UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED,
-                answeredAt: Moment().format()
-            },
-            { id: lastAnswer?.id },
-            trx
+            (item) => item.id === targetAnswer?.interviewSectionQuestionId
         );
 
         const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondSystemPrompt(
             userInterview.backgroundDescription,
             userInterview.topic,
-            lastQuestion?.question || lastAnswer?.question || '',
+            lastQuestion?.question || targetAnswer?.question || '',
             getNotAskedInterviewSectionQuestions(
                 targetInterviewSection?.interviewSectionAnswers ?? [],
                 targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []

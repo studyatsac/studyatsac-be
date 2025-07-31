@@ -10,6 +10,7 @@ const MOCK_INTERVIEW_PAUSE_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_pause`;
 const MOCK_INTERVIEW_RESPOND_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_respond`;
 const MOCK_INTERVIEW_SPEECH_TEXTS_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_texts`;
 const MOCK_INTERVIEW_SPEECH_COUNTER_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_counter`;
+const MOCK_INTERVIEW_PROCESS_TARGET_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_process_target`;
 
 const setMockInterviewSessionId = async (userId, userInterviewUuid, sessionId) => {
     const key = `${MOCK_INTERVIEW_SESSION_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
@@ -160,6 +161,26 @@ const decrementMockInterviewSpeechCounter = async (userId, userInterviewUuid) =>
     return next;
 };
 
+const getMockInterviewProcessTarget = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_PROCESS_TARGET_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    const data = await Cache.getCache(key);
+    return data && JSON.parse(data);
+};
+
+const setMockInterviewProcessTarget = async (userId, userInterviewUuid, target) => {
+    const key = `${MOCK_INTERVIEW_PROCESS_TARGET_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    await Cache.setCache(
+        key,
+        JSON.stringify(target),
+        MockInterviewConstants.MAX_SESSION_TIME_IN_MILLISECONDS + (5 * 60 * 1000)
+    );
+};
+
+const deleteMockInterviewProcessTarget = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_PROCESS_TARGET_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    await Cache.deleteCache(key);
+};
+
 exports.generateMockInterviewSessionId = generateMockInterviewSessionId;
 exports.setMockInterviewSessionId = setMockInterviewSessionId;
 exports.getMockInterviewSessionId = getMockInterviewSessionId;
@@ -184,5 +205,8 @@ exports.deleteMockInterviewSpeechTexts = deleteMokInterviewSpeechTexts;
 exports.getMockInterviewSpeechCounter = getMockInterviewSpeechCounter;
 exports.incrementMockInterviewSpeechCounter = incrementMockInterviewSpeechCounter;
 exports.decrementMockInterviewSpeechCounter = decrementMockInterviewSpeechCounter;
+exports.getMockInterviewProcessTarget = getMockInterviewProcessTarget;
+exports.setMockInterviewProcessTarget = setMockInterviewProcessTarget;
+exports.deleteMockInterviewProcessTarget = deleteMockInterviewProcessTarget;
 
 module.exports = exports;
