@@ -1,5 +1,9 @@
 const Models = require('../../models/mysql');
 
+exports.findOne = function (where, opts = {}, trx = null) {
+    return Models.UserInterviewSection.findOne({ where, transaction: trx, ...opts });
+};
+
 exports.create = function (payload, trx = null) {
     return Models.UserInterviewSection.create(payload, { transaction: trx });
 };

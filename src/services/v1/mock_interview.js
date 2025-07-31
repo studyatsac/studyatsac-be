@@ -66,7 +66,7 @@ const startMockInterview = async (input, opts = {}) => {
     }
 
     let pauseJob;
-    let openingJob;
+    let initJob;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -85,8 +85,8 @@ const startMockInterview = async (input, opts = {}) => {
 
             const sessionId = await MockInterviewCacheUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-            openingJob = await Queues.MockInterview.add(
-                MockInterviewConstants.JOB_NAME.OPENING,
+            initJob = await Queues.MockInterview.add(
+                MockInterviewConstants.JOB_NAME.INIT,
                 { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
                 { delay: MockInterviewConstants.JOB_DELAY }
             );
@@ -111,9 +111,9 @@ const startMockInterview = async (input, opts = {}) => {
             return result;
         });
 
-        if (openingJob && (await openingJob.isDelayed())) await openingJob.changeDelay(0);
+        if (initJob && (await initJob.isDelayed())) await initJob.changeDelay(0);
     } catch (err) {
-        if (openingJob) await openingJob.remove();
+        if (initJob) await initJob.remove();
         if (pauseJob) await pauseJob.remove();
         await MockInterviewCacheUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
         await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
@@ -258,7 +258,7 @@ const continueMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
     }
 
-    let openingJob;
+    let initJob;
     let pauseJob;
     try {
         await Models.sequelize.transaction(async (trx) => {
@@ -278,8 +278,8 @@ const continueMockInterview = async (input, opts = {}) => {
 
             const sessionId = await MockInterviewCacheUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-            openingJob = await Queues.MockInterview.add(
-                MockInterviewConstants.JOB_NAME.OPENING,
+            initJob = await Queues.MockInterview.add(
+                MockInterviewConstants.JOB_NAME.INIT,
                 { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
                 { delay: MockInterviewConstants.JOB_DELAY }
             );
@@ -304,9 +304,9 @@ const continueMockInterview = async (input, opts = {}) => {
             return result;
         });
 
-        if (openingJob && (await openingJob.isDelayed())) await openingJob.changeDelay(0);
+        if (initJob && (await initJob.isDelayed())) await initJob.changeDelay(0);
     } catch (err) {
-        if (openingJob) await openingJob.remove();
+        if (initJob) await initJob.remove();
         if (pauseJob) await pauseJob.remove();
         await MockInterviewCacheUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
         await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
@@ -417,32 +417,32 @@ const stopMockInterview = async (input, opts = {}) => {
 const recordMockInterviewText = async (input, data) => {
     if (typeof data !== 'object' || !data || !!data.error) return;
 
-    const getRespondJob = async () => {
-        const jobId = await MockInterviewCacheUtils.getMockInterviewRespondJobId(input.userId, input.uuid);
+    const getProcessJob = async () => {
+        const jobId = await MockInterviewCacheUtils.getMockInterviewProcessJobId(input.userId, input.uuid);
         if (jobId) return Queues.MockInterview.getJob(jobId);
         return undefined;
     };
-    const cancelRespondJob = async (job) => {
-        const targetJob = job || (await getRespondJob());
+    const cancelProcessJob = async (job) => {
+        const targetJob = job || (await getProcessJob());
         if (targetJob && !(await targetJob.isCompleted())) {
             await targetJob.updateData({});
-            await MockInterviewCacheUtils.deleteMockInterviewRespondJobId(input.userId, input.uuid);
+            await MockInterviewCacheUtils.deleteMockInterviewProcessJobId(input.userId, input.uuid);
         }
     };
-    const delayRespondJob = async (job) => {
-        const targetJob = job || (await getRespondJob());
+    const delayProcessJob = async (job) => {
+        const targetJob = job || (await getProcessJob());
         if (targetJob && (await targetJob.isDelayed())) {
             await targetJob.changeDelay(MockInterviewConstants.RESPOND_TIME_IN_MILLISECONDS);
         }
     };
-    const addRespondJob = async () => {
+    const addProcessJob = async () => {
         const job = await Queues.MockInterview.add(
-            MockInterviewConstants.JOB_NAME.RESPOND,
+            MockInterviewConstants.JOB_NAME.PROCESS,
             { userInterviewUuid: input.uuid, userId: input.userId },
             { delay: MockInterviewConstants.RESPOND_TIME_IN_MILLISECONDS }
         );
 
-        await MockInterviewCacheUtils.setMockInterviewRespondJobId(input.userId, input.uuid, job.id);
+        await MockInterviewCacheUtils.setMockInterviewProcessJobId(input.userId, input.uuid, job.id);
     };
     const getSpeechDuration = (texts) => {
         let totalSpeechDuration = 0;
@@ -463,9 +463,9 @@ const recordMockInterviewText = async (input, data) => {
         // Less than 5 seconds of speech
         if (totalSpeechDuration < 5) return;
 
-        const job = await getRespondJob();
-        if (data.isTalking) await delayRespondJob(job);
-        else if (!job && (data?.noSpeechDuration ?? 0) >= 5) await addRespondJob();
+        const job = await getProcessJob();
+        if (data.isTalking) await delayProcessJob(job);
+        else if (!job && (data?.noSpeechDuration ?? 0) >= 5) await addProcessJob();
 
         return;
     }
@@ -476,9 +476,9 @@ const recordMockInterviewText = async (input, data) => {
     // Have other processes or less than 5 seconds of speech
     if (input.counter > 0 || totalSpeechDuration < 5) return;
 
-    const job = await getRespondJob();
-    if (job) await cancelRespondJob();
-    await addRespondJob(true);
+    const job = await getProcessJob();
+    if (job) await cancelProcessJob();
+    await addProcessJob(true);
 };
 
 const speakMockInterview = async (input) => {

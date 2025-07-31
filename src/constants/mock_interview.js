@@ -1,7 +1,12 @@
 const JOB_NAME = {
     PAUSE: 'pause',
-    OPENING: 'opening',
-    RESPOND: 'respond'
+    INIT: 'init',
+    PROCESS: 'process',
+    OPEN: 'open',
+    RESPOND: 'respond',
+    CONTINUE: 'continue',
+    RESPOND_TRANSITION: 'respond_transition',
+    CLOSE: 'close'
 };
 
 /**
