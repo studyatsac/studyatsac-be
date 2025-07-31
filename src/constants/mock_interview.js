@@ -56,12 +56,13 @@ const EVENT_NAME = {
 
 const AI_SERVICE_EVENT_NAME = {
     INIT_CLIENT: 'init_client',
-    SERVER_SPEECH: 'server_speech',
+    RESET_CLIENT: 'reset_client',
     END_SPEECH: 'end_client',
-    SERVER_TEXT: 'server_text',
+    CLIENT_PROCESS: 'client_process',
+    SERVER_SPEECH: 'server_speech',
     SERVER_PROCESS: 'server_process',
-    SERVER_STATUS: 'server_status',
-    CLIENT_PROCESS: 'client_process'
+    SERVER_TEXT: 'server_text',
+    SERVER_STATUS: 'server_status'
 };
 
 const AI_SERVICE_PROCESS_EVENT_TAG = {

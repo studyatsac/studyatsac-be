@@ -465,7 +465,7 @@ const recordMockInterviewText = async (input, data) => {
 
         const job = await getRespondJob();
         if (data.isTalking) await delayRespondJob(job);
-        else if (!job) await addRespondJob();
+        else if (!job && (data?.noSpeechDuration ?? 0) >= 5) await addRespondJob();
 
         return;
     }

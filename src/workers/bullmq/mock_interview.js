@@ -219,6 +219,11 @@ async function processMockInterviewRespondJob(job, token) {
     }
 
     await Models.sequelize.transaction(async (trx) => {
+        await AiServiceSocket.emitAiServiceEventWithAck(
+            MockInterviewConstants.AI_SERVICE_EVENT_NAME.RESET_CLIENT,
+            sessionId
+        );
+
         let targetAnswer = targetInterviewSection?.interviewSectionAnswers?.findLast(
             (item) => (processTarget?.userInterviewSectionAnswerId == null
                 ? item?.status !== UserInterviewConstants.SECTION_ANSWER_STATUS.ANSWERED
