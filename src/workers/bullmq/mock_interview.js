@@ -603,10 +603,10 @@ async function processMockInterviewProcessJob(job) {
 async function processMockInterviewJob(job, token) {
     switch (job.name) {
     case MockInterviewConstants.JOB_NAME.INIT:
-        await processMockInterviewInitJob(job, token);
+        await processMockInterviewInitJob(job);
         break;
     case MockInterviewConstants.JOB_NAME.PROCESS:
-        await processMockInterviewProcessJob(job, token);
+        await processMockInterviewProcessJob(job);
         break;
     case MockInterviewConstants.JOB_NAME.OPEN:
         await processMockInterviewOpenJob(job, token);
