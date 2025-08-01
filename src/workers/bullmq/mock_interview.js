@@ -13,11 +13,11 @@ const UserInterviewSectionAnswerRepository = require('../../repositories/mysql/u
 const InterviewSectionQuestionRepository = require('../../repositories/mysql/interview_section_question');
 const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
 
-async function getNotAskedInterviewSectionQuestions(interviewSectionAnswers, interviewSectionQuestions) {
+function getNotAskedInterviewSectionQuestions(interviewSectionAnswers, interviewSectionQuestions) {
     const notAskedInterviewSectionQuestions = [];
     if (interviewSectionAnswers && Array.isArray(interviewSectionAnswers)) {
         interviewSectionAnswers.forEach((item) => {
-            const question = interviewSectionQuestions.find((questionItem) => questionItem.id === item.interviewSectionQuestionId);
+            const question = interviewSectionQuestions?.find((questionItem) => questionItem.id === item.interviewSectionQuestionId);
             if (!question) notAskedInterviewSectionQuestions.push(question);
         });
     }
@@ -118,7 +118,33 @@ async function getCompletedTargetUserInterviewSectionSession(userId, userIntervi
     };
 }
 
-async function processMockInterviewOpen(sessionId, userInterview, targetInterviewSection, job, token) {
+function getShouldTerminateHandler(callerId, userId, userInterviewUuid) {
+    let checkShouldTerminate;
+    if (callerId) {
+        checkShouldTerminate = async () => {
+            const jobId = await MockInterviewCacheUtils.getMockInterviewProcessJobId(userId, userInterviewUuid);
+            if (jobId === callerId) return callerId;
+            return null;
+        };
+    }
+
+    return checkShouldTerminate;
+}
+
+async function processMockInterviewOpen(
+    sessionId,
+    userInterview,
+    targetInterviewSection,
+    checkShouldTerminate,
+    job,
+    token
+) {
+    let callerId;
+    if (typeof checkShouldTerminate === 'function') {
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
+    }
+
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewOpeningSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
@@ -146,8 +172,8 @@ async function processMockInterviewOpen(sessionId, userInterview, targetIntervie
         throw new DelayedError();
     } else {
         await Queues.MockInterview.add(
-            MockInterviewConstants.JOB_NAME.OPENING,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+            MockInterviewConstants.JOB_NAME.OPEN,
+            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
             { delay }
         );
     }
@@ -163,16 +189,30 @@ async function processMockInterviewOpenJob(job, token) {
     if (!target) return;
 
     const { sessionId, targetInterviewSection, userInterview } = target;
-    await processMockInterviewOpen(sessionId, userInterview, targetInterviewSection, job, token);
+    await processMockInterviewOpen(
+        sessionId,
+        userInterview,
+        targetInterviewSection,
+        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
+        job,
+        token
+    );
 }
 
 async function processMockInterviewContinue(
     sessionId,
     userInterview,
     targetInterviewSection,
+    checkShouldTerminate,
     job,
     token
 ) {
+    let callerId;
+    if (typeof checkShouldTerminate === 'function') {
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
+    }
+
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
         targetInterviewSection.interviewSectionAnswers.length - 1
     ];
@@ -209,7 +249,7 @@ async function processMockInterviewContinue(
     } else {
         await Queues.MockInterview.add(
             MockInterviewConstants.JOB_NAME.CONTINUE,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
             { delay }
         );
     }
@@ -225,16 +265,30 @@ async function processMockInterviewContinueJob(job, token) {
     if (!target) return;
 
     const { sessionId, targetInterviewSection, userInterview } = target;
-    await processMockInterviewContinue(sessionId, userInterview, targetInterviewSection, job, token);
+    await processMockInterviewContinue(
+        sessionId,
+        userInterview,
+        targetInterviewSection,
+        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
+        job,
+        token
+    );
 }
 
 async function processMockInterviewRespond(
     sessionId,
     userInterview,
     targetInterviewSection,
+    checkShouldTerminate,
     job,
     token
 ) {
+    let callerId;
+    if (typeof checkShouldTerminate === 'function') {
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
+    }
+
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
         targetInterviewSection.interviewSectionAnswers.length - 1
     ];
@@ -275,7 +329,7 @@ async function processMockInterviewRespond(
     } else {
         await Queues.MockInterview.add(
             MockInterviewConstants.JOB_NAME.RESPOND,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
             { delay }
         );
     }
@@ -291,7 +345,14 @@ async function processMockInterviewRespondJob(job, token) {
     if (!target) return;
 
     const { sessionId, targetInterviewSection, userInterview } = target;
-    await processMockInterviewRespond(sessionId, userInterview, targetInterviewSection, job, token);
+    await processMockInterviewRespond(
+        sessionId,
+        userInterview,
+        targetInterviewSection,
+        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
+        job,
+        token
+    );
 }
 
 async function processMockInterviewRespondTransition(
@@ -299,9 +360,16 @@ async function processMockInterviewRespondTransition(
     userInterview,
     completedInterviewSection,
     targetInterviewSection,
+    checkShouldTerminate,
     job,
     token
 ) {
+    let callerId;
+    if (typeof checkShouldTerminate === 'function') {
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
+    }
+
     const lastAnswer = completedInterviewSection?.interviewSectionAnswers?.[
         completedInterviewSection.interviewSectionAnswers.length - 1
     ];
@@ -339,7 +407,7 @@ async function processMockInterviewRespondTransition(
     } else {
         await Queues.MockInterview.add(
             MockInterviewConstants.JOB_NAME.RESPOND_TRANSITION,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
             { delay }
         );
     }
@@ -365,6 +433,7 @@ async function processMockInterviewRespondTransitionJob(job, token) {
         userInterview,
         completedInterviewSection,
         targetInterviewSection,
+        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
         job,
         token
     );
@@ -374,9 +443,16 @@ async function processMockInterviewClose(
     sessionId,
     userInterview,
     targetInterviewSection,
+    checkShouldTerminate,
     job,
     token
 ) {
+    let callerId;
+    if (typeof checkShouldTerminate === 'function') {
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
+    }
+
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
         targetInterviewSection.interviewSectionAnswers.length - 1
     ];
@@ -409,7 +485,7 @@ async function processMockInterviewClose(
     } else {
         await Queues.MockInterview.add(
             MockInterviewConstants.JOB_NAME.CONTINUE,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
             { delay }
         );
     }
@@ -429,6 +505,7 @@ async function processMockInterviewCloseJob(job, token) {
         sessionId,
         userInterview,
         targetInterviewSection,
+        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
         job,
         token
     );
@@ -478,8 +555,8 @@ async function processMockInterviewProcessJob(job) {
     const texts = await MockInterviewCacheUtils.getMockInterviewSpeechTexts(userInterview.userId, userInterview.uuid);
     if (!texts || !Array.isArray(texts) || texts.length === 0) return;
 
-    const speechTextsOwner = await MockInterviewCacheUtils.getMockInterviewProcessJobId(userId, userInterviewUuid);
-    if (speechTextsOwner !== job.id) return;
+    const checkShouldTerminate = getShouldTerminateHandler(job.id, userId, userInterviewUuid);
+    if (!(await checkShouldTerminate())) return;
 
     const text = texts.map((item) => item?.content ?? '').filter(Boolean).join(' ');
 
@@ -579,7 +656,8 @@ async function processMockInterviewProcessJob(job) {
                     sessionId,
                     userInterview,
                     targetInterviewSection,
-                    newTargetInterviewSection
+                    newTargetInterviewSection,
+                    checkShouldTerminate
                 );
             } else {
                 updatedData = await UserInterviewRepository.update(
@@ -589,10 +667,20 @@ async function processMockInterviewProcessJob(job) {
                 );
                 if (!updatedData) throw new Error();
 
-                await processMockInterviewClose(sessionId, userInterview, targetInterviewSection);
+                await processMockInterviewClose(
+                    sessionId,
+                    userInterview,
+                    targetInterviewSection,
+                    checkShouldTerminate
+                );
             }
         } else {
-            await processMockInterviewRespond(sessionId, userInterview, targetInterviewSection);
+            await processMockInterviewRespond(
+                sessionId,
+                userInterview,
+                targetInterviewSection,
+                checkShouldTerminate
+            );
         }
 
         await MockInterviewCacheUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);

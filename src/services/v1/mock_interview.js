@@ -436,6 +436,14 @@ const recordMockInterviewText = async (input, data) => {
         }
     };
     const addProcessJob = async () => {
+        const status = await MockInterviewCacheUtils.getMockInterviewStatus(input.userId, input.uuid);
+        if (
+            status
+            && status.listenStatus === MockInterviewConstants.STATUS.LISTENING
+        ) {
+            return;
+        }
+
         const job = await Queues.MockInterview.add(
             MockInterviewConstants.JOB_NAME.PROCESS,
             { userInterviewUuid: input.uuid, userId: input.userId },
