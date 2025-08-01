@@ -70,14 +70,22 @@ const startMockInterview = async (input, opts = {}) => {
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
-                { status: UserInterviewConstants.STATUS.IN_PROGRESS, startedAt: Moment().format() },
+                {
+                    status: UserInterviewConstants.STATUS.IN_PROGRESS,
+                    startedAt: Moment().format(),
+                    resumedAt: Moment().format()
+                },
                 { id: userInterview.id },
                 trx
             );
             if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
 
             result = await UserInterviewSectionRepository.update(
-                { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS, startedAt: Moment().format() },
+                {
+                    status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS,
+                    startedAt: Moment().format(),
+                    resumedAt: Moment().format()
+                },
                 { id: targetInterviewSection.id },
                 trx
             );
@@ -126,6 +134,18 @@ const startMockInterview = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, userInterview, null);
 };
 
+const updateMockInterviewDuration = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    const updatedData = await UserInterviewSectionRepository.updateDuration({
+        uuid: input.uuid,
+        userId: input.userId
+    });
+    if (!updatedData) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+
+    return updatedData;
+};
+
 const pauseMockInterview = async (input, opts = {}) => {
     const language = opts.lang;
 
@@ -170,7 +190,11 @@ const pauseMockInterview = async (input, opts = {}) => {
 
             if (targetInterviewSection) {
                 result = await UserInterviewSectionRepository.update(
-                    { status: UserInterviewConstants.SECTION_STATUS.PAUSED, pausedAt: Moment().format() },
+                    {
+                        status: UserInterviewConstants.SECTION_STATUS.PAUSED,
+                        pausedAt: Moment().format(),
+                        duration: Models.Sequelize.literal('duration + TIMESTAMPDIFF(SECOND, resumed_at, CURRENT_TIMESTAMP)')
+                    },
                     { id: targetInterviewSection.id },
                     trx
                 );
@@ -263,14 +287,21 @@ const continueMockInterview = async (input, opts = {}) => {
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
-                { status: UserInterviewConstants.STATUS.IN_PROGRESS },
+                {
+                    status: UserInterviewConstants.STATUS.IN_PROGRESS,
+                    resumedAt: Moment().format()
+                },
                 { id: userInterview.id },
                 trx
             );
             if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
 
             result = await UserInterviewSectionRepository.update(
-                { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
+                {
+                    status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS,
+                    resumedAt: Moment().format(),
+                    duration: Models.Sequelize.literal('duration + TIMESTAMPDIFF(SECOND, resumed_at, CURRENT_TIMESTAMP)')
+                },
                 { id: targetInterviewSection.id },
                 trx
             );
@@ -363,7 +394,11 @@ const stopMockInterview = async (input, opts = {}) => {
 
             if (targetInterviewSections.length) {
                 result = await UserInterviewSectionRepository.update(
-                    { status: UserInterviewConstants.SECTION_STATUS.COMPLETED, completedAt: Moment().format() },
+                    {
+                        status: UserInterviewConstants.SECTION_STATUS.COMPLETED,
+                        completedAt: Moment().format(),
+                        duration: Models.Sequelize.literal('duration + TIMESTAMPDIFF(SECOND, resumed_at, CURRENT_TIMESTAMP)')
+                    },
                     { id: targetInterviewSections.map((item) => item.id) },
                     trx
                 );
@@ -527,8 +562,7 @@ const recordMockInterviewProcess = async (input, data) => {
                 model: Models.UserInterviewSection,
                 as: 'interviewSections',
                 where: { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
-                limit: 1,
-                order: [['startedAt', 'DESC']]
+                limit: 1
             }
         }
     );
@@ -603,6 +637,7 @@ const recordMockInterviewSpeech = async (input, data) => {
 
 exports.getPaidMockInterviewPackage = getPaidMockInterviewPackage;
 exports.startMockInterview = startMockInterview;
+exports.updateMockInterviewDuration = updateMockInterviewDuration;
 exports.pauseMockInterview = pauseMockInterview;
 exports.continueMockInterview = continueMockInterview;
 exports.stopMockInterview = stopMockInterview;

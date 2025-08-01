@@ -38,6 +38,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
         },
+        resumedAt: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
         completedAt: {
             type: DataTypes.DATE,
             allowNull: true

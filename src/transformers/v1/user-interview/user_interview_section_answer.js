@@ -9,6 +9,8 @@ exports.userInterviewSectionAnswerItem = (data, isRestricted = true) => {
         status: data.status,
         askedAt: data.askedAt,
         answeredAt: data.answeredAt,
+        questionNumber: data.questionNumber,
+        question: data.question,
         answer: data.answer,
         review: data.review,
         reviewStatus: data.reviewStatus

@@ -32,7 +32,11 @@ async function processMockInterviewControlPauseJob(job) {
                 trx
             );
             await UserInterviewSectionRepository.update(
-                { status: UserInterviewConstants.SECTION_STATUS.PAUSED, pausedAt: Moment().format() },
+                {
+                    status: UserInterviewConstants.SECTION_STATUS.PAUSED,
+                    pausedAt: Moment().format(),
+                    duration: Models.Sequelize.literal('duration + TIMESTAMPDIFF(SECOND, resumed_at, CURRENT_TIMESTAMP)')
+                },
                 { userInterviewId: userInterview.id, status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
                 trx
             );

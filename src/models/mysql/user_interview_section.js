@@ -34,9 +34,18 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
         },
+        resumedAt: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
         completedAt: {
             type: DataTypes.DATE,
             allowNull: true
+        },
+        duration: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+            defaultValue: 0
         },
         review: {
             type: DataTypes.TEXT,

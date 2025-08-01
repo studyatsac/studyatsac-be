@@ -55,8 +55,8 @@ WHERE
 
     const replacements = {
         ...where,
-        userId: where.userId ?? 'IS NOT NULL',
-        type: where.type ?? 'IS NOT NULL',
+        userId: where.userId ?? 'NULL',
+        type: where.type ?? 'NULL',
         isActive: where.isActive ?? true,
         limit: opts.limit,
         offset: opts.offset
@@ -172,9 +172,9 @@ FROM
 
     const replacements = {
         ...where,
-        uuid: where.uuid ?? 'IS NOT NULL',
+        uuid: where.uuid ?? 'NULL',
         type: where.type ?? ProductPackageConstants.TYPE.ESSAY,
-        userId: where.userId ?? 'IS NOT NULL',
+        userId: where.userId ?? 'NULL',
         isActive: where.isActive ?? true
     };
 
@@ -276,9 +276,9 @@ FROM
 
     const replacements = {
         ...where,
-        uuid: where.uuid ?? 'IS NOT NULL',
+        uuid: where.uuid ?? 'NULL',
         type: where.type ?? ProductPackageConstants.TYPE.INTERVIEW,
-        userId: where.userId ?? 'IS NOT NULL',
+        userId: where.userId ?? 'NULL',
         isActive: where.isActive ?? true
     };
 
@@ -362,10 +362,10 @@ FROM
 
     const replacements = {
         ...where,
-        uuid: where.uuid ?? 'IS NOT NULL',
+        uuid: where.uuid ?? 'NULL',
         type: where.type ?? ProductPackageConstants.TYPE.ESSAY,
-        userId: where.userId ?? 'IS NOT NULL',
-        essayUuid: where.essayUuid ?? 'IS NOT NULL',
+        userId: where.userId ?? 'NULL',
+        essayUuid: where.essayUuid ?? 'NULL',
         isActive: where.isActive ?? true
     };
 
@@ -449,10 +449,10 @@ FROM
 
     const replacements = {
         ...where,
-        uuid: where.uuid ?? 'IS NOT NULL',
+        uuid: where.uuid ?? 'NULL',
         type: where.type ?? ProductPackageConstants.TYPE.INTERVIEW,
-        userId: where.userId ?? 'IS NOT NULL',
-        interviewUuid: where.interviewUuid ?? 'IS NOT NULL',
+        userId: where.userId ?? 'NULL',
+        interviewUuid: where.interviewUuid ?? 'NULL',
         isActive: where.isActive ?? true
     };
 

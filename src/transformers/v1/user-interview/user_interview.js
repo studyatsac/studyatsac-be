@@ -15,6 +15,7 @@ exports.userInterviewItem = (data, isRestricted = true) => {
         interview: data.interview && InterviewTransformer.interviewItem(data.interview, isRestricted),
         status: data.status,
         startedAt: data.startedAt,
+        pausedAt: data.pausedAt,
         completedAt: data.completedAt,
         overallReview: data.overallReview,
         overallReviewStatus: data.overallReviewStatus,

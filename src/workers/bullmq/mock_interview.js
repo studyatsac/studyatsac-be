@@ -624,7 +624,11 @@ async function processMockInterviewProcessJob(job) {
         const startTime = Moment(targetInterviewSection.startedAt).valueOf();
         if (Math.floor(Math.abs((currentTime - startTime) / 1000)) >= targetInterviewSection.duration) {
             let updatedData = await UserInterviewSectionRepository.update(
-                { status: UserInterviewConstants.SECTION_STATUS.COMPLETED, completedAt: Moment().format() },
+                {
+                    status: UserInterviewConstants.SECTION_STATUS.COMPLETED,
+                    completedAt: Moment().format(),
+                    duration: Models.Sequelize.literal('duration + TIMESTAMPDIFF(SECOND, resumed_at, CURRENT_TIMESTAMP)')
+                },
                 { id: targetInterviewSection.id },
                 trx
             );
@@ -646,7 +650,11 @@ async function processMockInterviewProcessJob(job) {
             );
             if (newTargetInterviewSection) {
                 updatedData = await UserInterviewSectionRepository.update(
-                    { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS, startedAt: Moment().format() },
+                    {
+                        status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS,
+                        startedAt: Moment().format(),
+                        resumedAt: Moment().format()
+                    },
                     { id: newTargetInterviewSection.id },
                     trx
                 );
