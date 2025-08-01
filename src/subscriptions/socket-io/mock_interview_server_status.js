@@ -41,9 +41,22 @@ const listenServerStatusEvent = async (data) => {
         if (!jobId) return;
 
         const job = await Queues.MockInterviewControl.getJob(jobId);
-        if (!job || !(await job.isDelayed())) return;
+        if (!job) return;
 
-        await job.changeDelay(MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS);
+        if (await job.isDelayed()) {
+            const timeLapsed = Date.now() - job.timestamp;
+            await job.changeDelay(timeLapsed + MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS);
+        } else if (!(await job.isCompleted())) {
+            await job.updateData({});
+            await MockInterviewCacheUtils.deleteMockInterviewPauseJobId(userId, uuid);
+
+            const newJob = await Queues.MockInterviewControl.add(
+                MockInterviewConstants.JOB_NAME.PAUSE,
+                { userId, userInterviewUuid: uuid },
+                { delay: MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS }
+            );
+            await MockInterviewCacheUtils.setMockInterviewPauseJobId(userId, uuid, newJob.id);
+        }
     } catch (err) {
         LogUtils.logError({ functionName: 'listenServerStatusEvent', message: err.message });
     }

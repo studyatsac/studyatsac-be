@@ -178,7 +178,9 @@ const pauseMockInterview = async (input, opts = {}) => {
     );
 
     let pauseJob;
-    let isUpdated = false;
+    let isPauseUpdated = false;
+    let stopJob;
+    let isStopUpdated = false;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -203,16 +205,28 @@ const pauseMockInterview = async (input, opts = {}) => {
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-            const jobId = await MockInterviewCacheUtils.getMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
-            if (jobId) {
-                pauseJob = await Queues.MockInterviewControl.getJob(jobId);
+            const pauseJobId = await MockInterviewCacheUtils.getMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
+            if (pauseJobId) {
+                pauseJob = await Queues.MockInterviewControl.getJob(pauseJobId);
 
                 if (pauseJob && !(await pauseJob.isCompleted())) {
                     await pauseJob.updateData({});
-                    isUpdated = true;
+                    isPauseUpdated = true;
                 }
 
                 await MockInterviewCacheUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
+            }
+
+            const stopJobId = await MockInterviewCacheUtils.getMockInterviewStopJobId(userInterview.userId, userInterview.uuid);
+            if (stopJobId) {
+                stopJob = await Queues.MockInterviewControl.getJob(stopJobId);
+
+                if (stopJob && !(await stopJob.isCompleted())) {
+                    await stopJob.updateData({});
+                    isStopUpdated = true;
+                }
+
+                await MockInterviewCacheUtils.deleteMockInterviewStopJobId(userInterview.userId, userInterview.uuid);
             }
 
             if (
@@ -226,8 +240,12 @@ const pauseMockInterview = async (input, opts = {}) => {
         });
     } catch (err) {
         if (pauseJob) {
-            if (isUpdated) await pauseJob.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
+            if (isPauseUpdated) await pauseJob.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
             await MockInterviewCacheUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, pauseJob.id);
+        }
+        if (stopJob) {
+            if (isStopUpdated) await stopJob.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
+            await MockInterviewCacheUtils.setMockInterviewStopJobId(userInterview.userId, userInterview.uuid, stopJob.id);
         }
         await MockInterviewCacheUtils.setMockInterviewSessionId(userInterview.userId, userInterview.uuid, sessionId);
 
@@ -381,8 +399,10 @@ const stopMockInterview = async (input, opts = {}) => {
 
     const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-    let job;
-    let isUpdated = false;
+    let pauseJob;
+    let isPauseUpdated = false;
+    let stopJob;
+    let isStopUpdated = false;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -407,16 +427,26 @@ const stopMockInterview = async (input, opts = {}) => {
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
-            const jobId = await MockInterviewCacheUtils.getMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
-            if (jobId) {
-                job = await Queues.MockInterviewControl.getJob(jobId);
+            const pauseJobId = await MockInterviewCacheUtils.getMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
+            if (pauseJobId) {
+                pauseJob = await Queues.MockInterviewControl.getJob(pauseJobId);
 
-                if (job && !(await job.isCompleted())) {
-                    await job.updateData({});
-                    isUpdated = true;
+                if (pauseJob && !(await pauseJob.isCompleted())) {
+                    await pauseJob.updateData({});
+                    isPauseUpdated = true;
                 }
 
                 await MockInterviewCacheUtils.deleteMockInterviewPauseJobId(userInterview.userId, userInterview.uuid);
+            }
+
+            const stopJobId = await MockInterviewCacheUtils.getMockInterviewStopJobId(userInterview.userId, userInterview.uuid);
+            if (stopJobId) {
+                stopJob = await Queues.MockInterviewControl.getJob(stopJobId);
+                if (stopJob && !(await stopJob.isCompleted())) {
+                    await stopJob.updateData({});
+                    isStopUpdated = true;
+                }
+                await MockInterviewCacheUtils.deleteMockInterviewStopJobId(userInterview.userId, userInterview.uuid);
             }
 
             if (
@@ -429,9 +459,13 @@ const stopMockInterview = async (input, opts = {}) => {
             return result;
         });
     } catch (err) {
-        if (job) {
-            if (isUpdated) await job.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
-            await MockInterviewCacheUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, job.id);
+        if (pauseJob) {
+            if (isPauseUpdated) await pauseJob.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
+            await MockInterviewCacheUtils.setMockInterviewPauseJobId(userInterview.userId, userInterview.uuid, pauseJob.id);
+        }
+        if (stopJob) {
+            if (isStopUpdated) await stopJob.updateData({ userInterviewUuid: userInterview.uuid, userId: userInterview.userId });
+            await MockInterviewCacheUtils.setMockInterviewStopJobId(userInterview.userId, userInterview.uuid, stopJob.id);
         }
         await MockInterviewCacheUtils.setMockInterviewSessionId(userInterview.userId, userInterview.uuid, sessionId);
 
@@ -466,8 +500,9 @@ const recordMockInterviewText = async (input, data) => {
     };
     const delayProcessJob = async (job) => {
         const targetJob = job || (await getProcessJob());
-        if (targetJob && (await targetJob.isDelayed())) {
-            await targetJob.changeDelay(MockInterviewConstants.RESPOND_TIME_IN_MILLISECONDS);
+        if (targetJob) {
+            const timeLapsed = Date.now() - targetJob.timestamp;
+            await targetJob.changeDelay(timeLapsed + MockInterviewConstants.PROCESS_TIME_IN_MILLISECONDS);
         }
     };
     const addProcessJob = async () => {
@@ -482,7 +517,7 @@ const recordMockInterviewText = async (input, data) => {
         const job = await Queues.MockInterview.add(
             MockInterviewConstants.JOB_NAME.PROCESS,
             { userInterviewUuid: input.uuid, userId: input.userId },
-            { delay: MockInterviewConstants.RESPOND_TIME_IN_MILLISECONDS }
+            { delay: MockInterviewConstants.PROCESS_TIME_IN_MILLISECONDS }
         );
 
         await MockInterviewCacheUtils.setMockInterviewProcessJobId(input.userId, input.uuid, job.id);
@@ -579,7 +614,7 @@ const recordMockInterviewProcess = async (input, data) => {
     );
     if (!targetInterviewSection) return;
 
-    Models.sequelize.transaction(async (trx) => {
+    await Models.sequelize.transaction(async (trx) => {
         const interviewSectionAnswer = await UserInterviewSectionAnswerRepository.create({
             userInterviewSectionId: targetInterviewSection.id,
             interviewSectionQuestionId: questionId,
@@ -594,6 +629,22 @@ const recordMockInterviewProcess = async (input, data) => {
             question: data.fullText
         });
     });
+
+    if (data.tag !== MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.CLOSING) return;
+
+    const jobId = await MockInterviewCacheUtils.getMockInterviewStopJobId(input.userId, input.uuid);
+    if (jobId) {
+        const job = await Queues.MockInterviewControl.getJob(jobId);
+        if (job) return;
+    }
+
+    const stopJob = await Queues.MockInterviewControl.add(
+        MockInterviewConstants.JOB_NAME.STOP,
+        { userInterviewUuid: input.uuid, userId: input.userId },
+        { delay: MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS }
+    );
+
+    await MockInterviewCacheUtils.setMockInterviewStopJobId(input.userId, input.uuid, stopJob.id);
 };
 
 const recordMockInterviewSpeech = async (input, data) => {
@@ -613,9 +664,12 @@ const recordMockInterviewSpeech = async (input, data) => {
     // Not the same in processing
     if (processTarget?.questionNumber !== data?.questionNumber) return;
 
+    let isFullySpoken = false;
     if (processTarget.question === data.targetText) {
+        isFullySpoken = true;
+
         if (processTarget.userInterviewAnswerSectionId != null) {
-            Models.sequelize.transaction(async (trx) => {
+            await Models.sequelize.transaction(async (trx) => {
                 await UserInterviewSectionAnswerRepository.update({
                     status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKED,
                     askedAt: Moment().format()
@@ -633,6 +687,37 @@ const recordMockInterviewSpeech = async (input, data) => {
             status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKING
         }, { id: processTarget.userInterviewAnswerSectionId });
     }
+
+    if (data.tag !== MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.CLOSING) return;
+
+    const jobId = await MockInterviewCacheUtils.getMockInterviewStopJobId(input.userId, input.uuid);
+    if (jobId) {
+        const job = await Queues.MockInterviewControl.getJob(jobId);
+        if (job) {
+            if (await job.isDelayed()) {
+                const timeLapsed = Date.now() - job.timestamp;
+                // eslint-disable-next-line max-depth
+                if (!isFullySpoken && job.delay - timeLapsed >= 5000) return;
+
+                const delay = timeLapsed + isFullySpoken
+                    ? 1000
+                    : MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS;
+                await job.changeDelay(delay);
+
+                return;
+            } if (!isFullySpoken) {
+                await MockInterviewCacheUtils.deleteMockInterviewStopJobId(input.userId, input.uuid);
+            } else return;
+        }
+    }
+
+    const stopJob = await Queues.MockInterviewControl.add(
+        MockInterviewConstants.JOB_NAME.STOP,
+        { userInterviewUuid: input.uuid, userId: input.userId },
+        { delay: MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS }
+    );
+
+    await MockInterviewCacheUtils.setMockInterviewStopJobId(input.userId, input.uuid, stopJob.id);
 };
 
 exports.getPaidMockInterviewPackage = getPaidMockInterviewPackage;

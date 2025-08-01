@@ -621,8 +621,9 @@ async function processMockInterviewProcessJob(job) {
         }
 
         const currentTime = Moment().valueOf();
-        const startTime = Moment(targetInterviewSection.startedAt).valueOf();
-        if (Math.floor(Math.abs((currentTime - startTime) / 1000)) >= targetInterviewSection.duration) {
+        const startTime = Moment(targetInterviewSection.resumedAt).valueOf();
+        const currentDuration = targetInterviewSection.duration + Math.floor(Math.abs((currentTime - startTime) / 1000));
+        if (currentDuration >= targetInterviewSection.interviewSection.duration) {
             let updatedData = await UserInterviewSectionRepository.update(
                 {
                     status: UserInterviewConstants.SECTION_STATUS.COMPLETED,
@@ -668,12 +669,17 @@ async function processMockInterviewProcessJob(job) {
                     checkShouldTerminate
                 );
             } else {
-                updatedData = await UserInterviewRepository.update(
-                    { status: UserInterviewConstants.SECTION_STATUS.COMPLETED, completedAt: Moment().format() },
-                    { id: userInterview.id },
-                    trx
+                const stopJob = await Queues.MockInterviewControl.add(
+                    MockInterviewConstants.JOB_NAME.STOP,
+                    { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+                    { delay: MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS * 2 }
                 );
-                if (!updatedData) throw new Error();
+
+                await MockInterviewCacheUtils.setMockInterviewStopJobId(
+                    userInterview.userId,
+                    userInterview.uuid,
+                    stopJob.id
+                );
 
                 await processMockInterviewClose(
                     sessionId,
