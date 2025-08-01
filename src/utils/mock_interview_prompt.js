@@ -9,7 +9,7 @@ ${backgroundDescription}` : `beasiswa ${SCHOLARSHIP}`}
 Sebagai pewawancara, perhatikan kriteria berikut:
 - Wawancara menggunakan bahasa: ${CommonConstants.LANGUAGE_LABELS[language]}.
 - Jangan sertakan penjelasan atau instruksi tambahan di luar tanggapan.
-- Tanggapan ataupun pertanyaan disampaikan dengan formal dan netral.`;
+- Tanggapan ataupun pertanyaan disampaikan dengan formal dan netral`;
 
 const getMockInterviewBaseRespondSystemPrompt = (question) => `Kandidat telah diberikan pertanyaan tentang: ${question ? `"${question}"` : 'pertanyaan yang dikaitkan dengan topik'}. Kemudian, anda akan menerima jawaban kandidat dalam bentuk transkrip.
 Harap perhatikan bahwa transkrip dapat mengandung kesalahan penulisan atau kalimat yang tidak jelas karena keterbatasan akurasi model Speech-to-Text. Fokuskan analisis pada makna dan niat sebenarnya di balik jawaban, serta keterkaitannya dengan pertanyaan yang diajukan.`;
@@ -24,7 +24,7 @@ const getMockInterviewOpeningSystemPrompt = (backgroundDescription, topic, quest
 Dari topik tersebut berikan:
 - Kalimat pembuka sesi wawancara, seperti:
 "Selamat datang pada sesi interview beasiswa ${SCHOLARSHIP}, sebelumnya saya ucapkan selamat telah sampai pada tahap ini."
-- Pertanyaan pembuka yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada), dari daftar berikut:
+- Pertanyaan pembuka yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat, dari daftar berikut:
 ${questionList}`;
     const hint = 'kalimat pembuka sesi wawancara + pertanyaan pembuka';
 
@@ -43,7 +43,7 @@ ${getMockInterviewBaseRespondSystemPrompt(previousQuestion)}
 Dari jawaban yang diberikan kandidat nantinya, berikan respon berupa:
 - Kalimat pembuka untuk sesi wawancara yang sempat terjeda, seperti:
 "Selamat datang kembali pada sesi interview beasiswa ${SCHOLARSHIP}, mari kita lanjutkan sesi wawancara ini."
-- Tanggapan singkat (1-2 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat**.  
+- Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat. Penting: **hindari menilai jawaban kandidat**.  
 - Satu pertanyaan lanjutan yang paling relevan dengan jawaban kandidat dari daftar berikut:
 ${followUps}`;
     const hint = 'kalimat pembuka untuk melanjutkan sesi + tanggapan jawaban singkat + pertanyaan lanjutan';
@@ -61,7 +61,7 @@ const getMockInterviewRespondSystemPrompt = (backgroundDescription, topic, curre
 ${getMockInterviewBaseRespondSystemPrompt(currentQuestion)}
 
 Dari jawaban yang diberikan kandidat nantinya, berikan respon berupa:
-- Tanggapan singkat (1-2 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat**.  
+- Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat**.  
 - Satu pertanyaan lanjutan yang paling relevan dengan jawaban kandidat dari daftar berikut:
 ${followUps}`;
     const hint = 'tanggapan jawaban + pertanyaan lanjutan';
@@ -80,7 +80,7 @@ Sesi ini merupakan lanjutan dari sesi sebelumnya terkait ${previousTopic}, berik
 ${getMockInterviewBaseRespondSystemPrompt(previousQuestion)}
 
 Untuk berpindah topik sesi, berikan respon berupa:
-- Jika jawaban kandidat nantinya memiliki relevansi dengan topik lanjutan ini, maka berikan tanggapan singkat (1-2 kalimat) mengenai jawaban kandidat. Penting: **abaikan jika tidak ada relevansi dan hindari menilai jawaban kandidat ketika menanggapi**.   
+- Jika jawaban kandidat nantinya memiliki relevansi dengan topik lanjutan ini, maka berikan tanggapan singkat (1 kalimat) mengenai jawaban kandidat. Penting: **abaikan jika tidak ada relevansi dan hindari menilai jawaban kandidat ketika menanggapi**.   
 - Satu pertanyaan yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada), dari daftar berikut
 ${questionList}`;
     const hint = 'tanggapan jawaban (opsional, jika ada relevansi) + pertanyaan pembuka sesi baru';

@@ -15,10 +15,10 @@ const UserInterviewSectionRepository = require('../../repositories/mysql/user_in
 
 function getNotAskedInterviewSectionQuestions(interviewSectionAnswers, interviewSectionQuestions) {
     const notAskedInterviewSectionQuestions = [];
-    if (interviewSectionAnswers && Array.isArray(interviewSectionAnswers)) {
-        interviewSectionAnswers.forEach((item) => {
-            const question = interviewSectionQuestions?.find((questionItem) => questionItem.id === item.interviewSectionQuestionId);
-            if (!question) notAskedInterviewSectionQuestions.push(question);
+    if (interviewSectionQuestions && Array.isArray(interviewSectionQuestions)) {
+        interviewSectionQuestions.forEach((questionItem) => {
+            const answer = interviewSectionAnswers?.find((item) => questionItem.id === item.interviewSectionQuestionId);
+            if (!answer) notAskedInterviewSectionQuestions.push(questionItem);
         });
     }
 
@@ -627,8 +627,7 @@ async function processMockInterviewProcessJob(job) {
             let updatedData = await UserInterviewSectionRepository.update(
                 {
                     status: UserInterviewConstants.SECTION_STATUS.COMPLETED,
-                    completedAt: Moment().format(),
-                    duration: Models.Sequelize.literal('duration + TIMESTAMPDIFF(SECOND, resumed_at, CURRENT_TIMESTAMP)')
+                    completedAt: Moment().format()
                 },
                 { id: targetInterviewSection.id },
                 trx
@@ -675,7 +674,7 @@ async function processMockInterviewProcessJob(job) {
                     { delay: MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS * 2 }
                 );
 
-                await MockInterviewCacheUtils.setMockInterviewStopJobId(
+                await MockInterviewCacheUtils.setMockInterviewControlStopJobId(
                     userInterview.userId,
                     userInterview.uuid,
                     stopJob.id

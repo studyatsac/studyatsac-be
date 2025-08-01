@@ -1,6 +1,7 @@
 const JOB_NAME = {
     PAUSE: 'pause',
     STOP: 'stop',
+    TIMER: 'timer',
     INIT: 'init',
     PROCESS: 'process',
     OPEN: 'open',
@@ -47,6 +48,14 @@ const STOP_DELAY_TIME_IN_SECONDS = 30;
  * 30 seconds
  */
 const STOP_DELAY_TIME_IN_MILLISECONDS = STOP_DELAY_TIME_IN_SECONDS * 1000;
+/**
+ * 5 seconds
+ */
+const TIMER_INTERVAL_IN_SECONDS = 5;
+/**
+ * 5 seconds
+ */
+const TIMER_INTERVAL_IN_MILLISECONDS = TIMER_INTERVAL_IN_SECONDS * 1000;
 
 const STATUS = {
     NO_ACTIVITY: 'no_activity',
@@ -98,6 +107,8 @@ module.exports = {
     PROCESS_TIME_IN_MILLISECONDS,
     STOP_DELAY_TIME_IN_SECONDS,
     STOP_DELAY_TIME_IN_MILLISECONDS,
+    TIMER_INTERVAL_IN_SECONDS,
+    TIMER_INTERVAL_IN_MILLISECONDS,
     STATUS,
     EVENT_NAME,
     AI_SERVICE_EVENT_NAME,
