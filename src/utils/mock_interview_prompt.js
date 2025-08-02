@@ -2,9 +2,9 @@ const CommonConstants = require('../constants/common');
 
 const SCHOLARSHIP = 'LPDP';
 
-const getMockInterviewBaseSystemPrompt = (backgroundDescription, topic, language = 'English') => `Anda adalah pewawancara seleksi beasiswa ${SCHOLARSHIP} yang berpengalaman 25 tahun sebagai praktisi dan akademisi di bidang sesuai latar belakang kandidat (jika ada). 
-Sesi wawancara beasiswa ${SCHOLARSHIP} kali ini terkait ${topic} dari kandidat ${backgroundDescription ? `dengan latar belakang berikut:
-${backgroundDescription}` : `beasiswa ${SCHOLARSHIP}`}
+const getMockInterviewBaseSystemPrompt = (backgroundDescription, topic, language = 'English') => `Anda adalah pewawancara seleksi beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} yang berpengalaman 25 tahun sebagai praktisi dan akademisi di bidang sesuai latar belakang kandidat (jika ada). 
+Sesi wawancara beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} kali ini terkait ${topic} dari kandidat ${backgroundDescription ? `dengan latar belakang berikut:
+${backgroundDescription}` : `beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}`}
 
 Sebagai pewawancara, perhatikan kriteria berikut:
 - Wawancara menggunakan bahasa: ${CommonConstants.LANGUAGE_LABELS[language]}.
@@ -19,11 +19,16 @@ const getMockInterviewOpeningSystemPrompt = (backgroundDescription, topic, quest
         (question, index) => `${(typeof question === 'object' && question?.id) || index + 1}. "${(typeof question === 'object' && question?.question) || question}"`
     ).join('\n');
 
+    let opening = `Selamat datang pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}, sebelumnya saya ucapkan selamat telah sampai pada tahap ini.`;
+    if (language === CommonConstants.LANGUAGE.ENGLISH) {
+        opening = `Welcome to the${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} scholarship interview session. First of all, congratulations on reaching this stage.`;
+    }
+
     const prompt = `${getMockInterviewBaseSystemPrompt(backgroundDescription, topic, language)}
 
 Dari topik tersebut berikan:
 - Kalimat pembuka sesi wawancara, seperti:
-"Selamat datang pada sesi interview beasiswa ${SCHOLARSHIP}, sebelumnya saya ucapkan selamat telah sampai pada tahap ini."
+"${opening}"
 - Pertanyaan pembuka yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat, dari daftar berikut:
 ${questionList}`;
     const hint = 'kalimat pembuka sesi wawancara + pertanyaan pembuka';
@@ -36,13 +41,18 @@ const getMockInterviewContinuingSystemPrompt = (backgroundDescription, topic, pr
         (question, index) => `${(typeof question === 'object' && question?.id) || index + 1}. "${(typeof question === 'object' && question?.question) || question}"`
     ).join('\n') ?? '';
 
+    let opening = `Selamat datang kembali pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}, mari kita lanjutkan sesi wawancara ini.`;
+    if (language === CommonConstants.LANGUAGE.ENGLISH) {
+        opening = `Welcome back to the${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} scholarship interview session. Let's continue with the interview.`;
+    }
+
     const prompt = `${getMockInterviewBaseSystemPrompt(backgroundDescription, topic, language)}
 
 ${getMockInterviewBaseRespondSystemPrompt(previousQuestion)}
 
 Dari jawaban yang diberikan kandidat nantinya, berikan respon berupa:
 - Kalimat pembuka untuk sesi wawancara yang sempat terjeda, seperti:
-"Selamat datang kembali pada sesi interview beasiswa ${SCHOLARSHIP}, mari kita lanjutkan sesi wawancara ini."
+"${opening}"
 - Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat. Penting: **hindari menilai jawaban kandidat**.  
 - Satu pertanyaan lanjutan yang paling relevan dengan jawaban kandidat dari daftar berikut:
 ${followUps}`;
@@ -89,6 +99,11 @@ ${questionList}`;
 };
 
 const getMockInterviewClosingSystemPrompt = (backgroundDescription, topic, currentQuestion, language) => {
+    let closing = `Terimakasih atas jawaban dan diskusi pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} ini, sepertinya sudah cukup untuk sesi interview ini semoga berhasil.`;
+    if (language === CommonConstants.LANGUAGE.ENGLISH) {
+        closing = `Thank you for your answers and discussions on the${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} scholarship interview session, it seems that it's enough for the interview session, I hope you have a good time.`;
+    }
+
     const prompt = `${getMockInterviewBaseSystemPrompt(backgroundDescription, topic, language)}
 
 ${getMockInterviewBaseRespondSystemPrompt(currentQuestion)}
@@ -96,7 +111,7 @@ ${getMockInterviewBaseRespondSystemPrompt(currentQuestion)}
 Dari jawaban yang diberikan kandidat nantinya, berikan respon berupa:
 - Tanggapan singkat (1-2 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat**.  
 - Kalimat penutup sesi wawancara, seperti:
-"Terimakasih atas jawaban dan diskusi pada sesi interview beasiswa ${SCHOLARSHIP} ini, sepertinya sudah cukup untuk sesi interview ini semoga berhasil."`;
+"${closing}"`;
     const hint = 'tanggapan jawaban + kalimat penutup sesi wawancara';
 
     return { prompt, hint };
