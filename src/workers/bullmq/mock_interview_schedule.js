@@ -19,6 +19,7 @@ async function processMockInterviewScheduleTimerJob(job) {
             { uuid: userInterviewUuid, userId },
             {
                 include: {
+                    required: false,
                     model: Models.UserInterviewSection,
                     as: 'interviewSections',
                     where: { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS }
@@ -28,7 +29,6 @@ async function processMockInterviewScheduleTimerJob(job) {
         if (
             !userInterview
             || userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS
-            || !userInterview?.interviewSections?.length
         ) {
             const timerJobId = await MockInterviewCacheUtils.getMockInterviewScheduleTimerJobId(
                 userId,
@@ -42,21 +42,22 @@ async function processMockInterviewScheduleTimerJob(job) {
             return;
         }
 
-        const targetInterviewSection = userInterview.interviewSections[0];
-        await UserInterviewSectionRepository.update(
-            { duration: targetInterviewSection.duration + MockInterviewConstants.TIMER_INTERVAL_IN_SECONDS },
-            { id: targetInterviewSection.id }
-        );
+        const targetInterviewSection = userInterview.interviewSections?.[0];
+        if (targetInterviewSection) {
+            await UserInterviewSectionRepository.update(
+                { duration: targetInterviewSection.duration + MockInterviewConstants.TIMER_INTERVAL_IN_SECONDS },
+                { id: targetInterviewSection.id }
+            );
+        }
 
         const stopJobTime = await MockInterviewCacheUtils.getMockInterviewControlStopJobTime(
             userInterview.userId,
             userInterview.uuid
         );
-        if (stopJobTime >= Date.now()) {
+        if (stopJobTime >= Date.now() || !targetInterviewSection) {
             const stopJob = await Queues.MockInterviewControl.add(
                 MockInterviewConstants.JOB_NAME.STOP,
-                { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
-                { delay: 1000 }
+                { userInterviewUuid: userInterview.uuid, userId: userInterview.userId }
             );
             if (stopJob) return;
         }
@@ -68,8 +69,7 @@ async function processMockInterviewScheduleTimerJob(job) {
         if (pauseJobTime >= Date.now()) {
             await Queues.MockInterviewControl.add(
                 MockInterviewConstants.JOB_NAME.PAUSE,
-                { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
-                { delay: 1000 }
+                { userInterviewUuid: userInterview.uuid, userId: userInterview.userId }
             );
         }
     } catch (error) {

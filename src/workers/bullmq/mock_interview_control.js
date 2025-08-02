@@ -9,6 +9,7 @@ const Models = require('../../models/mysql');
 const Queues = require('../../queues/bullmq');
 const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
 const AiServiceSocket = require('../../clients/socket/ai_service');
+const SocketServer = require('../../servers/socket/main');
 
 class MockInterviewControlError extends Error {}
 
@@ -85,6 +86,14 @@ async function processMockInterviewControlPauseJob(job, token) {
                 ))
             ) throw new MockInterviewControlError();
         });
+
+        const clientSid = await MockInterviewCacheUtils.getMockInterviewSid(
+            userInterview.userId,
+            userInterview.uuid
+        );
+        if (!clientSid) return;
+
+        SocketServer.emitEventToClient(clientSid, MockInterviewConstants.EVENT_NAME.CONTROL);
     } catch (err) {
         if (isPauseUpdated) {
             await MockInterviewCacheUtils.setMockInterviewControlPauseJobTime(
@@ -125,7 +134,14 @@ async function processMockInterviewControlStopJob(job, token) {
 
     const userInterview = await UserInterviewRepository.findOne(
         { uuid: userInterviewUuid, userId },
-        { attributes: ['id', 'uuid', 'status', 'userId'] }
+        {
+            include: {
+                required: false,
+                model: Models.UserInterviewSection,
+                as: 'interviewSections',
+                where: { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS }
+            }
+        }
     );
     if (!userInterview) return;
 
@@ -138,7 +154,7 @@ async function processMockInterviewControlStopJob(job, token) {
         userInterview.userId,
         userInterview.uuid
     );
-    if (jobTime < Date.now()) return;
+    if (!!userInterview.interviewSections?.length && jobTime < Date.now()) return;
 
     let pauseJobTime;
     let isStopUpdated = false;
@@ -177,6 +193,14 @@ async function processMockInterviewControlStopJob(job, token) {
                 ))
             ) throw new MockInterviewControlError();
         });
+
+        const clientSid = await MockInterviewCacheUtils.getMockInterviewSid(
+            userInterview.userId,
+            userInterview.uuid
+        );
+        if (!clientSid) return;
+
+        SocketServer.emitEventToClient(clientSid, MockInterviewConstants.EVENT_NAME.CONTROL);
     } catch (err) {
         if (pauseJobTime) {
             await MockInterviewCacheUtils.setMockInterviewControlPauseJobTime(

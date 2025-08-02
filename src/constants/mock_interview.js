@@ -74,7 +74,8 @@ const STATUS = {
 };
 
 const EVENT_NAME = {
-    STATUS: 'status'
+    STATUS: 'status',
+    CONTROL: 'control'
 };
 
 const AI_SERVICE_EVENT_NAME = {
