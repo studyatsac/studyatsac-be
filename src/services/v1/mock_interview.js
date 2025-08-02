@@ -44,19 +44,7 @@ const startMockInterview = async (input, opts = {}) => {
         {
             include: {
                 model: Models.UserInterviewSection,
-                as: 'interviewSections',
-                attributes: {
-                    include: [
-                        [
-                            Models.sequelize.literal(`(
-                                SELECT duration
-                                FROM interview_sections AS section
-                                WHERE section.id = interviewSections.interview_section_id 
-                            )`),
-                            'targetDuration'
-                        ]
-                    ]
-                }
+                as: 'interviewSections'
             }
         }
     );
