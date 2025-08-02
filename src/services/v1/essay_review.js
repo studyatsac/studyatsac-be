@@ -140,7 +140,7 @@ const continueEssayReview = async (input, opts = {}) => {
                 (item) => item.essayItem.uuid === inputEssayItems[index].essayItemUuid
             );
             if (userEssayItem) {
-                return Response.formatServiceReturn(false, 404, null, language.USER_ESSAY_ITEM.ALREADY_EXIST);
+                return Response.formatServiceReturn(false, 400, null, language.USER_ESSAY_ITEM.ALREADY_EXIST);
             }
 
             const essayItem = essay.essayItems.find((item) => item.uuid === inputEssayItems[index].essayItemUuid);

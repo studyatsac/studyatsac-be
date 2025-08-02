@@ -2,7 +2,7 @@ const UserInterviewService = require('../../../services/v1/user_interview');
 const UserInterviewTransformer = require('../../../transformers/v1/user-interview/user_interview');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
-const StartMockInterviewValidation = require('../../../validations/v1/mock-interview/start_mock_interview');
+const InitMockInterviewValidation = require('../../../validations/v1/mock-interview/init_mock_interview');
 const MockInterviewService = require('../../../services/v1/mock_interview');
 
 let lang;
@@ -13,7 +13,7 @@ exports.initMockInterview = async (req, res) => {
 
         let input;
         try {
-            input = await StartMockInterviewValidation(lang).validateAsync(req.body);
+            input = await InitMockInterviewValidation(lang).validateAsync(req.body);
         } catch (err) {
             return res.status(400).json({ message: err.message });
         }

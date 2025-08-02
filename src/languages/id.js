@@ -229,6 +229,7 @@ module.exports = Object.freeze({
         UUID_NOT_VALID: 'ID tidak valid',
         INTERVIEW_SECTION_UUID_NOT_VALID: 'Sesi wawancara ID tidak valid',
         REVIEW_NOT_VALID: 'Review tidak valid',
+        ALREADY_EXIST: 'Sesi wawancara sudah ada',
         CREATE_SUCCESS: 'Berhasil membuat sesi wawancara pengguna',
         CREATE_FAILED: 'Gagal membuat sesi wawancara pengguna',
         UPDATE_SUCCESS: 'Berhasil memperbarui sesi wawancara pengguna',
@@ -315,6 +316,7 @@ module.exports = Object.freeze({
         NOT_STARTED: 'Mockup wawancara belum dibuat',
         PENDING: 'Mockup wawancara belum dimulai',
         NOT_PENDING: 'Mockup wawancara sudah dimulai atau sedang berlangsung',
+        IN_PROGRESS: 'Mockup wawancara sedang berjalan',
         NOT_IN_PROGRESS: 'Mockup wawancara tidak sedang berjalan',
         NOT_PAUSED: 'Mockup wawancara tidak sedang dijeda'
     }

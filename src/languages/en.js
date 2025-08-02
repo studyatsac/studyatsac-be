@@ -230,6 +230,7 @@ module.exports = Object.freeze({
         UUID_NOT_VALID: 'ID not valid',
         INTERVIEW_SECTION_UUID_NOT_VALID: 'Interview section ID not valid',
         REVIEW_NOT_VALID: 'Review not valid',
+        ALREADY_EXIST: 'User interview section already exist',
         CREATE_SUCCESS: 'Success to create user interview section',
         CREATE_FAILED: 'Failed to create user interview section',
         UPDATE_SUCCESS: 'Success to update user interview section',
@@ -316,6 +317,7 @@ module.exports = Object.freeze({
         NOT_STARTED: 'Mock interview is not initialized yet',
         PENDING: 'Mock interview is not started yet',
         NOT_PENDING: 'Mock interview is already started or in progress',
+        IN_PROGRESS: 'Mock interview is in progress',
         NOT_IN_PROGRESS: 'Mock interview is not in progress',
         NOT_PAUSED: 'Mock interview is not paused'
     }

@@ -32,7 +32,7 @@ async function getTargetUserInterviewSectionSession(userId, userInterviewUuid) {
             include: {
                 model: Models.UserInterviewSection,
                 as: 'interviewSections',
-                where: { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
+                where: { status: UserInterviewConstants.STATUS.IN_PROGRESS },
                 include: [
                     {
                         model: Models.InterviewSection,
@@ -72,8 +72,8 @@ async function getCompletedTargetUserInterviewSectionSession(userId, userIntervi
                 as: 'interviewSections',
                 where: {
                     [Models.Sequelize.Op.or]: [
-                        { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
-                        { status: UserInterviewConstants.SECTION_STATUS.COMPLETED }
+                        { status: UserInterviewConstants.STATUS.IN_PROGRESS },
+                        { status: UserInterviewConstants.STATUS.COMPLETED }
                     ]
                 },
                 include: [

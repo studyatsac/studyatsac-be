@@ -13,6 +13,7 @@ const LogUtils = require('../../utils/logger');
 const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
 const InterviewSectionQuestionRepository = require('../../repositories/mysql/interview_section_question');
 const UserInterviewSectionAnswerRepository = require('../../repositories/mysql/user_interview_section_answer');
+const InterviewRepository = require('../../repositories/mysql/interview');
 
 class MockInterviewError extends Error {}
 
@@ -548,6 +549,107 @@ const stopMockInterview = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, userInterview, null);
 };
 
+const nextMockInterview = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    const userInterview = await UserInterviewRepository.findOne(
+        { uuid: input.uuid, userId: input.userId },
+        {
+            include: {
+                model: Models.UserInterviewSection,
+                as: 'interviewSections',
+                include: {
+                    model: Models.InterviewSection,
+                    attributes: ['id', 'uuid'],
+                    as: 'interviewSection'
+                }
+            }
+        }
+    );
+
+    if (!userInterview) {
+        return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
+    }
+    let isInProgress = userInterview.status === UserInterviewConstants.STATUS.PENDING;
+    isInProgress = isInProgress || userInterview.status === UserInterviewConstants.STATUS.IN_PROGRESS;
+    isInProgress = isInProgress || userInterview.status === UserInterviewConstants.STATUS.PAUSED;
+    const inProgressSections = userInterview.interviewSections?.filter(
+        (item) => item.status === UserInterviewConstants.SECTION_STATUS.PENDING
+            || item.status === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
+            || item.status === UserInterviewConstants.SECTION_STATUS.PAUSED
+    );
+    if (isInProgress || inProgressSections.length) {
+        return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.IN_PROGRESS);
+    }
+
+    const interview = await InterviewRepository.findOne(
+        { id: userInterview.interviewId },
+        { include: { model: Models.InterviewSection, as: 'interviewSections' } }
+    );
+
+    if (!interview) {
+        return Response.formatServiceReturn(false, 404, null, language.INTERVIEW.NOT_FOUND);
+    }
+
+    let inputInterviewSections = [];
+    if (input.interviewSections && Array.isArray(input.interviewSections)) {
+        inputInterviewSections = input.interviewSections;
+        for (let index = 0; index < inputInterviewSections.length; index++) {
+            const userInterviewSection = userInterview.interviewSections.find(
+                // eslint-disable-next-line no-loop-func
+                (item) => item.interviewSection.uuid === inputInterviewSections[index].interviewSectionUuid
+            );
+            if (userInterviewSection) {
+                return Response.formatServiceReturn(false, 400, null, language.USER_INTERVIEW_SECTION.ALREADY_EXIST);
+            }
+
+            const interviewSection = interview.interviewSections.find(
+                // eslint-disable-next-line no-loop-func
+                (item) => item.uuid === inputInterviewSections[index].interviewSectionUuid
+            );
+            if (!interviewSection) {
+                return Response.formatServiceReturn(false, 404, null, language.INTERVIEW_SECTION.NOT_FOUND);
+            }
+
+            inputInterviewSections[index] = { ...inputInterviewSections[index], interviewSectionId: interviewSection.id };
+        }
+    }
+
+    try {
+        const result = await Models.sequelize.transaction(async (trx) => {
+            await UserInterviewRepository.update(
+                { status: UserInterviewConstants.STATUS.PENDING },
+                { id: userInterview.id },
+                trx
+            );
+
+            if (inputInterviewSections.length) {
+                const interviewSections = await UserInterviewSectionRepository.createMany(
+                    inputInterviewSections.map((item) => ({
+                        userInterviewId: userInterview.id,
+                        interviewSectionId: item.interviewSectionId,
+                        status: UserInterviewConstants.SECTION_STATUS.PENDING
+                    })),
+                    trx
+                );
+                if (!interviewSections) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.CREATE_FAILED);
+
+                userInterview.interviewSections = [...(userInterview?.interviewSections ?? []), ...interviewSections];
+            }
+
+            return userInterview;
+        });
+
+        return Response.formatServiceReturn(true, 200, result, null);
+    } catch (err) {
+        if (err instanceof MockInterviewError) {
+            return Response.formatServiceReturn(false, 500, null, err.message);
+        }
+
+        throw err;
+    }
+};
+
 const recordMockInterviewText = async (input, data) => {
     if (typeof data !== 'object' || !data || !!data.error) return;
 
@@ -775,6 +877,7 @@ exports.startMockInterview = startMockInterview;
 exports.pauseMockInterview = pauseMockInterview;
 exports.continueMockInterview = continueMockInterview;
 exports.stopMockInterview = stopMockInterview;
+exports.nextMockInterview = nextMockInterview;
 exports.recordMockInterviewText = recordMockInterviewText;
 exports.speakMockInterview = speakMockInterview;
 exports.recordMockInterviewProcess = recordMockInterviewProcess;

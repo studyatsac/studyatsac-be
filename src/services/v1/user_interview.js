@@ -187,7 +187,7 @@ const createUserInterview = async (input, opts = {}) => {
                         ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED }) : {})
                     }) : {}),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {}),
-                    ...(opts.withMock ? { status: UserInterviewConstants.SECTION_STATUS.PENDING } : {})
+                    ...(opts.withMock ? { status: UserInterviewConstants.STATUS.PENDING } : {})
                 },
                 trx
             );

@@ -52,7 +52,10 @@ async function processMockInterviewControlPauseJob(job, token) {
                     status: UserInterviewConstants.SECTION_STATUS.PAUSED,
                     pausedAt: Moment().format()
                 },
-                { userInterviewId: userInterview.id, status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
+                {
+                    userInterviewId: userInterview.id,
+                    status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
+                },
                 trx
             );
             if (!result) throw new MockInterviewControlError();
