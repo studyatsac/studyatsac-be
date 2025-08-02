@@ -3,7 +3,6 @@ const LogUtils = require('../../utils/logger');
 const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
 const MockInterviewConstants = require('../../constants/mock_interview');
 const SocketServer = require('../../servers/socket/main');
-const Queues = require('../../queues/bullmq');
 
 const listenServerStatusEvent = async (data) => {
     try {
@@ -37,26 +36,10 @@ const listenServerStatusEvent = async (data) => {
             statusObject
         );
 
-        const jobId = await MockInterviewCacheUtils.getMockInterviewControlPauseJobId(userId, uuid);
-        if (!jobId) return;
+        const pauseJobTime = await MockInterviewCacheUtils.getMockInterviewControlPauseJobTime(userId, uuid);
+        if (!pauseJobTime) return;
 
-        const job = await Queues.MockInterviewControl.getJob(jobId);
-        if (!job) return;
-
-        if (await job.isDelayed()) {
-            const timeLapsed = Date.now() - job.timestamp;
-            await job.changeDelay(timeLapsed + MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS);
-        } else if (!(await job.isCompleted())) {
-            await job.updateData({});
-            await MockInterviewCacheUtils.deleteMockInterviewControlPauseJobId(userId, uuid);
-
-            const newJob = await Queues.MockInterviewControl.add(
-                MockInterviewConstants.JOB_NAME.PAUSE,
-                { userId, userInterviewUuid: uuid },
-                { delay: MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS }
-            );
-            await MockInterviewCacheUtils.setMockInterviewControlPauseJobId(userId, uuid, newJob.id);
-        }
+        await MockInterviewCacheUtils.generateMockInterviewControlPauseJobTime(userId, uuid);
     } catch (err) {
         LogUtils.logError({ functionName: 'listenServerStatusEvent', message: err.message });
     }

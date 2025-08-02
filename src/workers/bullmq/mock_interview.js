@@ -668,16 +668,10 @@ async function processMockInterviewProcessJob(job) {
                     checkShouldTerminate
                 );
             } else {
-                const stopJob = await Queues.MockInterviewControl.add(
-                    MockInterviewConstants.JOB_NAME.STOP,
-                    { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
-                    { delay: MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS * 2 }
-                );
-
-                await MockInterviewCacheUtils.setMockInterviewControlStopJobId(
+                await MockInterviewCacheUtils.setMockInterviewControlStopJobTime(
                     userInterview.userId,
                     userInterview.uuid,
-                    stopJob.id
+                    Date.now() + (MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS * 2)
                 );
 
                 await processMockInterviewClose(

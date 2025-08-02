@@ -1,16 +1,10 @@
-const { Worker, DelayedError } = require('bullmq');
-const Moment = require('moment');
+const { Worker } = require('bullmq');
 const LogUtils = require('../../utils/logger');
 const UserInterviewRepository = require('../../repositories/mysql/user_interview');
-const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
 const UserInterviewConstants = require('../../constants/user_interview');
 const MockInterviewConstants = require('../../constants/mock_interview');
-const Models = require('../../models/mysql');
 const Queues = require('../../queues/bullmq');
 const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
-const AiServiceSocket = require('../../clients/socket/ai_service');
-
-class MockInterviewScheduleError extends Error {}
 
 async function processMockInterviewScheduleTimerJob(job) {
     const jobData = job.data;
@@ -28,6 +22,31 @@ async function processMockInterviewScheduleTimerJob(job) {
         { duration: userInterview.duration + MockInterviewConstants.TIMER_INTERVAL_IN_SECONDS },
         { id: userInterview.id }
     );
+
+    const stopJobTime = await MockInterviewCacheUtils.getMockInterviewControlStopJobTime(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (stopJobTime >= Date.now()) {
+        const stopJob = await Queues.MockInterviewControl.add(
+            MockInterviewConstants.JOB_NAME.STOP,
+            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+            { delay: 1000 }
+        );
+        if (stopJob) return;
+    }
+
+    const pauseJobTime = await MockInterviewCacheUtils.getMockInterviewControlPauseJobTime(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (pauseJobTime >= Date.now()) {
+        await Queues.MockInterviewControl.add(
+            MockInterviewConstants.JOB_NAME.PAUSE,
+            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+            { delay: 1000 }
+        );
+    }
 }
 
 async function processMockInterviewScheduleJob(job, token) {

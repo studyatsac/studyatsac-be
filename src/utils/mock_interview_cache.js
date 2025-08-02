@@ -74,17 +74,23 @@ const deleteMockInterviewStatus = async (userId, userInterviewUuid) => {
     await Cache.deleteCache(key);
 };
 
-const setMockInterviewControlPauseJobId = async (userId, userInterviewUuid, jobId) => {
+const setMockInterviewControlPauseJobTime = async (userId, userInterviewUuid, jobTime) => {
     const key = `${MOCK_INTERVIEW_CONTROL_PAUSE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
-    await Cache.setCache(key, jobId, MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS + (5 * 60 * 1000));
+    await Cache.setCache(key, jobTime, MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS + (5 * 60 * 1000));
 };
 
-const getMockInterviewControlPauseJobId = async (userId, userInterviewUuid) => {
-    const key = `${MOCK_INTERVIEW_CONTROL_PAUSE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
-    return Cache.getCache(key);
+const generateMockInterviewControlPauseJobTime = async (userId, userInterviewUuid) => {
+    const targetTime = Date.now() + MockInterviewConstants.MAX_IDLE_TIME_IN_MILLISECONDS;
+    await setMockInterviewControlPauseJobTime(userId, userInterviewUuid, targetTime);
+    return targetTime;
 };
 
-const deleteMockInterviewControlPauseJobId = async (userId, userInterviewUuid) => {
+const getMockInterviewControlPauseJobTime = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_CONTROL_PAUSE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    return Number(Cache.getCache(key)) || 0;
+};
+
+const deleteMockInterviewControlPauseJobTime = async (userId, userInterviewUuid) => {
     const key = `${MOCK_INTERVIEW_CONTROL_PAUSE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
     await Cache.deleteCache(key);
 };
@@ -104,17 +110,23 @@ const deleteMockInterviewProcessJobId = async (userId, userInterviewUuid) => {
     await Cache.deleteCache(key);
 };
 
-const setMockInterviewControlStopJobId = async (userId, userInterviewUuid, jobId) => {
+const setMockInterviewControlStopJobTime = async (userId, userInterviewUuid, jobId) => {
     const key = `${MOCK_INTERVIEW_CONTROL_STOP_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
     await Cache.setCache(key, jobId, 3 * 60 * 1000);
 };
 
-const getMockInterviewControlStopJobId = async (userId, userInterviewUuid) => {
-    const key = `${MOCK_INTERVIEW_CONTROL_STOP_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
-    return Cache.getCache(key);
+const generateMockInterviewControlStopJobTime = async (userId, userInterviewUuid) => {
+    const targetTime = Date.now() + MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS;
+    await setMockInterviewControlStopJobTime(userId, userInterviewUuid, targetTime);
+    return targetTime;
 };
 
-const deleteMockInterviewControlStopJobId = async (userId, userInterviewUuid) => {
+const getMockInterviewControlStopJobTime = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_CONTROL_STOP_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    return Number(Cache.getCache(key)) || 0;
+};
+
+const deleteMockInterviewControlStopJobTime = async (userId, userInterviewUuid) => {
     const key = `${MOCK_INTERVIEW_CONTROL_STOP_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
     await Cache.deleteCache(key);
 };
@@ -230,15 +242,17 @@ exports.deleteMockInterviewSid = deleteMockInterviewSid;
 exports.setMockInterviewStatus = setMockInterviewStatus;
 exports.getMockInterviewStatus = getMockInterviewStatus;
 exports.deleteMockInterviewStatus = deleteMockInterviewStatus;
-exports.setMockInterviewControlPauseJobId = setMockInterviewControlPauseJobId;
-exports.getMockInterviewControlPauseJobId = getMockInterviewControlPauseJobId;
-exports.deleteMockInterviewControlPauseJobId = deleteMockInterviewControlPauseJobId;
+exports.setMockInterviewControlPauseJobTime = setMockInterviewControlPauseJobTime;
+exports.generateMockInterviewControlPauseJobTime = generateMockInterviewControlPauseJobTime;
+exports.getMockInterviewControlPauseJobTime = getMockInterviewControlPauseJobTime;
+exports.deleteMockInterviewControlPauseJobTime = deleteMockInterviewControlPauseJobTime;
 exports.setMockInterviewProcessJobId = setMockInterviewProcessJobId;
 exports.getMockInterviewProcessJobId = getMockInterviewProcessJobId;
 exports.deleteMockInterviewProcessJobId = deleteMockInterviewProcessJobId;
-exports.setMockInterviewControlStopJobId = setMockInterviewControlStopJobId;
-exports.getMockInterviewControlStopJobId = getMockInterviewControlStopJobId;
-exports.deleteMockInterviewControlStopJobId = deleteMockInterviewControlStopJobId;
+exports.setMockInterviewControlStopJobTime = setMockInterviewControlStopJobTime;
+exports.generateMockInterviewControlStopJobTime = generateMockInterviewControlStopJobTime;
+exports.getMockInterviewControlStopJobTime = getMockInterviewControlStopJobTime;
+exports.deleteMockInterviewControlStopJobTime = deleteMockInterviewControlStopJobTime;
 exports.setMockInterviewScheduleTimerJobId = setMockInterviewScheduleTimerJobId;
 exports.getMockInterviewScheduleTimerJobId = getMockInterviewScheduleTimerJobId;
 exports.generateMockInterviewScheduleTimerJobId = generateMockInterviewScheduleTimerJobId;
