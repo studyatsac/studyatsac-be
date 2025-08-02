@@ -34,7 +34,7 @@ exports.getUserPurchaseEssayPackageList = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getUserPurchaseEssayPackageList',
             message: err.message
         });

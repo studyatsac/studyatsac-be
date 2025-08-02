@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         interviewSectionQuestionId: {
             type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: false
+            allowNull: true
         },
         status: {
             type: DataTypes.STRING(30),
@@ -34,6 +34,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
         },
+        questionNumber: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+        },
+        question: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         answer: {
             type: DataTypes.TEXT,
             allowNull: true
@@ -45,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
         reviewStatus: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserInterviewConstants.REVIEW_STATUS.NOT_STARTED
         }
     };
 

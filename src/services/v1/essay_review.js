@@ -3,7 +3,7 @@ const ProductPackageRepository = require('../../repositories/mysql/product_packa
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
 const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
 const Models = require('../../models/mysql');
-const Queues = require('../../queues/redis');
+const Queues = require('../../queues/bullmq');
 const UserEssayConstants = require('../../constants/user_essay');
 const EssayReviewConstants = require('../../constants/essay_review');
 const ProductPackageConstants = require('../../constants/product_package');
@@ -15,7 +15,7 @@ class EssayReviewError extends Error {}
 const getPaidEssayReviewPackage = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const rawProductPackage = await ProductPackageRepository.findOneWithAttemptFormUserPurchase({
+    const rawProductPackage = await ProductPackageRepository.findOneWithEssayAttemptFormUserPurchase({
         ...input,
         type: ProductPackageConstants.TYPE.ESSAY,
         uuid: input.essayPackageUuid,
@@ -49,6 +49,7 @@ const retryEssayReview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_ESSAY.NOT_FOUND);
     }
 
+    let job;
     try {
         let shouldAddJob = false;
         await Models.sequelize.transaction(async (trx) => {
@@ -82,17 +83,22 @@ const retryEssayReview = async (input, opts = {}) => {
 
                 shouldAddJob = true;
             }
+
+            if (shouldAddJob && userEssay) {
+                job = await Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    { userEssayId: userEssay.id },
+                    { delay: EssayReviewConstants.JOB_DELAY }
+                );
+            }
         });
 
-        if (shouldAddJob && userEssay) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: userEssay.id })
-            );
-        }
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
 
         return Response.formatServiceReturn(true, 200, userEssay, null);
     } catch (err) {
+        if (job) await job.remove();
+
         if (err instanceof EssayReviewError) {
             return Response.formatServiceReturn(false, 500, null, err.message);
         }
@@ -134,7 +140,7 @@ const continueEssayReview = async (input, opts = {}) => {
                 (item) => item.essayItem.uuid === inputEssayItems[index].essayItemUuid
             );
             if (userEssayItem) {
-                return Response.formatServiceReturn(false, 404, null, language.USER_ESSAY_ITEM.ALREADY_EXIST);
+                return Response.formatServiceReturn(false, 400, null, language.USER_ESSAY_ITEM.ALREADY_EXIST);
             }
 
             const essayItem = essay.essayItems.find((item) => item.uuid === inputEssayItems[index].essayItemUuid);
@@ -145,6 +151,7 @@ const continueEssayReview = async (input, opts = {}) => {
         }
     }
 
+    let job;
     try {
         let shouldAddJob = false;
         await Models.sequelize.transaction(async (trx) => {
@@ -182,17 +189,22 @@ const continueEssayReview = async (input, opts = {}) => {
 
                 shouldAddJob = true;
             }
+
+            if (shouldAddJob && userEssay) {
+                job = await Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    { userEssayId: userEssay.id },
+                    { delay: EssayReviewConstants.JOB_DELAY }
+                );
+            }
         });
 
-        if (shouldAddJob && userEssay) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: userEssay.id })
-            );
-        }
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
 
         return Response.formatServiceReturn(true, 200, userEssay, null);
     } catch (err) {
+        if (job) await job.remove();
+
         if (err instanceof EssayReviewError) {
             return Response.formatServiceReturn(false, 500, null, err.message);
         }

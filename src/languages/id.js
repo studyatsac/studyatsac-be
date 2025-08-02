@@ -137,7 +137,7 @@ module.exports = Object.freeze({
         DELETE_FAILED: 'Gagal menghapus item paket esai'
     },
     ESSAY_REVIEW: {
-        EXCEED_MAX_ATTEMPT: 'Percobaan telah habis'
+        EXCEED_MAX_ATTEMPT: 'Percobaan review esai telah habis'
     },
     USER_PURCHASE: {
         NOT_FOUND: 'Pembelian pengguna tidxak ditemukan',
@@ -210,6 +210,7 @@ module.exports = Object.freeze({
     USER_INTERVIEW: {
         NOT_FOUND: 'Wawancara pengguna tidak ditemukan',
         UUID_NOT_VALID: 'ID tidak valid',
+        INTERVIEW_PACKAGE_UUID_NOT_VALID: 'ID paket wawancara tidak valid',
         INTERVIEW_UUID_NOT_VALID: 'ID wawancara tidak valid',
         OVERALL_REVIEW_NOT_VALID: 'Review tidak valid',
         INTERVIEW_SECTIONS_NOT_VALID: 'Sesi wawancara tidak valid',
@@ -228,6 +229,7 @@ module.exports = Object.freeze({
         UUID_NOT_VALID: 'ID tidak valid',
         INTERVIEW_SECTION_UUID_NOT_VALID: 'Sesi wawancara ID tidak valid',
         REVIEW_NOT_VALID: 'Review tidak valid',
+        ALREADY_EXIST: 'Sesi wawancara sudah ada',
         CREATE_SUCCESS: 'Berhasil membuat sesi wawancara pengguna',
         CREATE_FAILED: 'Gagal membuat sesi wawancara pengguna',
         UPDATE_SUCCESS: 'Berhasil memperbarui sesi wawancara pengguna',
@@ -308,5 +310,14 @@ module.exports = Object.freeze({
         CREATE_FAILED: 'Gagal membuat item paket wawancara',
         UPDATE_FAILED: 'Gagal memperbarui item paket wawancara',
         DELETE_FAILED: 'Gagal menghapus item paket wawancara'
+    },
+    MOCK_INTERVIEW: {
+        EXCEED_MAX_ATTEMPT: 'Percobaan mockup wawancara telah habis',
+        NOT_STARTED: 'Mockup wawancara belum dibuat',
+        PENDING: 'Mockup wawancara belum dimulai',
+        NOT_PENDING: 'Mockup wawancara sudah dimulai atau sedang berlangsung',
+        IN_PROGRESS: 'Mockup wawancara sedang berjalan',
+        NOT_IN_PROGRESS: 'Mockup wawancara tidak sedang berjalan',
+        NOT_PAUSED: 'Mockup wawancara tidak sedang dijeda'
     }
 });

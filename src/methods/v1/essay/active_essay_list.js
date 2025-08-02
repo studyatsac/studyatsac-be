@@ -17,7 +17,7 @@ exports.getActiveEssayList = async (req, res) => {
 
         return res.status(200).json({ data: EssayTransformer.essayList(result.data), message: '' });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getActiveEssayList',
             message: err.message
         });

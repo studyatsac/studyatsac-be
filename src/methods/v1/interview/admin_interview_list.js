@@ -17,7 +17,7 @@ exports.getInterviewList = async (req, res) => {
 
         return res.status(200).json({ data: InterviewTransformer.interviewList(result.data, false), message: '' });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getInterviewList',
             message: err.message
         });

@@ -41,7 +41,7 @@ exports.getIeltsScore = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getIeltsScore',
             message: err.message
         });

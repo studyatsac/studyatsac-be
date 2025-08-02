@@ -10,7 +10,7 @@ exports.getInterview = async (req, res) => {
         lang = Language.getLanguage(req.locale);
 
         const { uuid } = req.params;
-        const result = await InterviewService.getInterview({ uuid }, { lang });
+        const result = await InterviewService.getInterview({ uuid }, { lang, isDetailed: true });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
@@ -18,7 +18,7 @@ exports.getInterview = async (req, res) => {
 
         return res.status(200).json({ data: InterviewTransformer.interviewItem(result.data, false), message: '' });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getInterview',
             message: err.message
         });

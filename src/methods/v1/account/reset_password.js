@@ -25,7 +25,7 @@ exports.resetPassword = async (req, res) => {
     if (err.isJoi) {
       return res.status(400).json({ message: err.message });
     }
-    LogUtils.loggingError({
+    LogUtils.logError({
       function_name: 'resetPassword',
       message: err.message,
       error: err

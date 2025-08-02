@@ -24,15 +24,28 @@ module.exports = (sequelize, DataTypes) => {
         status: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserInterviewConstants.SECTION_STATUS.NOT_STARTED
         },
         startedAt: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        pausedAt: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        resumedAt: {
             type: DataTypes.DATE,
             allowNull: true
         },
         completedAt: {
             type: DataTypes.DATE,
             allowNull: true
+        },
+        duration: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+            defaultValue: 0
         },
         review: {
             type: DataTypes.TEXT,
@@ -41,12 +54,12 @@ module.exports = (sequelize, DataTypes) => {
         reviewStatus: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserInterviewConstants.REVIEW_STATUS.NOT_STARTED
         },
         answerReviewStatus: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserInterviewConstants.REVIEW_STATUS.NOT_STARTED
         }
     };
 

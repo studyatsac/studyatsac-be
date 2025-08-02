@@ -29,7 +29,7 @@ exports.getSpecificUserEssay = async (req, res) => {
             message: ''
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getUserEssay',
             message: err.message
         });

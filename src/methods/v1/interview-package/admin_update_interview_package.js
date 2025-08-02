@@ -30,7 +30,7 @@ exports.updateInterviewPackage = async (req, res) => {
             message: lang.INTERVIEW_PACKAGE.CREATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'updateInterviewPackage',
             message: err.message
         });

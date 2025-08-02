@@ -138,7 +138,7 @@ module.exports = Object.freeze({
         DELETE_FAILED: 'Failed to delete essay package mapping'
     },
     ESSAY_REVIEW: {
-        EXCEED_MAX_ATTEMPT: 'Trial is over'
+        EXCEED_MAX_ATTEMPT: 'Essay review trial is over'
     },
     USER_PURCHASE: {
         NOT_FOUND: 'User purchase not found',
@@ -211,6 +211,7 @@ module.exports = Object.freeze({
     USER_INTERVIEW: {
         NOT_FOUND: 'User interview not found',
         UUID_NOT_VALID: 'ID not valid',
+        INTERVIEW_PACKAGE_UUID_NOT_VALID: 'Interview package ID not valid',
         INTERVIEW_UUID_NOT_VALID: 'Interview ID not valid',
         OVERALL_REVIEW_NOT_VALID: 'Review not valid',
         INTERVIEW_SECTIONS_NOT_VALID: 'Interview sections not valid',
@@ -229,6 +230,7 @@ module.exports = Object.freeze({
         UUID_NOT_VALID: 'ID not valid',
         INTERVIEW_SECTION_UUID_NOT_VALID: 'Interview section ID not valid',
         REVIEW_NOT_VALID: 'Review not valid',
+        ALREADY_EXIST: 'User interview section already exist',
         CREATE_SUCCESS: 'Success to create user interview section',
         CREATE_FAILED: 'Failed to create user interview section',
         UPDATE_SUCCESS: 'Success to update user interview section',
@@ -309,5 +311,14 @@ module.exports = Object.freeze({
         CREATE_FAILED: 'Failed to create interview package mapping',
         UPDATE_FAILED: 'Failed to update interview package mapping',
         DELETE_FAILED: 'Failed to delete interview package mapping'
+    },
+    MOCK_INTERVIEW: {
+        EXCEED_MAX_ATTEMPT: 'Mock interview trial is over',
+        NOT_STARTED: 'Mock interview is not initialized yet',
+        PENDING: 'Mock interview is not started yet',
+        NOT_PENDING: 'Mock interview is already started or in progress',
+        IN_PROGRESS: 'Mock interview is in progress',
+        NOT_IN_PROGRESS: 'Mock interview is not in progress',
+        NOT_PAUSED: 'Mock interview is not paused'
     }
 });

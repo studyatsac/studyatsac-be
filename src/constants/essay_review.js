@@ -4,4 +4,9 @@ const JOB_NAME = {
     ITEM: 'item'
 };
 
-module.exports = { JOB_NAME };
+/**
+ * 30 Seconds
+ */
+const JOB_DELAY = 30 * 1000;
+
+module.exports = { JOB_NAME, JOB_DELAY };

@@ -35,7 +35,7 @@ exports.claimUserPurchaseInterviewPackage = async (req, res) => {
             message: lang.USER_PURCHASE.INTERVIEW_PACKAGE_CLAIM_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'claimUserPurchaseInterviewPackage',
             message: err.message
         });

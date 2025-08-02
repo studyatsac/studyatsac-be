@@ -10,7 +10,10 @@ exports.getDetailedUserInterview = async (req, res) => {
         lang = Language.getLanguage(req.locale);
 
         const { uuid } = req.params;
-        const result = await UserInterviewService.getUserInterview({ uuid }, { lang, isDetailed: true });
+        const result = await UserInterviewService.getUserInterview(
+            { uuid },
+            { lang, isDetailed: true }
+        );
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
@@ -21,7 +24,7 @@ exports.getDetailedUserInterview = async (req, res) => {
             message: ''
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getDetailedUserInterview',
             message: err.message
         });

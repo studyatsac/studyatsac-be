@@ -36,7 +36,7 @@ exports.updateUserInterview = async (req, res) => {
             message: lang.USER_INTERVIEW.UPDATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'updateUserInterview',
             message: err.message
         });

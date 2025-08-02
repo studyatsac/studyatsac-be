@@ -55,8 +55,8 @@ WHERE
 
     const replacements = {
         ...where,
-        userId: where.userId ?? 'IS NOT NULL',
-        type: where.type ?? 'IS NOT NULL',
+        userId: where.userId ?? 'NULL',
+        type: where.type ?? 'NULL',
         isActive: where.isActive ?? true,
         limit: opts.limit,
         offset: opts.offset
@@ -172,9 +172,9 @@ FROM
 
     const replacements = {
         ...where,
-        uuid: where.uuid ?? 'IS NOT NULL',
+        uuid: where.uuid ?? 'NULL',
         type: where.type ?? ProductPackageConstants.TYPE.ESSAY,
-        userId: where.userId ?? 'IS NOT NULL',
+        userId: where.userId ?? 'NULL',
         isActive: where.isActive ?? true
     };
 
@@ -276,9 +276,9 @@ FROM
 
     const replacements = {
         ...where,
-        uuid: where.uuid ?? 'IS NOT NULL',
+        uuid: where.uuid ?? 'NULL',
         type: where.type ?? ProductPackageConstants.TYPE.INTERVIEW,
-        userId: where.userId ?? 'IS NOT NULL',
+        userId: where.userId ?? 'NULL',
         isActive: where.isActive ?? true
     };
 
@@ -291,7 +291,7 @@ FROM
     });
 };
 
-exports.findOneWithAttemptFormUserPurchase = async function (where, trx = null) {
+exports.findOneWithEssayAttemptFormUserPurchase = async function (where, trx = null) {
     const query = `
 SELECT 
     ProductPackage.*, 
@@ -362,10 +362,97 @@ FROM
 
     const replacements = {
         ...where,
-        uuid: where.uuid ?? 'IS NOT NULL',
-        type: where.type ?? 'IS NOT NULL',
-        userId: where.userId ?? 'IS NOT NULL',
-        essayUuid: where.essayUuid ?? 'IS NOT NULL',
+        uuid: where.uuid ?? 'NULL',
+        type: where.type ?? ProductPackageConstants.TYPE.ESSAY,
+        userId: where.userId ?? 'NULL',
+        essayUuid: where.essayUuid ?? 'NULL',
+        isActive: where.isActive ?? true
+    };
+
+    return Models.sequelize.query(query, {
+        type: Models.sequelize.QueryTypes.SELECT,
+        replacements,
+        raw: true,
+        nest: true,
+        transaction: trx
+    });
+};
+
+exports.findOneWithInterviewAttemptFormUserPurchase = async function (where, trx = null) {
+    const query = `
+SELECT 
+    ProductPackage.*, 
+    (productPackageMappings.max_attempt * UserPurchase.count) AS itemMaxAttempt, 
+    UserInterview.count AS currentAttempt 
+FROM 
+    ( 
+        SELECT 
+            ProductPackage.id, 
+            ProductPackage.uuid,
+            ProductPackage.type, 
+            ProductPackage.title, 
+            ProductPackage.description, 
+            ProductPackage.additional_information AS additionalInformation, 
+            ProductPackage.price, 
+            ProductPackage.total_max_attempt AS totalMaxAttempt, 
+            ProductPackage.default_item_max_attempt AS defaultItemMaxAttempt, 
+            ProductPackage.payment_url AS paymentUrl, 
+            ProductPackage.is_active AS isActive 
+        FROM 
+            product_packages AS ProductPackage 
+        WHERE 
+            ( 
+                ProductPackage.deleted_at IS NULL 
+                AND ProductPackage.is_active = :isActive 
+                AND ProductPackage.uuid = :uuid 
+                AND ProductPackage.type = :type 
+            )  
+        LIMIT 
+            1 
+    ) AS ProductPackage 
+    JOIN product_package_mappings AS productPackageMappings ON ProductPackage.id = productPackageMappings.product_package_id 
+    AND productPackageMappings.deleted_at IS NULL 
+    JOIN interviews AS \`productPackageMappings->interview\` ON productPackageMappings.interview_id = \`productPackageMappings->interview\`.id 
+    AND \`productPackageMappings->interview\`.deleted_at IS NULL 
+    AND \`productPackageMappings->interview\`.is_active = :isActive 
+    AND \`productPackageMappings->interview\`.uuid = :interviewUuid 
+    JOIN ( 
+        SELECT 
+            user_id, 
+            product_package_id, 
+            COUNT(*) as count 
+        FROM 
+            user_purchases 
+        WHERE 
+            user_purchases.deleted_at IS NULL 
+        GROUP BY 
+            user_id, 
+            product_package_id 
+    ) AS UserPurchase ON UserPurchase.product_package_id = ProductPackage.id  
+    AND UserPurchase.user_id = :userId 
+    LEFT JOIN ( 
+        SELECT 
+            interview_id, 
+            product_package_id, 
+            COUNT(*) as count 
+        FROM 
+            user_interviews 
+        WHERE 
+            user_interviews.deleted_at IS NULL 
+            AND user_interviews.user_id = :userId 
+        GROUP BY  
+            interview_id, 
+            product_package_id 
+    ) AS UserInterview ON UserInterview.product_package_id = ProductPackage.id 
+    AND UserInterview.interview_id = productPackageMappings.interview_id;
+    `;
+
+    const replacements = {
+        ...where,
+        uuid: where.uuid ?? 'NULL',
+        type: where.type ?? ProductPackageConstants.TYPE.INTERVIEW,
+        userId: where.userId ?? 'NULL',
+        interviewUuid: where.interviewUuid ?? 'NULL',
         isActive: where.isActive ?? true
     };
 

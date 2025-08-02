@@ -6,6 +6,7 @@ const Response = require('../../utils/response');
 const Models = require('../../models/mysql');
 const Helpers = require('../../utils/helpers');
 const UserInterviewConstants = require('../../constants/user_interview');
+const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
 
 class UserInterviewError extends Error {}
 
@@ -20,18 +21,28 @@ const getUserInterview = async (input, opts = {}) => {
                 {
                     model: Models.Interview,
                     as: 'interview',
-                    ...(opts.isDetailed ? {
-                        include: {
-                            model: Models.InterviewSection,
-                            as: 'interviewSections',
+                    include: {
+                        model: Models.InterviewSection,
+                        as: 'interviewSections',
+                        ...(opts.isDetailed ? {
                             include: { model: Models.InterviewSectionQuestion, as: 'interviewSectionQuestions' }
-                        }
-                    } : {})
+                        } : {})
+                    }
                 },
                 {
                     model: Models.UserInterviewSection,
                     as: 'interviewSections',
-                    include: { model: Models.UserInterviewSectionAnswer, as: 'interviewSectionAnswers' }
+                    include: [
+                        {
+                            model: Models.InterviewSection,
+                            as: 'interviewSection'
+                        },
+                        {
+                            model: Models.UserInterviewSectionAnswer,
+                            as: 'interviewSectionAnswers',
+                            include: { model: Models.InterviewSectionQuestion, as: 'interviewSectionQuestion' }
+                        }
+                    ]
                 }
             ]
         }
@@ -39,6 +50,9 @@ const getUserInterview = async (input, opts = {}) => {
     if (!interview) {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
     }
+
+    const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(interview.userId, interview.uuid);
+    interview.sessionId = sessionId;
 
     return Response.formatServiceReturn(true, 200, interview, null);
 };
@@ -109,7 +123,7 @@ const createUserInterview = async (input, opts = {}) => {
                 model: Models.InterviewSection,
                 as: 'interviewSections',
                 include: {
-                    model: Models.UserInterviewSectionQuestion,
+                    model: Models.InterviewSectionQuestion,
                     attributes: ['id', 'uuid'],
                     as: 'interviewSectionQuestions'
                 }
@@ -163,15 +177,17 @@ const createUserInterview = async (input, opts = {}) => {
                 {
                     userId: input.userId,
                     interviewId: interview.id,
+                    productPackageId: input.interviewPackageId,
                     ...(input.language != null ? { language: input.language } : {}),
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasInterviewSections ? ({
-                            sectionReviewStatus: UserInterviewConstants.STATUS.PENDING
+                            sectionReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                         }) : {}),
-                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.STATUS.PENDING }) : {})
+                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED }) : {})
                     }) : {}),
-                    ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
+                    ...(!opts.isRestricted ? { overallReview: input.overallReview } : {}),
+                    ...(opts.withMock ? { status: UserInterviewConstants.STATUS.PENDING } : {})
                 },
                 trx
             );
@@ -188,12 +204,13 @@ const createUserInterview = async (input, opts = {}) => {
                         userInterviewId: userInterview.id,
                         interviewSectionId: item.interviewSectionId,
                         ...(opts.withReview ? ({
-                            reviewStatus: UserInterviewConstants.STATUS.PENDING,
+                            reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED,
                             ...(hasInterviewSectionAnswers ? ({
-                                answerReviewStatus: UserInterviewConstants.STATUS.PENDING
+                                answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                             }) : {})
                         }) : {}),
-                        ...(!opts.isRestricted ? { review: item.review } : {})
+                        ...(!opts.isRestricted ? { review: item.review } : {}),
+                        ...(opts.withMock ? { status: UserInterviewConstants.SECTION_STATUS.PENDING } : {})
                     }, trx);
                     if (!userInterviewSection) throw new UserInterviewError(language.USER_INTERVIEW_SECTION.CREATE_FAILED);
 
@@ -203,7 +220,7 @@ const createUserInterview = async (input, opts = {}) => {
                             interviewSectionQuestionId: answer.interviewSectionQuestionId,
                             answer: answer.answer,
                             ...(opts.withReview ? ({
-                                reviewStatus: UserInterviewConstants.STATUS.PENDING
+                                reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                             }) : {}),
                             ...(!opts.isRestricted ? { review: answer.review } : {})
                         })), trx);
@@ -262,7 +279,7 @@ const updateUserInterview = async (input, opts = {}) => {
                 model: Models.InterviewSection,
                 as: 'interviewSections',
                 include: {
-                    model: Models.UserInterviewSectionQuestion,
+                    model: Models.InterviewSectionQuestion,
                     attributes: ['id', 'uuid'],
                     as: 'interviewSectionQuestions'
                 }
@@ -349,14 +366,14 @@ const updateUserInterview = async (input, opts = {}) => {
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
                         ...(hasInterviewSections ? ({
-                            sectionReviewStatus: UserInterviewConstants.STATUS.PENDING
+                            sectionReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                         }) : {}),
-                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.STATUS.PENDING }) : {})
+                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED }) : {})
                     }) : {
                         ...(hasInterviewSections ? ({
-                            sectionReviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW
+                            sectionReviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW
                         }) : {}),
-                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW }) : {})
+                        ...(!isSingleInterview ? ({ overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW }) : {})
                     }),
                     ...(!opts.isRestricted ? { overallReview: input.overallReview } : {})
                 },
@@ -406,14 +423,14 @@ const updateUserInterview = async (input, opts = {}) => {
                         userInterviewId: userInterview.id,
                         interviewSectionId: item.interviewSectionId,
                         ...(opts.withReview ? ({
-                            reviewStatus: UserInterviewConstants.STATUS.PENDING,
+                            reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED,
                             ...(hasInterviewSectionAnswers ? ({
-                                answerReviewStatus: UserInterviewConstants.STATUS.PENDING
+                                answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                             }) : {})
                         }) : {
-                            reviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW,
+                            reviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW,
                             ...(hasInterviewSectionAnswers ? ({
-                                answerReviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW
+                                answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW
                             }) : {})
                         }),
                         ...(!opts.isRestricted ? { review: item.review } : {})
@@ -435,9 +452,9 @@ const updateUserInterview = async (input, opts = {}) => {
                                 interviewSectionQuestionId: answer.interviewSectionQuestionId,
                                 answer: answer.answer,
                                 ...(opts.withReview ? ({
-                                    reviewStatus: UserInterviewConstants.STATUS.PENDING
+                                    reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
                                 }) : {
-                                    reviewStatus: UserInterviewConstants.STATUS.NEED_REVIEW
+                                    reviewStatus: UserInterviewConstants.REVIEW_STATUS.NEED_REVIEW
                                 }),
                                 ...(!opts.isRestricted ? { review: answer.review } : {})
                             }, trx);

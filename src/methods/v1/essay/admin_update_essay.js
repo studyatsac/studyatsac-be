@@ -27,7 +27,7 @@ exports.updateEssay = async (req, res) => {
 
         return res.status(200).json({ data: EssayTransformer.essayItem(result.data, false), message: lang.ESSAY.UPDATE_SUCCESS });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'updateEssay',
             message: err.message
         });

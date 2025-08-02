@@ -34,6 +34,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
         },
+        pausedAt: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
+        resumedAt: {
+            type: DataTypes.DATE,
+            allowNull: true
+        },
         completedAt: {
             type: DataTypes.DATE,
             allowNull: true
@@ -45,12 +53,12 @@ module.exports = (sequelize, DataTypes) => {
         sectionReviewStatus: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserInterviewConstants.REVIEW_STATUS.NOT_STARTED
         },
         overallReviewStatus: {
             type: DataTypes.STRING(30),
             allowNull: false,
-            defaultValue: UserInterviewConstants.STATUS.NOT_STARTED
+            defaultValue: UserInterviewConstants.REVIEW_STATUS.NOT_STARTED
         },
         language: {
             type: DataTypes.STRING(20),

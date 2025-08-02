@@ -34,7 +34,7 @@ exports.getMyExam = async (req, res) => {
             data: rows.map(MyExamTransformer.item)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getMyExam',
             message: err.message
         });

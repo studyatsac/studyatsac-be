@@ -18,7 +18,7 @@ exports.deleteUserPurchaseInterviewPackage = async (req, res) => {
 
         return res.status(200).json({ message: lang.USER_PURCHASE.DELETE_SUCCESS });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'deleteUserPurchaseInterviewPackage',
             message: err.message
         });

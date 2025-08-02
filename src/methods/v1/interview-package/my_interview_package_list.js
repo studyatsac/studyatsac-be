@@ -39,7 +39,7 @@ exports.getMyInterviewPackageList = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getMyInterviewPackageList',
             message: err.message
         });

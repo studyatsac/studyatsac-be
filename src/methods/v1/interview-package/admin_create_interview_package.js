@@ -28,7 +28,7 @@ exports.createInterviewPackage = async (req, res) => {
             message: lang.INTERVIEW_PACKAGE.CREATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'createInterviewPackage',
             message: err.message
         });
