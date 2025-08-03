@@ -323,14 +323,10 @@ const updateUserInterview = async (input, opts = {}) => {
                         // eslint-disable-next-line no-loop-func
                         (question) => !inputInterviewSections[index].interviewSectionAnswers[answerIndex].interviewSectionQuestionUuid === question.uuid
                     );
-                    // eslint-disable-next-line max-depth
-                    if (!interviewSectionQuestion) {
-                        return Response.formatServiceReturn(false, 404, null, language.INTERVIEW_SECTION_QUESTION.NOT_FOUND);
-                    }
 
                     inputInterviewSections[index].interviewSectionAnswers[answerIndex] = {
                         ...inputInterviewSections[index].interviewSectionAnswers[answerIndex],
-                        interviewSectionQuestionId: interviewSectionQuestion.id
+                        interviewSectionQuestionId: interviewSectionQuestion?.id
                     };
                 }
             }
@@ -408,8 +404,8 @@ const updateUserInterview = async (input, opts = {}) => {
 
                     let inputInterviewSectionAnswers = item.interviewSectionAnswers;
                     if (hasInterviewSectionAnswers) {
-                        if (item.currentUserInterviewSectionAnswers && Array.isArray(item.currentUserInterviewSectionAnswers)) {
-                            const deletedUserInterviewSectionAnswers = item.currentUserInterviewSectionAnswers.filter(
+                        if (item.currentInterviewSectionAnswers && Array.isArray(item.currentInterviewSectionAnswers)) {
+                            const deletedUserInterviewSectionAnswers = item.currentInterviewSectionAnswers.filter(
                                 (question) => !inputInterviewSectionAnswers.find((i) => i.uuid === question.uuid)
                             );
                             if (deletedUserInterviewSectionAnswers.length) {
@@ -423,7 +419,7 @@ const updateUserInterview = async (input, opts = {}) => {
                             }
 
                             inputInterviewSectionAnswers = inputInterviewSectionAnswers.map((answer) => {
-                                const interviewSectionAnswer = item.currentUserInterviewSectionAnswers.find((i) => i.uuid === answer.uuid);
+                                const interviewSectionAnswer = item.currentInterviewSectionAnswers.find((i) => i.uuid === answer.uuid);
                                 return ({
                                     ...answer,
                                     ...(interviewSectionAnswer && { id: interviewSectionAnswer.id })
