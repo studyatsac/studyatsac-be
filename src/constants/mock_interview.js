@@ -16,12 +16,6 @@ const JOB_NAME = {
  */
 const JOB_DELAY = 30 * 1000;
 
-const REVIEW_JOB_NAME = {
-    OVERALL: 'overall',
-    SECTION: 'section',
-    ENTRY: 'entry'
-};
-
 /**
  * 4 Hours
  */
@@ -106,7 +100,6 @@ const AI_SERVICE_PROCESS_EVENT_TAG = {
 module.exports = {
     JOB_NAME,
     JOB_DELAY,
-    REVIEW_JOB_NAME,
     MAX_SESSION_TIME_IN_SECONDS,
     MAX_SESSION_TIME_IN_MILLISECONDS,
     MAX_IDLE_TIME_IN_SECONDS,

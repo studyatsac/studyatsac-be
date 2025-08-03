@@ -1,17 +1,17 @@
 const { Worker } = require('bullmq');
 const LogUtils = require('../../utils/logger');
 const UserInterviewRepository = require('../../repositories/mysql/user_interview');
-const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_item');
+const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
 const UserInterviewConstants = require('../../constants/user_interview');
 const CommonConstants = require('../../constants/common');
-const InterviewReviewReviewLogRepository = require('../../repositories/mysql/interview_review_log');
+const InterviewReviewLogRepository = require('../../repositories/mysql/interview_review_log');
 const Models = require('../../models/mysql');
-const InterviewReviewReviewConstants = require('../../constants/interview_review');
+const InterviewReviewConstants = require('../../constants/interview_review');
 const OpenAiUtils = require('../../clients/http/open_ai');
 const Queues = require('../../queues/bullmq');
-const InterviewReviewReviewUtils = require('../../utils/interview_review');
+const InterviewReviewUtils = require('../../utils/interview_review');
 
-async function insertInterviewReviewReviewLog(payload, data, isSuccess = false) {
+async function insertInterviewReviewLog(payload, data, isSuccess = false) {
     try {
         let metadata = {};
         if (data && typeof data === 'object') {
@@ -36,9 +36,9 @@ async function insertInterviewReviewReviewLog(payload, data, isSuccess = false) 
             }
         }
 
-        await InterviewReviewReviewLogRepository.create({ ...payload, metadata });
+        await InterviewReviewLogRepository.create({ ...payload, metadata });
     } catch (err) {
-        LogUtils.logError({ functionName: 'insertInterviewReviewReviewLog', message: err.message });
+        LogUtils.logError({ functionName: 'insertInterviewReviewLog', message: err.message });
     }
 }
 
@@ -48,7 +48,7 @@ async function callApiReview(userInterviewId, content, topic = 'Overall Intervie
             messages: [
                 {
                     role: 'system',
-                    content: InterviewReviewReviewUtils.getInterviewReviewReviewSystemPrompt(
+                    content: InterviewReviewUtils.getInterviewReviewSystemPrompt(
                         backgroundDescription,
                         topic,
                         CommonConstants.LANGUAGE_LABELS[language] || 'English'
@@ -56,7 +56,7 @@ async function callApiReview(userInterviewId, content, topic = 'Overall Intervie
                 },
                 {
                     role: 'user',
-                    content: InterviewReviewReviewUtils.getInterviewReviewReviewUserPrompt(
+                    content: InterviewReviewUtils.getInterviewReviewUserPrompt(
                         criteria,
                         content
                     )
@@ -64,17 +64,17 @@ async function callApiReview(userInterviewId, content, topic = 'Overall Intervie
             ]
         });
 
-        await insertInterviewReviewReviewLog({ userInterviewId }, response, true);
+        await insertInterviewReviewLog({ userInterviewId }, response, true);
 
         return response.choices[0].message.content;
     } catch (err) {
-        await insertInterviewReviewReviewLog({ userInterviewId, notes: err.message }, err);
+        await insertInterviewReviewLog({ userInterviewId, notes: err.message }, err);
 
         throw err;
     }
 }
 
-async function processInterviewReviewReviewOverallJob(job) {
+async function processInterviewReviewOverallJob(job) {
     const jobData = job.data;
     const userInterviewId = jobData.userInterviewId;
     if (!userInterviewId) return;
@@ -115,7 +115,7 @@ async function processInterviewReviewReviewOverallJob(job) {
             { id: userInterview.id }
         );
     } catch (err) {
-        LogUtils.logError({ functionName: 'processInterviewReviewReviewOverallJob', message: err.message });
+        LogUtils.logError({ functionName: 'processInterviewReviewOverallJob', message: err.message });
 
         await UserInterviewRepository.update(
             { overallReviewStatus: UserInterviewConstants.STATUS.FAILED },
@@ -124,7 +124,7 @@ async function processInterviewReviewReviewOverallJob(job) {
     }
 }
 
-async function processInterviewReviewReviewItemJob(job) {
+async function processInterviewReviewSectionJob(job) {
     const jobData = job.data;
     const userInterviewId = jobData.userInterviewId;
     const userInterviewSectionId = jobData.userInterviewSectionId;
@@ -173,7 +173,7 @@ async function processInterviewReviewReviewItemJob(job) {
 
         isReviewSuccess = true;
     } catch (err) {
-        LogUtils.logError({ functionName: 'processInterviewReviewReviewItemJob', message: err.message });
+        LogUtils.logError({ functionName: 'processInterviewReviewSectionJob', message: err.message });
 
         await UserInterviewSectionRepository.update(
             { reviewStatus: UserInterviewConstants.STATUS.FAILED },
@@ -197,13 +197,13 @@ async function processInterviewReviewReviewItemJob(job) {
     await UserInterviewRepository.update({ itemReviewStatus }, { id: userInterview.id });
 }
 
-async function processInterviewReviewReviewJob(job) {
+async function processInterviewReviewJob(job) {
     switch (job.name) {
-    case InterviewReviewReviewConstants.JOB_NAME.OVERALL:
-        await processInterviewReviewReviewOverallJob(job);
+    case InterviewReviewConstants.JOB_NAME.OVERALL:
+        await processInterviewReviewOverallJob(job);
         break;
-    case InterviewReviewReviewConstants.JOB_NAME.ITEM:
-        await processInterviewReviewReviewItemJob(job);
+    case InterviewReviewConstants.JOB_NAME.SECTION:
+        await processInterviewReviewSectionJob(job);
         break;
     default:
         break;
@@ -211,12 +211,12 @@ async function processInterviewReviewReviewJob(job) {
 }
 
 module.exports = (redis) => {
-    const queue = Queues.InterviewReviewReview;
+    const queue = Queues.InterviewReview;
     const queueName = queue.name;
 
     const worker = new Worker(
         queueName,
-        processInterviewReviewReviewJob,
+        processInterviewReviewJob,
         {
             connection: redis,
             autorun: true,

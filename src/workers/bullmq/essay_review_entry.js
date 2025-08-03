@@ -19,40 +19,82 @@ async function processEssayReviewEntryJob(job) {
         { include: { model: Models.UserEssayItem, as: 'essayItems' } }
     );
 
-    const pendingUserEssayItemIds = userEssay.essayItems.filter(
-        (item) => item.reviewStatus === UserEssayConstants.STATUS.QUEUED
-    ).map((item) => item.id);
-    if (pendingUserEssayItemIds.length) {
-        await UserEssayItemRepository.update(
-            { reviewStatus: UserEssayConstants.STATUS.PENDING },
-            { id: pendingUserEssayItemIds }
-        );
+    let itemJobs;
+    let overallJob;
+    try {
+        await Models.sequelize.transaction(async (trx) => {
+            let addItemJobs;
+            const pendingUserEssayItemIds = userEssay.essayItems.filter(
+                (item) => item.reviewStatus === UserEssayConstants.STATUS.QUEUED
+            ).map((item) => item.id);
+            let userInterviewPayload = {};
+            if (pendingUserEssayItemIds.length) {
+                await UserEssayItemRepository.update(
+                    { reviewStatus: UserEssayConstants.STATUS.PENDING },
+                    { id: pendingUserEssayItemIds },
+                    trx
+                );
 
-        pendingUserEssayItemIds.forEach((essayItemId) => {
-            Queues.EssayReview.add(
-                EssayReviewConstants.JOB_NAME.ITEM,
-                {
-                    userEssayItemId: essayItemId,
-                    pendingUserEssayItemIds,
-                    userEssayId: userEssay.id
-                }
+                userInterviewPayload = {
+                    ...userInterviewPayload,
+                    itemReviewStatus: UserEssayConstants.STATUS.PENDING
+                };
+
+                addItemJobs = async () => {
+                    const pendingPromises = pendingUserEssayItemIds.map(async (essayItemId) => Queues.EssayReview.add(
+                        EssayReviewConstants.JOB_NAME.ITEM,
+                        {
+                            userEssayItemId: essayItemId,
+                            pendingUserEssayItemIds,
+                            userEssayId: userEssay.id
+                        },
+                        { delay: EssayReviewConstants.JOB_DELAY }
+                    ));
+
+                    itemJobs = await Promise.all(pendingPromises);
+                };
+            }
+
+            if (userEssay.overallReviewStatus === UserEssayConstants.STATUS.QUEUED) {
+                userInterviewPayload = {
+                    ...userInterviewPayload,
+                    overallReviewStatus: UserEssayConstants.STATUS.PENDING
+                };
+            }
+
+            await UserEssayRepository.update(userInterviewPayload, { id: userEssay.id }, trx);
+
+            if (addItemJobs) await addItemJobs();
+
+            if (userEssay.overallReviewStatus !== UserEssayConstants.STATUS.QUEUED) return;
+
+            overallJob = await Queues.EssayReview.add(
+                EssayReviewConstants.JOB_NAME.OVERALL,
+                { userEssayId: userEssay.id },
+                { delay: EssayReviewConstants.JOB_DELAY }
             );
         });
 
-        await UserEssayRepository.update(
-            { itemReviewStatus: UserEssayConstants.STATUS.PENDING },
-            { id: userEssay.id }
-        );
+        if (overallJob && (await overallJob.isDelayed())) await overallJob.changeDelay(0);
+        if (itemJobs) {
+            const pendingPromises = itemJobs?.map(async (item) => {
+                if (item && (await item.isDelayed())) await item.changeDelay(0);
+            });
+
+            if (pendingPromises) await Promise.all(pendingPromises);
+        }
+    } catch (err) {
+        if (overallJob) await overallJob.remove();
+        if (itemJobs) {
+            const pendingPromises = itemJobs?.map(async (item) => {
+                if (item) await item.remove();
+            });
+
+            if (pendingPromises) await Promise.all(pendingPromises);
+        }
+
+        throw err;
     }
-
-    if (userEssay.overallReviewStatus !== UserEssayConstants.STATUS.QUEUED) return;
-
-    await UserEssayRepository.update(
-        { overallReviewStatus: UserEssayConstants.STATUS.PENDING },
-        { id: userEssay.id }
-    );
-
-    Queues.EssayReview.add(EssayReviewConstants.JOB_NAME.OVERALL, { userEssayId: userEssay.id });
 }
 
 module.exports = (redis) => {
