@@ -139,6 +139,7 @@ async function processInterviewReviewOverallJob(job) {
             '',
             userInterview.language
         );
+        isReviewSuccess = true;
     } catch (err) {
         LogUtils.logError({ functionName: 'processInterviewReviewOverallJob', message: err.message });
     }

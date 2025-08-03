@@ -92,10 +92,10 @@ async function processInterviewReviewEntryJob(job) {
                 };
             }
 
-            if (userInterview.overallReviewStatus === UserInterviewConstants.STATUS.QUEUED) {
+            if (userInterview.overallReviewStatus === UserInterviewConstants.REVIEW_STATUS.QUEUED) {
                 userInterviewPayload = {
                     ...userInterviewPayload,
-                    overallReviewStatus: UserInterviewConstants.STATUS.PENDING
+                    overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.PENDING
                 };
             }
 
@@ -103,7 +103,7 @@ async function processInterviewReviewEntryJob(job) {
 
             if (addSectionJobs) await addSectionJobs();
 
-            if (userInterview.overallReviewStatus !== UserInterviewConstants.STATUS.QUEUED) return;
+            if (userInterview.overallReviewStatus !== UserInterviewConstants.REVIEW_STATUS.QUEUED) return;
 
             overallJob = await Queues.InterviewReview.add(
                 InterviewReviewConstants.JOB_NAME.OVERALL,

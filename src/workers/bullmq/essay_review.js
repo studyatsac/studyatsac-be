@@ -183,7 +183,6 @@ async function processEssayReviewItemJob(job) {
             userEssay.language,
             userEssay.backgroundDescription
         );
-
         isReviewSuccess = true;
     } catch (err) {
         LogUtils.logError({ functionName: 'processEssayReviewItemJob', message: err.message });

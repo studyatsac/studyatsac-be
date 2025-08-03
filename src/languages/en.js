@@ -232,6 +232,7 @@ module.exports = Object.freeze({
         INTERVIEW_SECTION_ANSWERS_NOT_VALID: 'Interview section answers not valid',
         REVIEW_NOT_VALID: 'Review not valid',
         ALREADY_EXIST: 'User interview section already exist',
+        ALREADY_REVIEWED: 'User interview section already reviewed',
         CREATE_SUCCESS: 'Success to create user interview section',
         CREATE_FAILED: 'Failed to create user interview section',
         UPDATE_SUCCESS: 'Success to update user interview section',

@@ -440,7 +440,10 @@ const stopMockInterview = async (input, opts = {}) => {
     if (userInterview.status === UserInterviewConstants.STATUS.PENDING) {
         return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.PENDING);
     }
-    if (userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS) {
+    if (
+        userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS
+        && userInterview.status !== UserInterviewConstants.STATUS.PAUSED
+    ) {
         return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_IN_PROGRESS);
     }
 

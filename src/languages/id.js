@@ -231,6 +231,7 @@ module.exports = Object.freeze({
         INTERVIEW_SECTION_ANSWERS_NOT_VALID: 'Jawaban sesi wawancara tidak valid',
         REVIEW_NOT_VALID: 'Review tidak valid',
         ALREADY_EXIST: 'Sesi wawancara sudah ada',
+        ALREADY_REVIEWED: 'Sesi wawancara sudah direview',
         CREATE_SUCCESS: 'Berhasil membuat sesi wawancara pengguna',
         CREATE_FAILED: 'Gagal membuat sesi wawancara pengguna',
         UPDATE_SUCCESS: 'Berhasil memperbarui sesi wawancara pengguna',

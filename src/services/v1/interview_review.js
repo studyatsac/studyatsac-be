@@ -19,17 +19,10 @@ const reviewInterviewReview = async (input, opts = {}) => {
             include: {
                 model: Models.UserInterviewSection,
                 as: 'interviewSections',
-                include: [
-                    { model: Models.InterviewSection, as: 'interviewSection' },
-                    {
-                        model: Models.UserInterviewSectionAnswer,
-                        as: 'interviewSectionAnswers',
-                        include: {
-                            model: Models.InterviewSectionQuestion,
-                            as: 'interviewSectionQuestion'
-                        }
-                    }
-                ]
+                include: {
+                    model: Models.UserInterviewSectionAnswer,
+                    as: 'interviewSectionAnswers'
+                }
             }
         }
     );
@@ -54,6 +47,9 @@ const reviewInterviewReview = async (input, opts = {}) => {
             );
             if (!userInterviewSection) {
                 return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
+            }
+            if (userInterviewSection.reviewStatus === UserInterviewConstants.REVIEW_STATUS.COMPLETED) {
+                return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.ALREADY_REVIEWED);
             }
 
             if (inputInterviewSections[index].interviewSectionAnswers && Array.isArray(inputInterviewSections[index].interviewSectionAnswers)) {
@@ -82,12 +78,16 @@ const reviewInterviewReview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
     }
 
+    const reviewedSections = userInterview.interviewSections?.filter(
+        (item) => item.reviewStatus === UserInterviewConstants.REVIEW_STATUS.COMPLETED
+    );
+
     let job;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let shouldUpdate = userInterview.overallReviewStatus === UserInterviewConstants.REVIEW_STATUS.NOT_STARTED;
             shouldUpdate = shouldUpdate
-                && (inputInterviewSections.length + (userInterview.interviewSections?.length ?? 0) === interview.interviewSections.length);
+                && (inputInterviewSections.length + (reviewedSections?.length ?? 0) === interview.interviewSections.length);
             let payload = {};
             if (shouldUpdate) payload = { overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED };
 
@@ -174,6 +174,121 @@ const reviewInterviewReview = async (input, opts = {}) => {
     }
 };
 
+const retryInterviewReview = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    const userInterview = await UserInterviewRepository.findOne(
+        { uuid: input.uuid, userId: input.userId },
+        {
+            include: {
+                model: Models.UserInterviewSection,
+                as: 'interviewSections',
+                include: {
+                    model: Models.UserInterviewSectionAnswer,
+                    as: 'interviewSectionAnswers'
+                }
+            }
+        }
+    );
+    if (!userInterview) {
+        return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
+    }
+
+    let job;
+    try {
+        await Models.sequelize.transaction(async (trx) => {
+            let shouldUpdate = userInterview.overallReviewStatus === UserInterviewConstants.REVIEW_STATUS.FAILED;
+            let payload = {};
+            if (shouldUpdate) payload = { overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED };
+
+            if (userInterview.interviewSections.length) {
+                const pendingPromises = userInterview.interviewSections
+                    .filter((item) => item.reviewStatus === UserInterviewConstants.REVIEW_STATUS.FAILED)
+                    .map(async (interviewSection) => {
+                        let shouldUpdateSection = false;
+                        if (interviewSection.interviewSectionAnswers && Array.isArray(interviewSection.interviewSectionAnswers)) {
+                            const answerPendingPromises = interviewSection.interviewSectionAnswers
+                                .filter((item) => item.reviewStatus === UserInterviewConstants.REVIEW_STATUS.FAILED)
+                                .map(async (answer) => {
+                                    const result = await UserInterviewSectionAnswerRepository.update(
+                                        {
+                                            answer: answer.answer,
+                                            reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
+                                        },
+                                        { id: answer.id },
+                                        trx
+                                    );
+                                    if ((Array.isArray(result) && !result[0]) || !result) {
+                                        throw new InterviewReviewError(language.USER_INTERVIEW_SECTION_ANSWER.UPDATE_FAILED);
+                                    }
+                                });
+
+                            const results = await Promise.all(answerPendingPromises);
+
+                            if (results.length) shouldUpdateSection = true;
+                        }
+
+                        if (shouldUpdateSection) {
+                            const result = await UserInterviewSectionRepository.update(
+                                {
+                                    reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED,
+                                    answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
+                                },
+                                { id: interviewSection.id },
+                                trx
+                            );
+                            if ((Array.isArray(result) && !result[0]) || !result) {
+                                throw new InterviewReviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+                            }
+                        }
+
+                        return shouldUpdateSection;
+                    });
+
+                const results = await Promise.all(pendingPromises);
+
+                if (results.some((item) => !!item)) {
+                    shouldUpdate = true;
+                    payload = {
+                        ...payload,
+                        sectionReviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED
+                    };
+                }
+            }
+
+            if (shouldUpdate) {
+                const result = await UserInterviewRepository.update(
+                    payload,
+                    { id: userInterview.id },
+                    trx
+                );
+                if ((Array.isArray(result) && !result[0]) || !result) {
+                    throw new InterviewReviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+                }
+
+                job = await Queues.InterviewReviewEntry.add(
+                    InterviewReviewConstants.JOB_NAME.ENTRY,
+                    { userInterviewId: userInterview.id },
+                    { delay: InterviewReviewConstants.JOB_DELAY }
+                );
+            }
+        });
+
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
+
+        return Response.formatServiceReturn(true, 200, userInterview, null);
+    } catch (err) {
+        if (job) await job.remove();
+
+        if (err instanceof InterviewReviewError) {
+            return Response.formatServiceReturn(false, 500, null, err.message);
+        }
+
+        throw err;
+    }
+};
+
 exports.reviewInterviewReview = reviewInterviewReview;
+exports.retryInterviewReview = retryInterviewReview;
 
 module.exports = exports;
