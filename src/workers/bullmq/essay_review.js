@@ -42,7 +42,14 @@ async function insertEssayReviewLog(payload, data, isSuccess = false) {
     }
 }
 
-async function callApiReview(userEssayId, content, topic = 'Overall Essay', criteria, language, backgroundDescription) {
+async function callApiReview(
+    userEssayId,
+    content,
+    topic = 'Overall Essay',
+    criteria,
+    language,
+    backgroundDescription
+) {
     try {
         const response = await OpenAiUtils.callOpenAiCompletion({
             messages: [
@@ -96,27 +103,33 @@ async function processEssayReviewOverallJob(job) {
         return;
     }
 
-    try {
-        await UserEssayRepository.update(
-            { overallReviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
-            { id: userEssay.id }
-        );
+    await UserEssayRepository.update(
+        { overallReviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
+        { id: userEssay.id }
+    );
 
+    let isReviewSuccess;
+    let overallReview;
+    try {
         const overallContent = userEssay.essayItems.reduce(
             (text, item) => `${text}\n=====
-                ${item.essayItem.topic}\n
-                ${item.answer}\n=====`, ''
+                Topik: ${item.essayItem.topic}
+                -----
+                Isian: ${item.answer}\n=====`, ''
         );
 
-        const overallReview = await callApiReview(userEssayId, overallContent, 'Overall Essay', '', userEssay.language);
+        overallReview = await callApiReview(userEssayId, overallContent, 'Overall Essay', '', userEssay.language);
+        isReviewSuccess = true;
+    } catch (err) {
+        LogUtils.logError({ functionName: 'processEssayReviewOverallJob', message: err.message });
+    }
 
+    if (isReviewSuccess) {
         await UserEssayRepository.update(
             { overallReviewStatus: UserEssayConstants.STATUS.COMPLETED, overallReview },
             { id: userEssay.id }
         );
-    } catch (err) {
-        LogUtils.logError({ functionName: 'processEssayReviewOverallJob', message: err.message });
-
+    } else {
         await UserEssayRepository.update(
             { overallReviewStatus: UserEssayConstants.STATUS.FAILED },
             { id: userEssay.id }
@@ -143,21 +156,26 @@ async function processEssayReviewItemJob(job) {
         return;
     }
 
-    if (userEssay.itemReviewStatus !== UserEssayConstants.STATUS.IN_PROGRESS) {
-        await UserEssayRepository.update(
-            { itemReviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
-            { id: userEssay.id }
-        );
-    }
+    await Models.sequelize.transaction(async (trx) => {
+        if (userEssay.itemReviewStatus !== UserEssayConstants.STATUS.IN_PROGRESS) {
+            await UserEssayRepository.update(
+                { itemReviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
+                { id: userEssay.id },
+                trx
+            );
+        }
 
-    await UserEssayItemRepository.update(
-        { reviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
-        { id: userEssayItem.id }
-    );
+        await UserEssayItemRepository.update(
+            { reviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
+            { id: userEssayItem.id },
+            trx
+        );
+    });
 
     let isReviewSuccess = false;
+    let review;
     try {
-        const review = await callApiReview(
+        review = await callApiReview(
             userEssayId,
             userEssayItem.answer,
             userEssayItem.essayItem.topic,
@@ -165,16 +183,17 @@ async function processEssayReviewItemJob(job) {
             userEssay.language,
             userEssay.backgroundDescription
         );
+        isReviewSuccess = true;
+    } catch (err) {
+        LogUtils.logError({ functionName: 'processEssayReviewItemJob', message: err.message });
+    }
 
+    if (isReviewSuccess) {
         await UserEssayItemRepository.update(
             { review, reviewStatus: UserEssayConstants.STATUS.COMPLETED },
             { id: userEssayItem.id }
         );
-
-        isReviewSuccess = true;
-    } catch (err) {
-        LogUtils.logError({ functionName: 'processEssayReviewItemJob', message: err.message });
-
+    } else {
         await UserEssayItemRepository.update(
             { reviewStatus: UserEssayConstants.STATUS.FAILED },
             { id: userEssayItem.id }
@@ -182,7 +201,9 @@ async function processEssayReviewItemJob(job) {
     }
 
     const pendingUserEssayItemIds = jobData.pendingUserEssayItemIds;
-    let itemReviewStatus = isReviewSuccess ? UserEssayConstants.STATUS.COMPLETED : UserEssayConstants.STATUS.PARTIALLY_COMPLETED;
+    let itemReviewStatus = isReviewSuccess
+        ? UserEssayConstants.STATUS.COMPLETED
+        : UserEssayConstants.STATUS.PARTIALLY_COMPLETED;
     if (pendingUserEssayItemIds && Array.isArray(pendingUserEssayItemIds)) {
         const userEssayItems = await UserEssayItemRepository.findAll({
             id: pendingUserEssayItemIds,
@@ -221,7 +242,7 @@ module.exports = (redis) => {
             connection: redis,
             autorun: true,
             concurrency: 1,
-            limiter: { max: 3, duration: 60 * 1000 }
+            limiter: { max: 2, duration: 60 * 1000 }
         }
     );
     worker.on('error', (err) => {

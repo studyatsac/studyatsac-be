@@ -36,6 +36,15 @@ const listenServerStatusEvent = async (data) => {
             statusObject
         );
 
+        if (
+            listenStatus !== MockInterviewConstants.STATUS.LISTENING
+             && transcribeStatus !== MockInterviewConstants.STATUS.TRANSCRIBING
+             && speakStatus !== MockInterviewConstants.STATUS.SPEAKING
+            && processStatus !== MockInterviewConstants.STATUS.PROCESSING
+        ) {
+            return;
+        }
+
         const pauseJobTime = await MockInterviewCacheUtils.getMockInterviewControlPauseJobTime(userId, uuid);
         if (!pauseJobTime) return;
 

@@ -34,7 +34,13 @@ async function processMockInterviewControlPauseJob(job, token) {
         userInterview.userId,
         userInterview.uuid
     );
-    if (jobTime < Date.now()) return;
+    if (jobTime >= Date.now()) return;
+
+    const jobId = await MockInterviewCacheUtils.getMockInterviewControlPauseJobId(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (jobId !== job.id) return;
 
     let isPauseUpdated = false;
     let stopJobTime;
@@ -45,7 +51,9 @@ async function processMockInterviewControlPauseJob(job, token) {
                 { id: userInterview.id },
                 trx
             );
-            if (!result) throw new MockInterviewControlError();
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewControlError();
+            }
 
             result = await UserInterviewSectionRepository.update(
                 {
@@ -58,7 +66,9 @@ async function processMockInterviewControlPauseJob(job, token) {
                 },
                 trx
             );
-            if (!result) throw new MockInterviewControlError();
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewControlError();
+            }
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(
                 userInterview.userId,
@@ -157,18 +167,26 @@ async function processMockInterviewControlStopJob(job, token) {
         userInterview.userId,
         userInterview.uuid
     );
-    if (!!userInterview.interviewSections?.length && jobTime < Date.now()) return;
+    if (!!userInterview.interviewSections?.length && jobTime >= Date.now()) return;
+
+    const jobId = await MockInterviewCacheUtils.getMockInterviewControlStopJobId(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (jobId !== job.id) return;
 
     let pauseJobTime;
     let isStopUpdated = false;
     try {
         await Models.sequelize.transaction(async (trx) => {
-            const updatedData = await UserInterviewRepository.update(
+            const result = await UserInterviewRepository.update(
                 { status: UserInterviewConstants.SECTION_STATUS.COMPLETED, completedAt: Moment().format() },
                 { id: userInterview.id },
                 trx
             );
-            if (!updatedData) throw new MockInterviewControlError();
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewControlError();
+            }
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 

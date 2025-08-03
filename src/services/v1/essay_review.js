@@ -51,7 +51,6 @@ const retryEssayReview = async (input, opts = {}) => {
 
     let job;
     try {
-        let shouldAddJob = false;
         await Models.sequelize.transaction(async (trx) => {
             let shouldUpdate = userEssay.overallReviewStatus === UserEssayConstants.STATUS.FAILED;
             let payload = {};
@@ -70,21 +69,17 @@ const retryEssayReview = async (input, opts = {}) => {
                     throw new EssayReviewError(language.USER_ESSAY_ITEM.UPDATE_FAILED);
                 }
 
-                shouldAddJob = true;
                 shouldUpdate = true;
-
-                payload.itemReviewStatus = UserEssayConstants.STATUS.QUEUED;
+                payload = { ...payload, itemReviewStatus: UserEssayConstants.STATUS.QUEUED };
             }
 
             if (shouldUpdate) {
                 const updatedItem = await UserEssayRepository.update(payload, { id: userEssay.id }, trx);
 
-                if (!updatedItem) throw new EssayReviewError(language.USER_ESSAY.UPDATE_FAILED);
+                if ((Array.isArray(updatedItem) && !updatedItem[0]) || !updatedItem) {
+                    throw new EssayReviewError(language.USER_ESSAY.UPDATE_FAILED);
+                }
 
-                shouldAddJob = true;
-            }
-
-            if (shouldAddJob && userEssay) {
                 job = await Queues.EssayReviewEntry.add(
                     EssayReviewConstants.JOB_NAME.ENTRY,
                     { userEssayId: userEssay.id },
@@ -151,12 +146,16 @@ const continueEssayReview = async (input, opts = {}) => {
         }
     }
 
+    if (!inputEssayItems.length) {
+        return Response.formatServiceReturn(true, 200, null, language.ESSAY_ITEM.NOT_FOUND);
+    }
+
     let job;
     try {
-        let shouldAddJob = false;
         await Models.sequelize.transaction(async (trx) => {
             let shouldUpdate = userEssay.overallReviewStatus === UserEssayConstants.STATUS.NOT_STARTED;
-            shouldUpdate = shouldUpdate && (inputEssayItems.length + (userEssay.essayItems?.length ?? 0) === essay.essayItems.length);
+            shouldUpdate = shouldUpdate
+                && (inputEssayItems.length + (userEssay.essayItems?.length ?? 0) === essay.essayItems.length);
             let payload = {};
             if (shouldUpdate) payload = { overallReviewStatus: UserEssayConstants.STATUS.QUEUED };
 
@@ -174,10 +173,8 @@ const continueEssayReview = async (input, opts = {}) => {
 
                 userEssay.essayItems = [...(userEssay?.essayItems ?? []), ...essayItems];
 
-                shouldAddJob = true;
                 shouldUpdate = true;
-
-                payload.itemReviewStatus = UserEssayConstants.STATUS.QUEUED;
+                payload = { ...payload, itemReviewStatus: UserEssayConstants.STATUS.QUEUED };
             }
 
             if (shouldUpdate) {
@@ -187,10 +184,6 @@ const continueEssayReview = async (input, opts = {}) => {
                     throw new EssayReviewError(language.USER_ESSAY.UPDATE_FAILED);
                 }
 
-                shouldAddJob = true;
-            }
-
-            if (shouldAddJob && userEssay) {
                 job = await Queues.EssayReviewEntry.add(
                     EssayReviewConstants.JOB_NAME.ENTRY,
                     { userEssayId: userEssay.id },

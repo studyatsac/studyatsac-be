@@ -67,7 +67,9 @@ const getPaidProductPackage = async (input, opts = {}) => {
     let productPackage = rawProductPackage;
     if (Array.isArray(rawProductPackage)) {
         productPackage = rawProductPackage[0];
-        productPackage.productPackageMappings = rawProductPackage.map((item) => item.productPackageMappings);
+        if (productPackage) {
+            productPackage.productPackageMappings = rawProductPackage.map((item) => item.productPackageMappings);
+        }
     }
 
     return Response.formatServiceReturn(true, 200, productPackage, null);

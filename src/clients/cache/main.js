@@ -18,7 +18,10 @@ const getCacheClient = () => {
     return redisClient;
 };
 
-const setCache = async (key, value, ttl) => getCacheClient().set(key, value, 'PX', ttl);
+const setCache = async (key, value, ttl) => {
+    if (ttl == null) return getCacheClient().set(key, value);
+    return getCacheClient().set(key, value, 'PX', ttl);
+};
 
 const getCache = async (key) => getCacheClient().get(key);
 

@@ -54,11 +54,49 @@ async function processMockInterviewScheduleTimerJob(job) {
             userInterview.userId,
             userInterview.uuid
         );
-        if (stopJobTime >= Date.now() || !targetInterviewSection) {
-            const stopJob = await Queues.MockInterviewControl.add(
-                MockInterviewConstants.JOB_NAME.STOP,
-                { userInterviewUuid: userInterview.uuid, userId: userInterview.userId }
+        const isElapsed = stopJobTime && stopJobTime <= Date.now();
+        if (isElapsed || !targetInterviewSection) {
+            const stopJobId = await MockInterviewCacheUtils.getMockInterviewControlStopJobId(
+                userInterview.userId,
+                userInterview.uuid
             );
+            let stopJob;
+            if (stopJobId) {
+                stopJob = await Queues.MockInterviewControl.getJob(stopJobId);
+                // eslint-disable-next-line max-depth
+                if (stopJob) {
+                    // eslint-disable-next-line max-depth
+                    if (await stopJob.isDelayed()) {
+                        // eslint-disable-next-line max-depth
+                        if (isElapsed) await stopJob.changeDelay(0);
+                    } else {
+                        await stopJob.updateData({});
+                        await MockInterviewCacheUtils.deleteMockInterviewControlStopJobId(
+                            userInterview.userId,
+                            userInterview.uuid
+                        );
+                        stopJob = undefined;
+                    }
+                }
+            }
+
+            if (!stopJob) {
+                stopJob = await Queues.MockInterviewControl.add(
+                    MockInterviewConstants.JOB_NAME.STOP,
+                    { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+                    {
+                        delay: isElapsed
+                            ? 0
+                            : MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS
+                    }
+                );
+                await MockInterviewCacheUtils.setMockInterviewControlStopJobId(
+                    userInterview.userId,
+                    userInterview.uuid,
+                    stopJob.id
+                );
+            }
+
             if (stopJob) return;
         }
 
@@ -66,10 +104,26 @@ async function processMockInterviewScheduleTimerJob(job) {
             userInterview.userId,
             userInterview.uuid
         );
-        if (pauseJobTime >= Date.now()) {
-            await Queues.MockInterviewControl.add(
+        if (pauseJobTime && pauseJobTime <= Date.now()) {
+            const pauseJobId = await MockInterviewCacheUtils.getMockInterviewControlPauseJobId(
+                userInterview.userId,
+                userInterview.uuid
+            );
+            let pauseJob;
+            if (pauseJobId) {
+                pauseJob = await Queues.MockInterviewControl.getJob(pauseJobId);
+                // eslint-disable-next-line max-depth
+                if (pauseJob) return;
+            }
+
+            pauseJob = await Queues.MockInterviewControl.add(
                 MockInterviewConstants.JOB_NAME.PAUSE,
                 { userInterviewUuid: userInterview.uuid, userId: userInterview.userId }
+            );
+            await MockInterviewCacheUtils.setMockInterviewControlPauseJobId(
+                userInterview.userId,
+                userInterview.uuid,
+                pauseJob.id
             );
         }
     } catch (error) {
