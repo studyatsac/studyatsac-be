@@ -121,7 +121,7 @@ async function processInterviewReviewOverallJob(job) {
         const overallContent = userInterview.interviewSections.reduce(
             (text, item) => {
                 const answer = item.interviewSectionAnswers?.reduce((answerText, answerItem) => `${answerText}\n-----
-                    Pertanyaan: ${answerItem.question}
+                    Pertanyaan: ${answerItem?.question || answerItem?.interviewSectionQuestion?.question || '-'}
                     -----
                     Jawaban: ${answerItem.answer}\n-----`, '');
 
@@ -221,7 +221,7 @@ async function processInterviewReviewSectionJob(job) {
         if (userInterviewSection.interviewSectionAnswers && Array.isArray(userInterviewSection.interviewSectionAnswers)) {
             content = userInterviewSection.interviewSectionAnswers.reduce(
                 (text, item) => `${text}\n=====
-                    Pertanyaan: ${item.question}
+                    Pertanyaan: ${item?.question || item?.interviewSectionQuestion?.question || '-'}
                     -----
                     Jawaban: ${item.answer}\n=====`, ''
             );
