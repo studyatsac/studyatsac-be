@@ -1,18 +1,18 @@
 const UserInterviewTransformer = require('../../../transformers/v1/user-interview/user_interview');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
-const ReviewMockInterviewValidation = require('../../../validations/v1/mock-interview/review_mock_interview');
-const MockInterviewService = require('../../../services/v1/mock_interview');
+const InterviewReviewValidation = require('../../../validations/v1/interview-review/interview_review');
+const InterviewReviewService = require('../../../services/v1/interview_review');
 
 let lang;
 
-exports.reviewMockInterview = async (req, res) => {
+exports.reviewUserInterview = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
         let input;
         try {
-            input = await ReviewMockInterviewValidation(lang).validateAsync(req.body);
+            input = await InterviewReviewValidation(lang).validateAsync(req.body);
         } catch (err) {
             return res.status(400).json({ message: err.message });
         }
@@ -23,7 +23,7 @@ exports.reviewMockInterview = async (req, res) => {
         }
 
         input.uuid = req.params.uuid;
-        const result = await MockInterviewService.reviewMockInterview(input, { lang });
+        const result = await InterviewReviewService.reviewInterviewReview(input, { lang });
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
@@ -34,7 +34,7 @@ exports.reviewMockInterview = async (req, res) => {
         });
     } catch (err) {
         LogUtils.logError({
-            functionName: 'reviewMockInterview',
+            functionName: 'reviewUserInterview',
             message: err.message
         });
 
