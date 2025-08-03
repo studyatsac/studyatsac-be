@@ -229,6 +229,7 @@ module.exports = Object.freeze({
         NOT_FOUND: 'User interview section not found',
         UUID_NOT_VALID: 'ID not valid',
         INTERVIEW_SECTION_UUID_NOT_VALID: 'Interview section ID not valid',
+        INTERVIEW_SECTION_ANSWERS_NOT_VALID: 'Interview section answers not valid',
         REVIEW_NOT_VALID: 'Review not valid',
         ALREADY_EXIST: 'User interview section already exist',
         CREATE_SUCCESS: 'Success to create user interview section',
