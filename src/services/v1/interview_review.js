@@ -4,6 +4,8 @@ const UserInterviewConstants = require('../../constants/user_interview');
 const Models = require('../../models/mysql');
 const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
 const UserInterviewSectionAnswerRepository = require('../../repositories/mysql/user_interview_section_answer');
+const Queues = require('../../queues/bullmq');
+const InterviewReviewConstants = require('../../constants/interview_review');
 
 class InterviewReviewError extends Error {}
 
@@ -71,6 +73,7 @@ const reviewInterviewReview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
     }
 
+    let job;
     try {
         const updateResult = await Models.sequelize.transaction(async (trx) => {
             if (inputInterviewSections.length) {
@@ -115,12 +118,24 @@ const reviewInterviewReview = async (input, opts = {}) => {
             );
             if (!result) throw new InterviewReviewError(language.USER_INTERVIEW.UPDATE_FAILED);
 
+            await Queues.InterviewReviewEntry.add(
+                InterviewReviewConstants.JOB_NAME.ENTRY,
+                { userInterviewId: userInterview.id },
+                { delay: InterviewReviewConstants.JOB_DELAY }
+            );
+
             return userInterview;
         });
 
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
+
         return Response.formatServiceReturn(true, 200, updateResult, null);
     } catch (err) {
-        if (err instanceof InterviewReviewError) return Response.formatServiceReturn(false, 500, null, err.message);
+        if (job) await job.remove();
+
+        if (err instanceof InterviewReviewError) {
+            return Response.formatServiceReturn(false, 500, null, err.message);
+        }
 
         throw err;
     }
