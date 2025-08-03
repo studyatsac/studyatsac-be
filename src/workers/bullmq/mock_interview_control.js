@@ -34,7 +34,13 @@ async function processMockInterviewControlPauseJob(job, token) {
         userInterview.userId,
         userInterview.uuid
     );
-    if (jobTime < Date.now()) return;
+    if (jobTime >= Date.now()) return;
+
+    const jobId = await MockInterviewCacheUtils.getMockInterviewControlPauseJobId(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (jobId !== job.id) return;
 
     let isPauseUpdated = false;
     let stopJobTime;
@@ -161,7 +167,13 @@ async function processMockInterviewControlStopJob(job, token) {
         userInterview.userId,
         userInterview.uuid
     );
-    if (!!userInterview.interviewSections?.length && jobTime < Date.now()) return;
+    if (!!userInterview.interviewSections?.length && jobTime >= Date.now()) return;
+
+    const jobId = await MockInterviewCacheUtils.getMockInterviewControlStopJobId(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (jobId !== job.id) return;
 
     let pauseJobTime;
     let isStopUpdated = false;

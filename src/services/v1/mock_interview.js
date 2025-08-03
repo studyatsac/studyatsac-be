@@ -109,7 +109,7 @@ const startMockInterview = async (input, opts = {}) => {
                 userInterview.uuid
             );
 
-            timerJobId = await MockInterviewCacheUtils.getMockInterviewScheduleTimerJobId(
+            timerJobId = await MockInterviewCacheUtils.generateMockInterviewScheduleTimerJobId(
                 userInterview.userId,
                 userInterview.uuid
             );
@@ -378,7 +378,7 @@ const continueMockInterview = async (input, opts = {}) => {
                 userInterview.uuid
             );
 
-            timerJobId = await MockInterviewCacheUtils.getMockInterviewScheduleTimerJobId(userInterview.userId, userInterview.uuid);
+            timerJobId = await MockInterviewCacheUtils.generateMockInterviewScheduleTimerJobId(userInterview.userId, userInterview.uuid);
             await Queues.MockInterviewSchedule.upsertJobScheduler(
                 timerJobId,
                 { every: MockInterviewConstants.TIMER_INTERVAL_IN_MILLISECONDS },
