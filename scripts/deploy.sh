@@ -61,7 +61,7 @@ target_copy="$TARGET_USER@$TARGET_HOST:$target_path"
 echo "The app will be deployed to $target_copy"
 
 if [ "$target_port" = "" ]; then
-    rsync -avz package.json package-lock.json index.js ecosystem.config.js .eslintrc .env.example src "$target_copy"
+    rsync -avz --delete package.json package-lock.json index.js ecosystem.config.js .eslintrc .env.example src "$target_copy"
 else
-    rsync -avz -e "$target_port" package.json package-lock.json index.js ecosystem.config.js .eslintrc .env.example src "$target_copy"
+    rsync -avz -e "$target_port" --delete package.json package-lock.json index.js ecosystem.config.js .eslintrc .env.example src "$target_copy"
 fi
