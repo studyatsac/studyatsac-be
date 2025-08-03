@@ -204,7 +204,7 @@ async function processInterviewReviewSectionJob(job) {
         await UserInterviewSectionRepository.update(
             {
                 reviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS,
-                ...(result ? {
+                ...(((Array.isArray(result) && !!result[0]) || !!result) ? {
                     answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS
                 } : {})
             },
@@ -254,7 +254,7 @@ async function processInterviewReviewSectionJob(job) {
                 {
                     review,
                     reviewStatus: UserInterviewConstants.REVIEW_STATUS.COMPLETED,
-                    ...(result ? {
+                    ...(((Array.isArray(result) && !!result[0]) || !!result) ? {
                         answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.COMPLETED
                     } : {})
                 },
@@ -274,7 +274,7 @@ async function processInterviewReviewSectionJob(job) {
             await UserInterviewSectionRepository.update(
                 {
                     reviewStatus: UserInterviewConstants.REVIEW_STATUS.FAILED,
-                    ...(result ? {
+                    ...(((Array.isArray(result) && !!result[0]) || !!result) ? {
                         answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.FAILED
                     } : {})
                 },

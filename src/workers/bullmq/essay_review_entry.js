@@ -93,6 +93,8 @@ async function processEssayReviewEntryJob(job) {
             if (pendingPromises) await Promise.all(pendingPromises);
         }
 
+        LogUtils.logError({ functionName: 'processEssayReviewEntryJob', message: err.message });
+
         throw err;
     }
 }

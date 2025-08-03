@@ -624,7 +624,7 @@ async function processMockInterviewProcessJob(job) {
         const startTime = Moment(targetInterviewSection.resumedAt).valueOf();
         const currentDuration = targetInterviewSection.duration + Math.floor(Math.abs((currentTime - startTime) / 1000));
         if (currentDuration >= targetInterviewSection.interviewSection.duration) {
-            let updatedData = await UserInterviewSectionRepository.update(
+            let result = await UserInterviewSectionRepository.update(
                 {
                     status: UserInterviewConstants.SECTION_STATUS.COMPLETED,
                     completedAt: Moment().format()
@@ -632,7 +632,9 @@ async function processMockInterviewProcessJob(job) {
                 { id: targetInterviewSection.id },
                 trx
             );
-            if (!updatedData) throw new Error();
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new Error();
+            }
 
             const newTargetInterviewSection = await UserInterviewSectionRepository.findOne(
                 {
@@ -649,7 +651,7 @@ async function processMockInterviewProcessJob(job) {
                 trx
             );
             if (newTargetInterviewSection) {
-                updatedData = await UserInterviewSectionRepository.update(
+                result = await UserInterviewSectionRepository.update(
                     {
                         status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS,
                         startedAt: Moment().format(),
@@ -658,7 +660,9 @@ async function processMockInterviewProcessJob(job) {
                     { id: newTargetInterviewSection.id },
                     trx
                 );
-                if (!updatedData) throw new Error();
+                if ((Array.isArray(result) && !result[0]) || !result) {
+                    throw new Error();
+                }
 
                 await processMockInterviewRespondTransition(
                     sessionId,

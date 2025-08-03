@@ -55,7 +55,7 @@ async function processInterviewReviewEntryJob(job) {
                             };
                         }
 
-                        if (interviewSection.reviewStatus !== UserInterviewConstants.REVIEW_STATUS.QUEUED) {
+                        if (interviewSection.reviewStatus === UserInterviewConstants.REVIEW_STATUS.QUEUED) {
                             userInterviewSectionPayload = {
                                 ...userInterviewSectionPayload,
                                 reviewStatus: UserInterviewConstants.REVIEW_STATUS.PENDING
@@ -129,6 +129,8 @@ async function processInterviewReviewEntryJob(job) {
 
             if (pendingPromises) await Promise.all(pendingPromises);
         }
+
+        LogUtils.logError({ functionName: 'processInterviewReviewEntryJob', message: err.message });
 
         throw err;
     }

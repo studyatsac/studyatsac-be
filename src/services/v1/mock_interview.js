@@ -79,7 +79,9 @@ const startMockInterview = async (input, opts = {}) => {
                 { id: userInterview.id },
                 trx
             );
-            if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            }
 
             result = await UserInterviewSectionRepository.update(
                 {
@@ -90,7 +92,9 @@ const startMockInterview = async (input, opts = {}) => {
                 { id: targetInterviewSection.id },
                 trx
             );
-            if (!result) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+            }
 
             const sessionId = await MockInterviewCacheUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
@@ -191,7 +195,9 @@ const pauseMockInterview = async (input, opts = {}) => {
                 { id: userInterview.id },
                 trx
             );
-            if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            }
 
             if (targetInterviewSection) {
                 result = await UserInterviewSectionRepository.update(
@@ -202,7 +208,9 @@ const pauseMockInterview = async (input, opts = {}) => {
                     { id: targetInterviewSection.id },
                     trx
                 );
-                if (!result) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+                if ((Array.isArray(result) && !result[0]) || !result) {
+                    throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+                }
             }
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
@@ -341,7 +349,9 @@ const continueMockInterview = async (input, opts = {}) => {
                 { id: userInterview.id },
                 trx
             );
-            if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            }
 
             result = await UserInterviewSectionRepository.update(
                 {
@@ -351,7 +361,9 @@ const continueMockInterview = async (input, opts = {}) => {
                 { id: targetInterviewSection.id },
                 trx
             );
-            if (!result) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+            }
 
             const sessionId = await MockInterviewCacheUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
@@ -449,7 +461,9 @@ const stopMockInterview = async (input, opts = {}) => {
                 { id: userInterview.id },
                 trx
             );
-            if (!result) throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            }
 
             if (targetInterviewSections.length) {
                 result = await UserInterviewSectionRepository.update(
@@ -460,7 +474,9 @@ const stopMockInterview = async (input, opts = {}) => {
                     { id: targetInterviewSections.map((item) => item.id) },
                     trx
                 );
-                if (!result) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+                if ((Array.isArray(result) && !result[0]) || !result) {
+                    throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+                }
             }
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
@@ -618,12 +634,15 @@ const nextMockInterview = async (input, opts = {}) => {
     }
 
     try {
-        const result = await Models.sequelize.transaction(async (trx) => {
-            await UserInterviewRepository.update(
+        await Models.sequelize.transaction(async (trx) => {
+            const result = await UserInterviewRepository.update(
                 { status: UserInterviewConstants.STATUS.PENDING },
                 { id: userInterview.id },
                 trx
             );
+            if ((Array.isArray(result) && !result[0]) || !result) {
+                throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            }
 
             if (inputInterviewSections.length) {
                 const interviewSections = await UserInterviewSectionRepository.createMany(
@@ -634,7 +653,9 @@ const nextMockInterview = async (input, opts = {}) => {
                     })),
                     trx
                 );
-                if (!interviewSections) throw new MockInterviewError(language.USER_INTERVIEW_SECTION.CREATE_FAILED);
+                if (!interviewSections) {
+                    throw new MockInterviewError(language.USER_INTERVIEW_SECTION.CREATE_FAILED);
+                }
 
                 userInterview.interviewSections = [...(userInterview?.interviewSections ?? []), ...interviewSections];
             }
@@ -642,7 +663,7 @@ const nextMockInterview = async (input, opts = {}) => {
             return userInterview;
         });
 
-        return Response.formatServiceReturn(true, 200, result, null);
+        return Response.formatServiceReturn(true, 200, userInterview, null);
     } catch (err) {
         if (err instanceof MockInterviewError) {
             return Response.formatServiceReturn(false, 500, null, err.message);
