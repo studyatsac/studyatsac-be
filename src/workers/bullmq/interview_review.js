@@ -2,6 +2,7 @@ const { Worker } = require('bullmq');
 const LogUtils = require('../../utils/logger');
 const UserInterviewRepository = require('../../repositories/mysql/user_interview');
 const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
+const UserInterviewSectionAnswerRepository = require('../../repositories/mysql/user_interview_section_answer');
 const UserInterviewConstants = require('../../constants/user_interview');
 const CommonConstants = require('../../constants/common');
 const InterviewReviewLogRepository = require('../../repositories/mysql/interview_review_log');
@@ -42,7 +43,14 @@ async function insertInterviewReviewLog(payload, data, isSuccess = false) {
     }
 }
 
-async function callApiReview(userInterviewId, content, topic = 'Overall Interview', criteria, language, backgroundDescription) {
+async function callApiReview(
+    userInterviewId,
+    content,
+    title = 'Overall Interview',
+    criteria,
+    language,
+    backgroundDescription
+) {
     try {
         const response = await OpenAiUtils.callOpenAiCompletion({
             messages: [
@@ -50,7 +58,7 @@ async function callApiReview(userInterviewId, content, topic = 'Overall Intervie
                     role: 'system',
                     content: InterviewReviewUtils.getInterviewReviewSystemPrompt(
                         backgroundDescription,
-                        topic,
+                        title,
                         CommonConstants.LANGUAGE_LABELS[language] || 'English'
                     )
                 },
@@ -85,40 +93,64 @@ async function processInterviewReviewOverallJob(job) {
             include: {
                 model: Models.UserInterviewSection,
                 as: 'interviewSections',
-                include: { model: Models.InterviewSection, as: 'interviewSection' }
+                include: [
+                    { model: Models.InterviewSection, as: 'interviewSection' },
+                    {
+                        model: Models.UserInterviewSectionAnswer,
+                        as: 'interviewSectionAnswers'
+                    }
+                ]
             }
         }
     );
     if (
         !userInterview
-        || userInterview.overallReviewStatus !== UserInterviewConstants.STATUS.PENDING
+        || userInterview.overallReviewStatus !== UserInterviewConstants.REVIEW_STATUS.PENDING
     ) {
         return;
     }
 
+    await UserInterviewRepository.update(
+        { overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS },
+        { id: userInterview.id }
+    );
+
+    let isReviewSuccess;
+    let overallReview;
     try {
-        await UserInterviewRepository.update(
-            { overallReviewStatus: UserInterviewConstants.STATUS.IN_PROGRESS },
-            { id: userInterview.id }
-        );
-
         const overallContent = userInterview.interviewSections.reduce(
-            (text, item) => `${text}\n=====
-                ${item.interviewSection.topic}\n
-                ${item.answer}\n=====`, ''
+            (text, item) => {
+                const answer = item.interviewSectionAnswers?.reduce((answerText, answerItem) => `${answerText}\n-----
+                    Pertanyaan: ${answerItem.question}
+                    -----
+                    Jawaban: ${answerItem.answer}\n-----`, '');
+
+                return `${text}\n=====
+                Sesi: ${item.interviewSection.title}
+                Percakapan:
+                ${answer}\n=====`;
+            }, ''
         );
 
-        const overallReview = await callApiReview(userInterviewId, overallContent, 'Overall Interview', '', userInterview.language);
-
-        await UserInterviewRepository.update(
-            { overallReviewStatus: UserInterviewConstants.STATUS.COMPLETED, overallReview },
-            { id: userInterview.id }
+        overallReview = await callApiReview(
+            userInterviewId,
+            overallContent,
+            'Overall Interview',
+            '',
+            userInterview.language
         );
     } catch (err) {
         LogUtils.logError({ functionName: 'processInterviewReviewOverallJob', message: err.message });
+    }
 
+    if (isReviewSuccess) {
         await UserInterviewRepository.update(
-            { overallReviewStatus: UserInterviewConstants.STATUS.FAILED },
+            { overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.COMPLETED, overallReview },
+            { id: userInterview.id }
+        );
+    } else {
+        await UserInterviewRepository.update(
+            { overallReviewStatus: UserInterviewConstants.REVIEW_STATUS.FAILED },
             { id: userInterview.id }
         );
     }
@@ -133,68 +165,141 @@ async function processInterviewReviewSectionJob(job) {
     const userInterview = await UserInterviewRepository.findOne({ id: userInterviewId });
     const userInterviewSection = await UserInterviewSectionRepository.findOne(
         { id: userInterviewSectionId },
-        { include: { model: Models.InterviewSection, as: 'interviewSection' } }
+        {
+            include: [
+                { model: Models.InterviewSection, as: 'interviewSection' },
+                {
+                    model: Models.UserInterviewSectionAnswer,
+                    as: 'interviewSectionAnswers'
+                }
+            ]
+        }
     );
     if (
         !userInterview
         || !userInterviewSection
-        || userInterviewSection.reviewStatus !== UserInterviewConstants.STATUS.PENDING
+        || userInterviewSection.reviewStatus !== UserInterviewConstants.REVIEW_STATUS.PENDING
     ) {
         return;
     }
 
-    if (userInterview.itemReviewStatus !== UserInterviewConstants.STATUS.IN_PROGRESS) {
-        await UserInterviewRepository.update(
-            { itemReviewStatus: UserInterviewConstants.STATUS.IN_PROGRESS },
-            { id: userInterview.id }
-        );
-    }
+    await Models.sequelize.transaction(async (trx) => {
+        if (userInterview.sectionReviewStatus !== UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS) {
+            await UserInterviewRepository.update(
+                { sectionReviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS },
+                { id: userInterview.id },
+                trx
+            );
+        }
 
-    await UserInterviewSectionRepository.update(
-        { reviewStatus: UserInterviewConstants.STATUS.IN_PROGRESS },
-        { id: userInterviewSection.id }
-    );
+        const result = await UserInterviewSectionAnswerRepository.update(
+            { reviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS },
+            {
+                userInterviewSectionId: userInterviewSection.id,
+                reviewStatus: UserInterviewConstants.REVIEW_STATUS.PENDING
+            },
+            trx
+        );
+
+        await UserInterviewSectionRepository.update(
+            {
+                reviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS,
+                ...(result ? {
+                    answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS
+                } : {})
+            },
+            { id: userInterviewSection.id },
+            trx
+        );
+    });
 
     let isReviewSuccess = false;
+    let review;
     try {
-        const review = await callApiReview(
+        let content = '';
+        if (userInterviewSection.interviewSectionAnswers && Array.isArray(userInterviewSection.interviewSectionAnswers)) {
+            content = userInterviewSection.interviewSectionAnswers.reduce(
+                (text, item) => `${text}\n=====
+                    Pertanyaan: ${item.question}
+                    -----
+                    Jawaban: ${item.answer}\n=====`, ''
+            );
+        }
+
+        review = await callApiReview(
             userInterviewId,
-            userInterviewSection.answer,
-            userInterviewSection.interviewSection.topic,
+            content,
+            userInterviewSection.interviewSection.title,
             userInterviewSection.interviewSection.systemPrompt,
             userInterview.language,
             userInterview.backgroundDescription
         );
-
-        await UserInterviewSectionRepository.update(
-            { review, reviewStatus: UserInterviewConstants.STATUS.COMPLETED },
-            { id: userInterviewSection.id }
-        );
-
         isReviewSuccess = true;
     } catch (err) {
         LogUtils.logError({ functionName: 'processInterviewReviewSectionJob', message: err.message });
-
-        await UserInterviewSectionRepository.update(
-            { reviewStatus: UserInterviewConstants.STATUS.FAILED },
-            { id: userInterviewSection.id }
-        );
     }
 
+    await Models.sequelize.transaction(async (trx) => {
+        if (isReviewSuccess) {
+            const result = await UserInterviewSectionAnswerRepository.update(
+                { reviewStatus: UserInterviewConstants.REVIEW_STATUS.COMPLETED },
+                {
+                    userInterviewSectionId: userInterviewSection.id,
+                    reviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS
+                },
+                trx
+            );
+
+            await UserInterviewSectionRepository.update(
+                {
+                    review,
+                    reviewStatus: UserInterviewConstants.REVIEW_STATUS.COMPLETED,
+                    ...(result ? {
+                        answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.COMPLETED
+                    } : {})
+                },
+                { id: userInterviewSection.id },
+                trx
+            );
+        } else {
+            const result = await UserInterviewSectionAnswerRepository.update(
+                { reviewStatus: UserInterviewConstants.REVIEW_STATUS.FAILED },
+                {
+                    userInterviewSectionId: userInterviewSection.id,
+                    reviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS
+                },
+                trx
+            );
+
+            await UserInterviewSectionRepository.update(
+                {
+                    reviewStatus: UserInterviewConstants.REVIEW_STATUS.FAILED,
+                    ...(result ? {
+                        answerReviewStatus: UserInterviewConstants.REVIEW_STATUS.FAILED
+                    } : {})
+                },
+                { id: userInterviewSection.id },
+                trx
+            );
+        }
+    });
+
     const pendingUserInterviewSectionIds = jobData.pendingUserInterviewSectionIds;
-    let itemReviewStatus = isReviewSuccess ? UserInterviewConstants.STATUS.COMPLETED : UserInterviewConstants.STATUS.PARTIALLY_COMPLETED;
+    let sectionReviewStatus = isReviewSuccess
+        ? UserInterviewConstants.REVIEW_STATUS.COMPLETED
+        : UserInterviewConstants.REVIEW_STATUS.PARTIALLY_COMPLETED;
     if (pendingUserInterviewSectionIds && Array.isArray(pendingUserInterviewSectionIds)) {
         const userInterviewSections = await UserInterviewSectionRepository.findAll({
             id: pendingUserInterviewSectionIds,
             [Models.Op.or]: [
-                { reviewStatus: UserInterviewConstants.STATUS.PENDING },
-                { reviewStatus: UserInterviewConstants.STATUS.IN_PROGRESS }
+                { reviewStatus: UserInterviewConstants.REVIEW_STATUS.PENDING },
+                { reviewStatus: UserInterviewConstants.REVIEW_STATUS.IN_PROGRESS }
             ]
         });
 
-        if (userInterviewSections.length) itemReviewStatus = UserInterviewConstants.STATUS.PARTIALLY_COMPLETED;
+        if (userInterviewSections.length) sectionReviewStatus = UserInterviewConstants.REVIEW_STATUS.PARTIALLY_COMPLETED;
     }
-    await UserInterviewRepository.update({ itemReviewStatus }, { id: userInterview.id });
+    await UserInterviewRepository.update({ sectionReviewStatus }, { id: userInterview.id });
 }
 
 async function processInterviewReviewJob(job) {
@@ -221,7 +326,7 @@ module.exports = (redis) => {
             connection: redis,
             autorun: true,
             concurrency: 1,
-            limiter: { max: 3, duration: 60 * 1000 }
+            limiter: { max: 1, duration: 60 * 1000 }
         }
     );
     worker.on('error', (err) => {
