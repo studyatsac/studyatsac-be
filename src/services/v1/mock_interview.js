@@ -754,11 +754,11 @@ const recordMockInterviewText = async (input, data) => {
         texts = await MockInterviewCacheUtils.getMockInterviewSpeechTexts(input.userId, input.uuid);
         const totalSpeechDuration = getSpeechDuration(texts);
         // Less than 5 seconds of speech
-        if (totalSpeechDuration < 5) return;
+        if (totalSpeechDuration < MockInterviewConstants.PROCESS_TIME_IN_SECONDS) return;
 
         const job = await getProcessJob();
         if (data.isTalking) await delayProcessJob(job);
-        else if (!job && (data?.noSpeechDuration ?? 0) >= 5) await addProcessJob();
+        else if (!job && (data?.noSpeechDuration ?? 0) >= MockInterviewConstants.PROCESS_TIME_IN_SECONDS) await addProcessJob();
 
         return;
     }
@@ -767,7 +767,7 @@ const recordMockInterviewText = async (input, data) => {
 
     const totalSpeechDuration = getSpeechDuration(texts);
     // Have other processes or less than 5 seconds of speech
-    if (input.counter > 0 || totalSpeechDuration < 5) return;
+    if (input.counter > 0 || totalSpeechDuration < MockInterviewConstants.PROCESS_TIME_IN_SECONDS) return;
 
     const job = await getProcessJob();
     if (job) await cancelProcessJob();
