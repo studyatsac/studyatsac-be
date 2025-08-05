@@ -23,7 +23,8 @@ const listenServerStatusEvent = async (data) => {
             listenStatus,
             transcribeStatus,
             processStatus,
-            speakStatus
+            speakStatus,
+            tag: data?.tag
         };
         await MockInterviewCacheUtils.setMockInterviewStatus(userId, uuid, statusObject);
 

@@ -162,7 +162,7 @@ async function processMockInterviewOpen(
         '',
         hint,
         userInterview.language,
-        MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.OPENING
+        MockInterviewConstants.PROCESS_EVENT_TAG.OPENING
     );
     if (result) return;
 
@@ -238,7 +238,7 @@ async function processMockInterviewContinue(
         lastAnswer?.answer ?? '',
         hint,
         userInterview.language,
-        MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.CONTINUING
+        MockInterviewConstants.PROCESS_EVENT_TAG.CONTINUING
     );
     if (result) return;
 
@@ -318,7 +318,7 @@ async function processMockInterviewRespond(
         lastAnswer?.answer ?? '',
         hint,
         userInterview.language,
-        MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.RESPONDING
+        MockInterviewConstants.PROCESS_EVENT_TAG.RESPONDING
     );
     if (result) return;
 
@@ -396,7 +396,7 @@ async function processMockInterviewRespondTransition(
         lastAnswer?.answer ?? '',
         hint,
         userInterview.language,
-        MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.TRANSITIONING
+        MockInterviewConstants.PROCESS_EVENT_TAG.TRANSITIONING
     );
     if (result) return;
 
@@ -474,7 +474,7 @@ async function processMockInterviewClose(
         lastAnswer?.answer ?? '',
         hint,
         userInterview.language,
-        MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.CLOSING
+        MockInterviewConstants.PROCESS_EVENT_TAG.CLOSING
     );
     if (result) return;
 

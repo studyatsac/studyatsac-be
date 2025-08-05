@@ -89,7 +89,7 @@ const AI_SERVICE_EVENT_NAME = {
     SERVER_STATUS: 'server_status'
 };
 
-const AI_SERVICE_PROCESS_EVENT_TAG = {
+const PROCESS_EVENT_TAG = {
     OPENING: 'opening',
     CONTINUING: 'continuing',
     TRANSITIONING: 'transitioning',
@@ -113,5 +113,5 @@ module.exports = {
     STATUS,
     EVENT_NAME,
     AI_SERVICE_EVENT_NAME,
-    AI_SERVICE_PROCESS_EVENT_TAG
+    PROCESS_EVENT_TAG
 };

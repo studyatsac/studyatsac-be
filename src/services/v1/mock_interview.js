@@ -833,7 +833,7 @@ const recordMockInterviewProcess = async (input, data) => {
         });
     });
 
-    if (data.tag !== MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.CLOSING) return;
+    if (data.tag !== MockInterviewConstants.PROCESS_EVENT_TAG.CLOSING) return;
 
     const stopJobTime = await MockInterviewCacheUtils.getMockInterviewControlStopJobTime(
         input.userId,
@@ -885,7 +885,7 @@ const recordMockInterviewSpeech = async (input, data) => {
         }, { id: processTarget.userInterviewAnswerSectionId });
     }
 
-    if (data.tag !== MockInterviewConstants.AI_SERVICE_PROCESS_EVENT_TAG.CLOSING) return;
+    if (data.tag !== MockInterviewConstants.PROCESS_EVENT_TAG.CLOSING) return;
 
     const stopJobTime = await MockInterviewCacheUtils.getMockInterviewControlStopJobTime(
         input.userId,
