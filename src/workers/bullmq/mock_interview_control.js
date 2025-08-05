@@ -17,7 +17,7 @@ async function processMockInterviewControlPauseJob(job, token) {
     const jobData = job.data;
     const userId = jobData.userId;
     const userInterviewUuid = jobData.userInterviewUuid;
-    if (!userInterviewUuid) return;
+    if (!userInterviewUuid || !userId) return;
 
     const userInterview = await UserInterviewRepository.findOne(
         { uuid: userInterviewUuid, userId },
@@ -143,7 +143,7 @@ async function processMockInterviewControlStopJob(job, token) {
     const jobData = job.data;
     const userId = jobData.userId;
     const userInterviewUuid = jobData.userInterviewUuid;
-    if (!userInterviewUuid) return;
+    if (!userInterviewUuid || !userId) return;
 
     const userInterview = await UserInterviewRepository.findOne(
         { uuid: userInterviewUuid, userId },
