@@ -18,6 +18,7 @@ const getUserInterview = async (input, opts = {}) => {
     const interview = await UserInterviewRepository.findOne(
         input,
         {
+            useMaster: true,
             include: [
                 { model: Models.User, as: 'user' },
                 {
