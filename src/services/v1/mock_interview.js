@@ -245,7 +245,7 @@ const pauseMockInterview = async (input, opts = {}) => {
 
             if (
                 !(await AiServiceSocket.emitAiServiceEventWithAck(
-                    MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_SPEECH,
+                    MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_CLIENT,
                     sessionId
                 ))
             ) throw new Error();
@@ -330,7 +330,7 @@ const continueMockInterview = async (input, opts = {}) => {
     );
     if (!targetInterviewSection) {
         targetInterviewSection = userInterview.interviewSections.find(
-            (item) => item.status === UserInterviewConstants.SECTION_STATUS.NOT_STARTED
+            (item) => item.status === UserInterviewConstants.SECTION_STATUS.PENDING
         );
     }
     if (!targetInterviewSection) {
@@ -514,7 +514,7 @@ const stopMockInterview = async (input, opts = {}) => {
 
             if (
                 !(await AiServiceSocket.emitAiServiceEventWithAck(
-                    MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_SPEECH,
+                    MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_CLIENT,
                     sessionId
                 ))
             ) throw new Error();
