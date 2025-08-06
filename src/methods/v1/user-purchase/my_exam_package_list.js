@@ -28,6 +28,8 @@ exports.getMyExamPackage = async (req, res) => {
 
     const data = result.data || {};
     const rows = data.rows || [];
+    
+    console.log("[DEBUG] Mapped Data:", rows.map(MyExamPackageTransformer.item));
 
     console.log("[DEBUG] result.data.rows:", rows);
 
