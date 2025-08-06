@@ -31,6 +31,8 @@ exports.getMyExamPackage = async (req, res) => {
 
     console.log("[DEBUG] result.data.rows:", rows);
 
+    console.log("[DEBUG] row:", JSON.stringify(data, null, 2));
+
     return res.status(200).json({
       data: rows.map(MyExamPackageTransformer.item),
     });
