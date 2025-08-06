@@ -5,6 +5,24 @@ const Models = require("../../models/mysql");
 exports.findAndCountAll = function (where, opts = {}, trx = null) {
   return Models.UserPurchase.findAndCountAll({
     where,
+    include: [
+      {
+        model: db.ExamPackage,
+        as: "ExamPackage",
+        attributes: [
+          ["uuid", "uuid"],
+          ["title", "title"],
+        ],
+      },
+      {
+        model: db.MasterCategory,
+        as: "MasterCategory",
+        attributes: [
+          ["uuid", "uuid"],
+          ["title", "title"],
+        ],
+      },
+    ],
     ...opts,
     transaction: trx,
   });
