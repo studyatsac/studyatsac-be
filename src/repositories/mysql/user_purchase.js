@@ -9,18 +9,12 @@ exports.findAndCountAll = function (where, opts = {}, trx = null) {
       {
         model: db.ExamPackage,
         as: "ExamPackage",
-        attributes: [
-          ["uuid", "uuid"],
-          ["title", "title"],
-        ],
+        attributes: [["uuid", "uuid"]],
       },
       {
         model: db.MasterCategory,
         as: "MasterCategory",
-        attributes: [
-          ["uuid", "uuid"],
-          ["title", "title"],
-        ],
+        attributes: [["uuid", "uuid"]],
         through: { attributes: [] },
       },
     ],
