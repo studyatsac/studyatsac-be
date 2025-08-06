@@ -10,8 +10,11 @@ exports.getMyExamPackage = async (req, res) => {
     const { query } = req;
 
     lang = Language.getLanguage(req.locale);
-    console.log("lang", lang);
-    console.log("=== MASUK FUNCTION getMyExamPackage ===");
+    LogUtils.loggingInfo({
+      lang,
+      function_name: "getMyExamPackage",
+      message: "Request received",
+    });
 
     const input = {
       ...query,
