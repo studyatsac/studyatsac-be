@@ -29,22 +29,23 @@ const getMyExamPackage = async (input, opts = {}) => {
   const userPurchaseMap = new Map();
 
   userPurchase.rows.forEach((item) => {
-    const category = item.category_id
-      ? {
-          uuid: item.category_uuid,
-          title: item.category_title,
-        }
-      : null;
+    const category =
+      item.category_uuid && item.category_title
+        ? {
+            uuid: item.category_uuid,
+            title: item.category_title,
+          }
+        : null;
 
-    let purchase = userPurchaseMap.get(item.exam_package_id);
+    let purchase = userPurchaseMap.get(item.id);
 
     if (!purchase) {
       purchase = {
-        uuid: item.exam_package_uuid,
-        title: item.exam_package_title,
+        uuid: item.uuid,
+        title: item.title,
         category: [],
       };
-      userPurchaseMap.set(item.exam_package_uuid, purchase);
+      userPurchaseMap.set(item.uuid, purchase);
     }
 
     if (category) {

@@ -15,7 +15,6 @@ exports.findAndCountAll = function (where, opts = {}, trx = null) {
         model: db.MasterCategory,
         as: "MasterCategory",
         attributes: [["uuid", "uuid"]],
-        through: { attributes: [] },
       },
     ],
     ...opts,

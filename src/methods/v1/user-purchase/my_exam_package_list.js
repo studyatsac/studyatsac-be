@@ -16,11 +16,7 @@ exports.getMyExamPackage = async (req, res) => {
       user: req.session,
     };
 
-    console.log("[DEBUG] input.user:", input.user);
-
     const result = await UserPurchaseService.getMyExamPackage(input, { lang });
-
-    console.log("[DEBUG] result:", result);
 
     if (!result.status) {
       return res.status(result.code).json({ message: result.message });
@@ -28,14 +24,6 @@ exports.getMyExamPackage = async (req, res) => {
 
     const data = result.data || {};
     const rows = data.rows || [];
-
-    console.log("[DEBUG] Mapped Data:", rows.map(MyExamPackageTransformer.item));
-
-    console.log("[DEBUG] result.data.rows:", rows);
-
-    console.log("[DEBUG] row:", JSON.stringify(data, null, 2));
-
-    console.log("[DEBUG] one row:", JSON.stringify(rows[0], null, 2));
 
     return res.status(200).json({
       data: rows.map(MyExamPackageTransformer.item),
