@@ -1,5 +1,5 @@
 exports.item = (data) => ({
-  uuid: data.uuid || "",
+  uuid: data.uuid ?? null,
   title: data.title || "",
   category: Array.isArray(data.categories)
     ? data.categories.map((category) => ({
