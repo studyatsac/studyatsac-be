@@ -10,7 +10,6 @@ exports.getMyExamPackage = async (req, res) => {
     const { query } = req;
 
     lang = Language.getLanguage(req.locale);
-    console.log("lang", lang);
 
     const input = {
       ...query,
