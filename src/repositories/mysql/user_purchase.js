@@ -48,7 +48,6 @@ JOIN exam_packages ep ON up.exam_package_id = ep.id
 LEFT JOIN exam_package_categories epc ON ep.id = epc.exam_package_id
 LEFT JOIN master_categories mc ON epc.master_category_id = mc.id
 WHERE up.user_id = :userId
-AND up.expired_at > :expiredAt
 ORDER BY up.created_at DESC
 LIMIT :limit
 `;
