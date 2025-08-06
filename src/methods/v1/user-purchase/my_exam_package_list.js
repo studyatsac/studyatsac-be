@@ -11,6 +11,7 @@ exports.getMyExamPackage = async (req, res) => {
 
     lang = Language.getLanguage(req.locale);
     console.log("lang", lang);
+    console.log("=== MASUK FUNCTION getMyExamPackage ===");
 
     const input = {
       ...query,
