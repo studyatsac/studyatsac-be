@@ -54,9 +54,12 @@ LIMIT :limit
   });
 
   const count = await Models.UserPurchase.count({
-    userId: where.userId,
-    examPackageId: { [Models.Op.not]: null },
-    expiredAt: Moment.utc().format(),
+    where: {
+      userId: where.userId,
+      examPackageId: { [Models.Op.not]: null },
+      expiredAt: { [Models.Sequelize.Op.gte]: Moment.utc().format() },
+    },
+    transaction: trx,
   });
 
   return { rows, count };
