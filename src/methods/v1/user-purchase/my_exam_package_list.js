@@ -10,7 +10,7 @@ exports.getMyExamPackage = async (req, res) => {
     const { query } = req;
 
     lang = Language.getLanguage(req.locale);
-    LogUtils.loggingInfo({
+    LogUtils.loggingError({
       lang,
       function_name: "getMyExamPackage",
       message: "Request received",
