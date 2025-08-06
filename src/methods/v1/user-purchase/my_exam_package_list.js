@@ -20,6 +20,8 @@ exports.getMyExamPackage = async (req, res) => {
 
     const result = await UserPurchaseService.getMyExamPackage(input, { lang });
 
+    console.log("[DEBUG] result:", result);
+
     if (!result.status) {
       return res.status(result.code).json({ message: result.message });
     }
