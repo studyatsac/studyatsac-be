@@ -10,6 +10,7 @@ exports.getMyExamPackage = async (req, res) => {
     const { query } = req;
 
     lang = Language.getLanguage(req.locale);
+    console.log("lang", lang);
 
     const input = {
       ...query,
@@ -28,7 +29,7 @@ exports.getMyExamPackage = async (req, res) => {
 
     const data = result.data || {};
     const rows = data.rows || [];
-    
+
     console.log("[DEBUG] Mapped Data:", rows.map(MyExamPackageTransformer.item));
 
     console.log("[DEBUG] result.data.rows:", rows);

@@ -36,7 +36,7 @@ const getMyExamPackage = async (input, opts = {}) => {
         }
       : null;
 
-    let purchase = userPurchaseMap.get(item.exam_package_uuid);
+    let purchase = userPurchaseMap.get(item.exam_package_id);
 
     if (!purchase) {
       purchase = {
