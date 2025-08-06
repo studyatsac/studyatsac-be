@@ -38,19 +38,18 @@ const getMyExamPackage = async (input, opts = {}) => {
 
     let purchase = userPurchaseMap.get(item.exam_package_uuid);
 
-    if (purchase) {
-      if (category) {
-        purchase.category.push(category);
-      }
-    } else {
+    if (!purchase) {
       purchase = {
         uuid: item.exam_package_uuid,
         title: item.exam_package_title,
-        category: category ? [category] : [],
+        category: [],
       };
+      userPurchaseMap.set(item.exam_package_uuid, purchase);
     }
 
-    userPurchaseMap.set(item.exam_package_uuid, purchase);
+    if (category) {
+      purchase.category.push(category);
+    }
   });
 
   const data = {
