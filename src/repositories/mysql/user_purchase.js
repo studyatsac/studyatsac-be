@@ -21,6 +21,7 @@ exports.findAndCountAll = function (where, opts = {}, trx = null) {
           ["uuid", "uuid"],
           ["title", "title"],
         ],
+        through: { attributes: [] },
       },
     ],
     ...opts,

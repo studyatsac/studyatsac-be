@@ -1,10 +1,10 @@
 exports.item = (data) => ({
-  uuid: data.ExamPackage?.uuid, // Ambil dari relasi
+  uuid: data.ExamPackage?.uuid,
   title: data.ExamPackage?.title,
   category: (data.category || []).map((category) => ({
     uuid: category.uuid,
-    title: category.title,
-  })),
+    title: category.title
+  }))
 });
 
 module.exports = exports;
