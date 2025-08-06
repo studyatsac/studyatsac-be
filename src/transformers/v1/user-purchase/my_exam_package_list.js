@@ -1,7 +1,7 @@
 exports.item = (data) => ({
-  uuid: data.ExamPackage?.uuid,
+  uuid: data.ExamPackage?.uuid, // Ambil dari relasi
   title: data.ExamPackage?.title,
-  category: (data.categories || []).map((category) => ({
+  category: (data.category || []).map((category) => ({
     uuid: category.uuid,
     title: category.title,
   })),
