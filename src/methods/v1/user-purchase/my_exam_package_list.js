@@ -10,16 +10,13 @@ exports.getMyExamPackage = async (req, res) => {
     const { query } = req;
 
     lang = Language.getLanguage(req.locale);
-    LogUtils.loggingError({
-      lang,
-      function_name: "getMyExamPackage",
-      message: "Request received",
-    });
 
     const input = {
       ...query,
       user: req.session,
     };
+
+    console.log("[DEBUG] input.user:", input.user);
 
     const result = await UserPurchaseService.getMyExamPackage(input, { lang });
 
