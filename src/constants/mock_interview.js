@@ -33,11 +33,11 @@ const MAX_IDLE_TIME_IN_SECONDS = 3 * 60;
  */
 const MAX_IDLE_TIME_IN_MILLISECONDS = MAX_IDLE_TIME_IN_SECONDS * 1000;
 /**
- * 5 seconds
+ * 3 seconds
  */
-const PROCESS_TIME_IN_SECONDS = 5;
+const PROCESS_TIME_IN_SECONDS = 3;
 /**
- * 5 seconds
+ * 3 seconds
  */
 const PROCESS_TIME_IN_MILLISECONDS = PROCESS_TIME_IN_SECONDS * 1000;
 /**
