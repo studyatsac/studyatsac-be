@@ -742,6 +742,20 @@ const recordMockInterviewText = async (input, data) => {
         return totalSpeechDuration;
     };
 
+    if (data.isTalking) {
+        const canInterrupt = await MockInterviewCacheUtils.getMockInterviewProcessInterruptFlag(input.userId, input.uuid);
+        if (canInterrupt) {
+            const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(input.userId, input.uuid);
+
+            await AiServiceSocket.emitAiServiceEventWithAck(
+                MockInterviewConstants.AI_SERVICE_EVENT_NAME.SET_INTERRUPT_CLIENT,
+                sessionId
+            );
+
+            await MockInterviewCacheUtils.deleteMockInterviewProcessInterruptFlag(input.userId, input.uuid);
+        }
+    }
+
     let texts;
     if (!('texts' in data) || !Array.isArray(data.texts) || data.texts.length === 0 || !data.isTalking) {
         // Have other processes

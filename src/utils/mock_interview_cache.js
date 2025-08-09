@@ -15,6 +15,7 @@ const MOCK_INTERVIEW_SCHEDULE_TIMER_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_s
 const MOCK_INTERVIEW_SPEECH_TEXTS_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_texts`;
 const MOCK_INTERVIEW_SPEECH_COUNTER_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_counter`;
 const MOCK_INTERVIEW_PROCESS_TARGET_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_process_target`;
+const MOCK_INTERVIEW_PROCESS_INTERRUPT_FLAG_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_process_interrupt_flag`;
 
 const setMockInterviewSessionId = async (userId, userInterviewUuid, sessionId) => {
     const key = `${MOCK_INTERVIEW_SESSION_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
@@ -89,7 +90,7 @@ const generateMockInterviewControlPauseJobTime = async (userId, userInterviewUui
 
 const getMockInterviewControlPauseJobTime = async (userId, userInterviewUuid) => {
     const key = `${MOCK_INTERVIEW_CONTROL_PAUSE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
-    return Number(Cache.getCache(key)) || 0;
+    return Number(await Cache.getCache(key)) || 0;
 };
 
 const deleteMockInterviewControlPauseJobTime = async (userId, userInterviewUuid) => {
@@ -125,7 +126,7 @@ const generateMockInterviewControlStopJobTime = async (userId, userInterviewUuid
 
 const getMockInterviewControlStopJobTime = async (userId, userInterviewUuid) => {
     const key = `${MOCK_INTERVIEW_CONTROL_STOP_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
-    return Number(Cache.getCache(key)) || 0;
+    return Number(await Cache.getCache(key)) || 0;
 };
 
 const deleteMockInterviewControlStopJobTime = async (userId, userInterviewUuid) => {
@@ -263,6 +264,26 @@ const deleteMockInterviewProcessTarget = async (userId, userInterviewUuid) => {
     await Cache.deleteCache(key);
 };
 
+const setMockInterviewProcessInterruptFlag = async (userId, userInterviewUuid, flag) => {
+    const key = `${MOCK_INTERVIEW_PROCESS_INTERRUPT_FLAG_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    await Cache.setCache(
+        key,
+        JSON.stringify(Boolean(flag)),
+        MockInterviewConstants.MAX_SESSION_TIME_IN_MILLISECONDS + (5 * 60 * 1000)
+    );
+};
+
+const getMockInterviewProcessInterruptFlag = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_PROCESS_INTERRUPT_FLAG_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    const flag = await Cache.getCache(key);
+    return !!flag && Boolean(JSON.parse(flag));
+};
+
+const deleteMockInterviewProcessInterruptFlag = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_PROCESS_INTERRUPT_FLAG_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    await Cache.deleteCache(key);
+};
+
 exports.generateMockInterviewSessionId = generateMockInterviewSessionId;
 exports.setMockInterviewSessionId = setMockInterviewSessionId;
 exports.getMockInterviewSessionId = getMockInterviewSessionId;
@@ -305,5 +326,8 @@ exports.decrementMockInterviewSpeechCounter = decrementMockInterviewSpeechCounte
 exports.getMockInterviewProcessTarget = getMockInterviewProcessTarget;
 exports.setMockInterviewProcessTarget = setMockInterviewProcessTarget;
 exports.deleteMockInterviewProcessTarget = deleteMockInterviewProcessTarget;
+exports.setMockInterviewProcessInterruptFlag = setMockInterviewProcessInterruptFlag;
+exports.getMockInterviewProcessInterruptFlag = getMockInterviewProcessInterruptFlag;
+exports.deleteMockInterviewProcessInterruptFlag = deleteMockInterviewProcessInterruptFlag;
 
 module.exports = exports;

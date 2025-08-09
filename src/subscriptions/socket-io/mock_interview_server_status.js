@@ -38,6 +38,18 @@ const listenServerStatusEvent = async (data) => {
         );
 
         if (
+            speakStatus === MockInterviewConstants.STATUS.SPEAKING_DONE
+            && processStatus === MockInterviewConstants.STATUS.PROCESSING_DONE
+            && (
+                data?.tag === MockInterviewConstants.PROCESS_EVENT_TAG.CONTINUING
+                || data?.tag === MockInterviewConstants.PROCESS_EVENT_TAG.OPENING
+                || data?.tag === MockInterviewConstants.PROCESS_EVENT_TAG.TRANSITIONING
+            )
+        ) {
+            await MockInterviewCacheUtils.setMockInterviewProcessInterruptFlag(userId, uuid, true);
+        }
+
+        if (
             listenStatus !== MockInterviewConstants.STATUS.LISTENING
              && transcribeStatus !== MockInterviewConstants.STATUS.TRANSCRIBING
              && speakStatus !== MockInterviewConstants.STATUS.SPEAKING
