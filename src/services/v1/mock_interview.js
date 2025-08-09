@@ -468,15 +468,6 @@ const continueMockInterview = async (input, opts = {}) => {
     if (!userInterview) {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
     }
-    if (userInterview.status === UserInterviewConstants.STATUS.NOT_STARTED) {
-        return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_STARTED);
-    }
-    if (userInterview.status === UserInterviewConstants.STATUS.PENDING) {
-        return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.PENDING);
-    }
-    if (userInterview.status !== UserInterviewConstants.STATUS.PAUSED) {
-        return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_PAUSED);
-    }
 
     let targetInterviewSection = userInterview.interviewSections.find(
         (item) => item.status === UserInterviewConstants.SECTION_STATUS.PAUSED
@@ -486,6 +477,18 @@ const continueMockInterview = async (input, opts = {}) => {
             (item) => item.status === UserInterviewConstants.SECTION_STATUS.PENDING
         );
     }
+    if (!targetInterviewSection) {
+        if (userInterview.status === UserInterviewConstants.STATUS.NOT_STARTED) {
+            return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_STARTED);
+        }
+        if (userInterview.status === UserInterviewConstants.STATUS.PENDING) {
+            return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.PENDING);
+        }
+        if (userInterview.status !== UserInterviewConstants.STATUS.PAUSED) {
+            return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_PAUSED);
+        }
+    }
+
     if (!targetInterviewSection) {
         const completedInterviewSections = userInterview.interviewSections.filter(
             (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
