@@ -100,7 +100,11 @@ const startMockInterview = async (input, opts = {}) => {
 
             initJob = await Queues.MockInterview.add(
                 MockInterviewConstants.JOB_NAME.INIT,
-                { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+                {
+                    userInterviewUuid: userInterview.uuid,
+                    userId: userInterview.userId,
+                    userInterviewSectionUuid: targetInterviewSection.uuid
+                },
                 { delay: MockInterviewConstants.JOB_DELAY }
             );
 
@@ -115,10 +119,7 @@ const startMockInterview = async (input, opts = {}) => {
             );
             await Queues.MockInterviewSchedule.upsertJobScheduler(
                 timerJobId,
-                {
-                    every: MockInterviewConstants.TIMER_INTERVAL_IN_MILLISECONDS,
-                    startDate: Moment().add(MockInterviewConstants.JOB_DELAY, 'seconds').toDate()
-                },
+                { every: MockInterviewConstants.TIMER_INTERVAL_IN_MILLISECONDS },
                 {
                     name: MockInterviewConstants.JOB_NAME.TIMER,
                     data: {
@@ -274,10 +275,7 @@ const pauseMockInterview = async (input, opts = {}) => {
             if (isTimerUpdated) {
                 await Queues.MockInterviewSchedule.upsertJobScheduler(
                     timerJobId,
-                    {
-                        every: MockInterviewConstants.TIMER_INTERVAL_IN_MILLISECONDS,
-                        startDate: Moment().add(MockInterviewConstants.JOB_DELAY, 'seconds').toDate()
-                    },
+                    { every: MockInterviewConstants.TIMER_INTERVAL_IN_MILLISECONDS },
                     {
                         name: MockInterviewConstants.JOB_NAME.TIMER,
                         data: { userId: userInterview.userId, userInterviewUuid: userInterview.uuid }
@@ -427,10 +425,7 @@ const stopMockInterview = async (input, opts = {}) => {
             if (isTimerUpdated) {
                 await Queues.MockInterviewSchedule.upsertJobScheduler(
                     timerJobId,
-                    {
-                        every: MockInterviewConstants.TIMER_INTERVAL_IN_MILLISECONDS,
-                        startDate: Moment().add(MockInterviewConstants.JOB_DELAY, 'seconds').toDate()
-                    },
+                    { every: MockInterviewConstants.TIMER_INTERVAL_IN_MILLISECONDS },
                     {
                         name: MockInterviewConstants.JOB_NAME.TIMER,
                         data: {
@@ -537,7 +532,11 @@ const continueMockInterview = async (input, opts = {}) => {
 
             initJob = await Queues.MockInterview.add(
                 MockInterviewConstants.JOB_NAME.INIT,
-                { userInterviewUuid: userInterview.uuid, userId: userInterview.userId },
+                {
+                    userInterviewUuid: userInterview.uuid,
+                    userId: userInterview.userId,
+                    userInterviewSectionUuid: targetInterviewSection.uuid
+                },
                 { delay: MockInterviewConstants.JOB_DELAY }
             );
 
@@ -549,10 +548,7 @@ const continueMockInterview = async (input, opts = {}) => {
             timerJobId = await MockInterviewCacheUtils.generateMockInterviewScheduleTimerJobId(userInterview.userId, userInterview.uuid);
             await Queues.MockInterviewSchedule.upsertJobScheduler(
                 timerJobId,
-                {
-                    every: MockInterviewConstants.TIMER_INTERVAL_IN_MILLISECONDS,
-                    startDate: Moment().add(MockInterviewConstants.JOB_DELAY, 'seconds').toDate()
-                },
+                { every: MockInterviewConstants.TIMER_INTERVAL_IN_MILLISECONDS },
                 {
                     name: MockInterviewConstants.JOB_NAME.TIMER,
                     data: {
