@@ -29,9 +29,9 @@ const getMockInterviewOpeningSystemPrompt = (backgroundDescription, topic, quest
 Dari topik tersebut berikan:
 - Kalimat pembuka sesi wawancara, seperti:
 "${opening}"
-- Pertanyaan pembuka yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat, dari daftar berikut:
+- Pertanyaan untuk meminta perkenalan dan pertanyaan pembuka yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat, dari daftar berikut:
 ${questionList}`;
-    const hint = 'kalimat pembuka sesi wawancara + pertanyaan pembuka';
+    const hint = 'kalimat pembuka sesi wawancara + pertanyaan untuk meminta perkenalan dan pertanyaan pembuka';
 
     return { prompt, hint };
 };
