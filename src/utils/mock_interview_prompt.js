@@ -8,8 +8,10 @@ ${backgroundDescription}` : `beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}`}
 
 Sebagai pewawancara, perhatikan kriteria berikut:
 - Wawancara menggunakan bahasa: ${CommonConstants.LANGUAGE_LABELS[language]}.
+- Jika pertanyaan bukan babhasa ${CommonConstants.LANGUAGE_LABELS[language]}, terjemahkan pertanyaan ke bahasa ${CommonConstants.LANGUAGE_LABELS[language]}.
 - Jangan sertakan penjelasan atau instruksi tambahan di luar tanggapan.
-- Tanggapan ataupun pertanyaan disampaikan dengan formal dan netral`;
+- Tanggapan ataupun pertanyaan disampaikan dengan formal dan netral
+- Gunakan kata Anda saja dalam jawaban, bukan kata kandidat.`;
 
 const getMockInterviewBaseRespondSystemPrompt = (question) => `Kandidat telah diberikan pertanyaan tentang: ${question ? `"${question}"` : 'pertanyaan yang dikaitkan dengan topik'}. Kemudian, anda akan menerima jawaban kandidat dalam bentuk transkrip.
 Harap perhatikan bahwa transkrip dapat mengandung kesalahan penulisan atau kalimat yang tidak jelas karena keterbatasan akurasi model Speech-to-Text. Fokuskan analisis pada makna dan niat sebenarnya di balik jawaban, serta keterkaitannya dengan pertanyaan yang diajukan.`;
