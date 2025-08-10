@@ -863,11 +863,18 @@ const recordMockInterviewProcess = async (input, data) => {
 
     if (data.tag !== MockInterviewConstants.PROCESS_EVENT_TAG.CLOSING) return;
 
+    const sessionId = await MockInterviewCacheUtils.getMockInterviewSessionId(input.userId, input.uuid);
+
+    await AiServiceSocket.emitAiServiceEventWithAck(
+        MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_CLIENT,
+        sessionId
+    );
+
     const stopJobTime = await MockInterviewCacheUtils.getMockInterviewControlStopJobTime(
         input.userId,
         input.uuid
     );
-    if (stopJobTime) return;
+    if ((stopJobTime - Date.now()) >= MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS) return;
 
     await MockInterviewCacheUtils.generateMockInterviewControlStopJobTime(input.userId, input.uuid);
 };
@@ -919,19 +926,16 @@ const recordMockInterviewSpeech = async (input, data) => {
         input.userId,
         input.uuid
     );
-    if (stopJobTime) {
-        const remainingTime = stopJobTime - Date.now();
-        if (!isFullySpoken && remainingTime >= 10 * 1000) return;
-
-        if (isFullySpoken) {
-            await MockInterviewCacheUtils.setMockInterviewControlStopJobTime(
-                input.userId,
-                input.uuid,
-                1000
-            );
-            return;
-        }
+    if (stopJobTime && isFullySpoken) {
+        await MockInterviewCacheUtils.setMockInterviewControlStopJobTime(
+            input.userId,
+            input.uuid,
+            Date.now() + (MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS / 3)
+        );
+        return;
     }
+
+    if ((stopJobTime - Date.now()) >= MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS) return;
 
     await MockInterviewCacheUtils.generateMockInterviewControlStopJobTime(input.userId, input.uuid);
 };

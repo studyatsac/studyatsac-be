@@ -58,9 +58,6 @@ const listenServerStatusEvent = async (data) => {
             return;
         }
 
-        const pauseJobTime = await MockInterviewCacheUtils.getMockInterviewControlPauseJobTime(userId, uuid);
-        if (!pauseJobTime) return;
-
         await MockInterviewCacheUtils.generateMockInterviewControlPauseJobTime(userId, uuid);
     } catch (err) {
         LogUtils.logError({ functionName: 'listenServerStatusEvent', message: err.message });

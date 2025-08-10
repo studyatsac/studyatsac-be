@@ -675,7 +675,7 @@ async function processMockInterviewProcessJob(job) {
                 await MockInterviewCacheUtils.setMockInterviewControlStopJobTime(
                     userInterview.userId,
                     userInterview.uuid,
-                    Date.now() + (MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS * 2)
+                    Date.now() + (MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS * 4)
                 );
 
                 await processMockInterviewClose(
