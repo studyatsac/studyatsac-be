@@ -41,11 +41,11 @@ const PROCESS_TIME_IN_SECONDS = 3;
  */
 const PROCESS_TIME_IN_MILLISECONDS = PROCESS_TIME_IN_SECONDS * 1000;
 /**
- * 30 seconds
+ * 1 minute
  */
-const STOP_DELAY_TIME_IN_SECONDS = 30;
+const STOP_DELAY_TIME_IN_SECONDS = 60;
 /**
- * 30 seconds
+ * 1 minute
  */
 const STOP_DELAY_TIME_IN_MILLISECONDS = STOP_DELAY_TIME_IN_SECONDS * 1000;
 /**
@@ -98,6 +98,11 @@ const PROCESS_EVENT_TAG = {
     CLOSING: 'closing'
 };
 
+const PROCESS_EVENT_HISTORY_ROLE = {
+    USER: 'user',
+    ASSISTANT: 'assistant'
+};
+
 module.exports = {
     JOB_NAME,
     JOB_DELAY,
@@ -114,5 +119,6 @@ module.exports = {
     STATUS,
     EVENT_NAME,
     AI_SERVICE_EVENT_NAME,
-    PROCESS_EVENT_TAG
+    PROCESS_EVENT_TAG,
+    PROCESS_EVENT_HISTORY_ROLE
 };

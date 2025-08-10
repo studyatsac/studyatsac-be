@@ -9,9 +9,9 @@ ${backgroundDescription}` : `beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}`}
 Sebagai pewawancara, perhatikan kriteria berikut:
 - Wawancara menggunakan bahasa: ${CommonConstants.LANGUAGE_LABELS[language]}.
 - Jika pertanyaan bukan babhasa ${CommonConstants.LANGUAGE_LABELS[language]}, terjemahkan pertanyaan ke bahasa ${CommonConstants.LANGUAGE_LABELS[language]}.
+- Hindari menggunakan kata kandidat, gunakan kata Anda sebagai gantinya.
 - Jangan sertakan penjelasan atau instruksi tambahan di luar tanggapan.
-- Tanggapan ataupun pertanyaan disampaikan dengan formal dan netral
-- Gunakan kata Anda saja dalam jawaban, bukan kata kandidat.`;
+- Tanggapan ataupun pertanyaan disampaikan dengan formal dan netral.`;
 
 const getMockInterviewBaseRespondSystemPrompt = (question) => `Kandidat telah diberikan pertanyaan tentang: ${question ? `"${question}"` : 'pertanyaan yang dikaitkan dengan topik'}. Kemudian, anda akan menerima jawaban kandidat dalam bentuk transkrip.
 Harap perhatikan bahwa transkrip dapat mengandung kesalahan penulisan atau kalimat yang tidak jelas karena keterbatasan akurasi model Speech-to-Text. Fokuskan analisis pada makna dan niat sebenarnya di balik jawaban, serta keterkaitannya dengan pertanyaan yang diajukan.`;
@@ -31,9 +31,10 @@ const getMockInterviewOpeningSystemPrompt = (backgroundDescription, topic, quest
 Dari topik tersebut berikan:
 - Kalimat pembuka sesi wawancara, seperti:
 "${opening}"
-- Pertanyaan untuk meminta perkenalan dan pertanyaan pembuka yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat, dari daftar berikut:
+- Permintaan untuk memperkenalkan diri.
+- Pertanyaan pembuka yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat, dari daftar berikut:
 ${questionList}`;
-    const hint = 'kalimat pembuka sesi wawancara + pertanyaan untuk meminta perkenalan dan pertanyaan pembuka';
+    const hint = 'kalimat pembuka sesi wawancara + meminta perkenalan + pertanyaan pembuka';
 
     return { prompt, hint };
 };
