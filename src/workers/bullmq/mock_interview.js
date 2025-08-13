@@ -542,7 +542,7 @@ async function processMockInterviewClose(
         throw new DelayedError();
     } else {
         await Queues.MockInterview.add(
-            MockInterviewConstants.JOB_NAME.CONTINUE,
+            MockInterviewConstants.JOB_NAME.CLOSE,
             { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
             { delay }
         );
