@@ -45,7 +45,11 @@ const startMockInterview = async (input, opts = {}) => {
         {
             include: {
                 model: Models.UserInterviewSection,
-                as: 'interviewSections'
+                as: 'interviewSections',
+                include: {
+                    model: Models.UserInterviewSectionAnswer,
+                    as: 'interviewSectionAnswers'
+                }
             }
         }
     );
@@ -66,8 +70,13 @@ const startMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
     }
 
+    const completedInterviewSections = userInterview.interviewSections.filter(
+        (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
+    );
+
     let initJob;
     let timerJobId;
+    let isHistorySet = false;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -95,6 +104,16 @@ const startMockInterview = async (input, opts = {}) => {
             if ((Array.isArray(result) && !result[0]) || !result) {
                 throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
             }
+
+            await MockInterviewCacheUtils.setMockInterviewProcessHistory(userInterview.userId, userInterview.uuid, completedInterviewSections?.flatMap(
+                (interviewSection) => interviewSection?.interviewSectionAnswers?.flatMap(
+                    (item) => [
+                        [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.ASSISTANT, item?.question ?? ''],
+                        [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
+                    ]
+                ) || []
+            ));
+            isHistorySet = true;
 
             const sessionId = await MockInterviewCacheUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
@@ -145,6 +164,7 @@ const startMockInterview = async (input, opts = {}) => {
         await MockInterviewCacheUtils.deleteMockInterviewControlPauseJobTime(userInterview.userId, userInterview.uuid);
         await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
         await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerJobId(userInterview.userId, userInterview.uuid);
+        if (isHistorySet) await MockInterviewCacheUtils.deleteMockInterviewProcessHistory(userInterview.userId, userInterview.uuid);
 
         if (err instanceof MockInterviewError) return Response.formatServiceReturn(false, 500, null, err.message);
 
@@ -458,7 +478,11 @@ const continueMockInterview = async (input, opts = {}) => {
         {
             include: {
                 model: Models.UserInterviewSection,
-                as: 'interviewSections'
+                as: 'interviewSections',
+                include: {
+                    model: Models.UserInterviewSectionAnswer,
+                    as: 'interviewSectionAnswers'
+                }
             }
         }
     );
@@ -500,8 +524,13 @@ const continueMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
     }
 
+    const completedInterviewSections = userInterview.interviewSections.filter(
+        (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
+    );
+
     let initJob;
     let timerJobId;
+    let isHistorySet = false;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -527,6 +556,16 @@ const continueMockInterview = async (input, opts = {}) => {
             if ((Array.isArray(result) && !result[0]) || !result) {
                 throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
             }
+
+            await MockInterviewCacheUtils.setMockInterviewProcessHistory(userInterview.userId, userInterview.uuid, completedInterviewSections?.flatMap(
+                (interviewSection) => interviewSection?.interviewSectionAnswers?.flatMap(
+                    (item) => [
+                        [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.ASSISTANT, item?.question ?? ''],
+                        [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
+                    ]
+                ) || []
+            ));
+            isHistorySet = true;
 
             const sessionId = await MockInterviewCacheUtils.generateMockInterviewSessionId(userInterview.userId, userInterview.uuid);
 
@@ -577,6 +616,7 @@ const continueMockInterview = async (input, opts = {}) => {
         await MockInterviewCacheUtils.deleteMockInterviewControlPauseJobTime(userInterview.userId, userInterview.uuid);
         await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
         await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerJobId(userInterview.userId, userInterview.uuid);
+        if (isHistorySet) await MockInterviewCacheUtils.deleteMockInterviewProcessHistory(userInterview.userId, userInterview.uuid);
 
         if (err instanceof MockInterviewError) return Response.formatServiceReturn(false, 500, null, err.message);
 

@@ -123,7 +123,7 @@ async function processInterviewReviewOverallJob(job) {
                 const answer = item.interviewSectionAnswers?.reduce((answerText, answerItem) => `${answerText}\n-----
                     Pertanyaan: ${answerItem?.question || answerItem?.interviewSectionQuestion?.question || '-'}
                     -----
-                    Jawaban: ${answerItem.answer}\n-----`, '');
+                    Jawaban: ${answerItem?.answer || '-'}\n-----`, '');
 
                 return `${text}\n=====
                 Sesi: ${item.interviewSection.title}
@@ -223,7 +223,7 @@ async function processInterviewReviewSectionJob(job) {
                 (text, item) => `${text}\n=====
                     Pertanyaan: ${item?.question || item?.interviewSectionQuestion?.question || '-'}
                     -----
-                    Jawaban: ${item.answer}\n=====`, ''
+                    Jawaban: ${item?.answer || '-'}\n=====`, ''
             );
         }
 

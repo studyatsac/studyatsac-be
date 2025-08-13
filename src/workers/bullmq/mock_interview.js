@@ -233,12 +233,17 @@ async function processMockInterviewContinue(
         userInterview.language
     );
 
-    const history = targetInterviewSection?.interviewSectionAnswers?.flatMap(
+    let history = targetInterviewSection?.interviewSectionAnswers?.flatMap(
         (item) => [
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.ASSISTANT, item?.question ?? ''],
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
         ]
     ) || [];
+    const previousHistory = MockInterviewCacheUtils.getMockInterviewProcessHistory(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (previousHistory && Array.isArray(previousHistory)) history = [...previousHistory, ...(history || [])];
 
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
@@ -322,12 +327,17 @@ async function processMockInterviewRespond(
         userInterview.language
     );
 
-    const history = targetInterviewSection?.interviewSectionAnswers?.flatMap(
+    let history = targetInterviewSection?.interviewSectionAnswers?.flatMap(
         (item) => [
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.ASSISTANT, item?.question ?? ''],
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
         ]
     ) || [];
+    const previousHistory = MockInterviewCacheUtils.getMockInterviewProcessHistory(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (previousHistory && Array.isArray(previousHistory)) history = [...previousHistory, ...(history || [])];
 
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
@@ -408,7 +418,7 @@ async function processMockInterviewRespondTransition(
         userInterview.language
     );
 
-    const history = [
+    let history = [
         ...(completedInterviewSection?.interviewSectionAnswers ?? []),
         ...(targetInterviewSection?.interviewSectionAnswers ?? [])
     ].flatMap(
@@ -417,6 +427,11 @@ async function processMockInterviewRespondTransition(
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
         ]
     ) || [];
+    const previousHistory = MockInterviewCacheUtils.getMockInterviewProcessHistory(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (previousHistory && Array.isArray(previousHistory)) history = [...previousHistory, ...(history || [])];
 
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
@@ -497,12 +512,17 @@ async function processMockInterviewClose(
         userInterview.language
     );
 
-    const history = targetInterviewSection?.interviewSectionAnswers?.flatMap(
+    let history = targetInterviewSection?.interviewSectionAnswers?.flatMap(
         (item) => [
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.ASSISTANT, item?.question ?? ''],
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
         ]
     ) || [];
+    const previousHistory = MockInterviewCacheUtils.getMockInterviewProcessHistory(
+        userInterview.userId,
+        userInterview.uuid
+    );
+    if (previousHistory && Array.isArray(previousHistory)) history = [...previousHistory, ...(history || [])];
 
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
