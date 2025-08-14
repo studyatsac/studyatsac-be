@@ -4,7 +4,6 @@ const UserInterviewRepository = require('../../repositories/mysql/user_interview
 const UserInterviewSectionRepository = require('../../repositories/mysql/user_interview_section');
 const UserInterviewSectionAnswerRepository = require('../../repositories/mysql/user_interview_section_answer');
 const UserInterviewConstants = require('../../constants/user_interview');
-const CommonConstants = require('../../constants/common');
 const InterviewReviewLogRepository = require('../../repositories/mysql/interview_review_log');
 const Models = require('../../models/mysql');
 const InterviewReviewConstants = require('../../constants/interview_review');
@@ -59,7 +58,7 @@ async function callApiReview(
                     content: InterviewReviewUtils.getInterviewReviewSystemPrompt(
                         backgroundDescription,
                         title,
-                        CommonConstants.LANGUAGE_LABELS[language] || 'English'
+                        language
                     )
                 },
                 {

@@ -146,21 +146,21 @@ async function processMockInterviewOpen(
         if (!callerId) return;
     }
 
-    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewOpeningSystemPrompt(
+    const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
-        getNotAskedInterviewSectionQuestions(
-            targetInterviewSection?.interviewSectionAnswers ?? [],
-            targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
-        ),
+        userInterview.language
+    );
+    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewOpeningUserPrompt(
+        targetInterviewSection?.interviewSection?.title,
         userInterview.language
     );
 
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
         sessionId,
+        systemPrompt,
         prompt,
-        '',
         hint,
         [],
         userInterview.language,
@@ -222,10 +222,14 @@ async function processMockInterviewContinue(
         (item) => item.id === lastAnswer?.interviewSectionQuestionId
     );
 
-    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewContinuingSystemPrompt(
+    const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
+        userInterview.language
+    );
+    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewContinuingUserPrompt(
         lastQuestion?.question,
+        lastAnswer?.answer ?? '',
         getNotAskedInterviewSectionQuestions(
             targetInterviewSection?.interviewSectionAnswers ?? [],
             targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
@@ -248,8 +252,8 @@ async function processMockInterviewContinue(
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
         sessionId,
+        systemPrompt,
         prompt,
-        lastAnswer?.answer ?? '',
         hint,
         history,
         userInterview.language,
@@ -307,19 +311,19 @@ async function processMockInterviewRespond(
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
         targetInterviewSection.interviewSectionAnswers.length - 1
     ];
-    const lastQuestion = targetInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
-        (item) => item.id === lastAnswer?.interviewSectionQuestionId
-    );
 
     await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.RESET_CLIENT,
         sessionId
     );
 
-    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondSystemPrompt(
+    const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
-        userInterview.topic,
-        lastQuestion?.question || lastAnswer?.question || '',
+        targetInterviewSection?.interviewSection?.title,
+        userInterview.language
+    );
+    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondUserPrompt(
+        lastAnswer?.answer ?? '',
         getNotAskedInterviewSectionQuestions(
             targetInterviewSection?.interviewSectionAnswers ?? [],
             targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
@@ -342,8 +346,8 @@ async function processMockInterviewRespond(
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
         sessionId,
+        systemPrompt,
         prompt,
-        lastAnswer?.answer ?? '',
         hint,
         history,
         userInterview.language,
@@ -406,15 +410,19 @@ async function processMockInterviewRespondTransition(
         (item) => item.id === lastAnswer?.interviewSectionQuestionId
     );
 
-    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondTransitionSystemPrompt(
+    const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
+        userInterview.language
+    );
+    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondTransitionUserPrompt(
+        completedInterviewSection?.interviewSection?.title,
+        lastQuestion?.question || lastAnswer?.question || '',
+        lastAnswer?.answer ?? '',
         getNotAskedInterviewSectionQuestions(
             targetInterviewSection?.interviewSectionAnswers ?? [],
             targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
         ),
-        completedInterviewSection?.interviewSection?.title,
-        lastQuestion?.question,
         userInterview.language
     );
 
@@ -436,8 +444,8 @@ async function processMockInterviewRespondTransition(
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
         sessionId,
+        systemPrompt,
         prompt,
-        lastAnswer?.answer ?? '',
         hint,
         history,
         userInterview.language,
@@ -501,14 +509,14 @@ async function processMockInterviewClose(
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
         targetInterviewSection.interviewSectionAnswers.length - 1
     ];
-    const lastQuestion = targetInterviewSection?.interviewSection?.interviewSectionQuestions?.find(
-        (item) => item.id === lastAnswer?.interviewSectionQuestionId
-    );
 
-    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewClosingSystemPrompt(
+    const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
-        lastQuestion?.question,
+        userInterview.language
+    );
+    const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewClosingUserPrompt(
+        lastAnswer?.answer ?? '',
         userInterview.language
     );
 
@@ -527,8 +535,8 @@ async function processMockInterviewClose(
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
         MockInterviewConstants.AI_SERVICE_EVENT_NAME.CLIENT_PROCESS,
         sessionId,
+        systemPrompt,
         prompt,
-        lastAnswer?.answer ?? '',
         hint,
         history,
         userInterview.language,
