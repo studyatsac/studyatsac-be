@@ -207,6 +207,7 @@ const createUserInterview = async (input, opts = {}) => {
                     const userInterviewSection = await UserInterviewSectionRepository.create({
                         userInterviewId: userInterview.id,
                         interviewSectionId: item.interviewSectionId,
+                        ...(item.language != null ? { language: item.language } : {}),
                         ...(opts.withReview ? ({
                             reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED,
                             ...(hasInterviewSectionAnswers ? ({
@@ -435,6 +436,7 @@ const updateUserInterview = async (input, opts = {}) => {
                         id: item.id,
                         userInterviewId: userInterview.id,
                         interviewSectionId: item.interviewSectionId,
+                        ...(item.language != null ? { language: item.language } : {}),
                         ...(opts.withReview ? ({
                             reviewStatus: UserInterviewConstants.REVIEW_STATUS.QUEUED,
                             ...(hasInterviewSectionAnswers ? ({

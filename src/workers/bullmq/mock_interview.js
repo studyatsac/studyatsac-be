@@ -146,14 +146,16 @@ async function processMockInterviewOpen(
         if (!callerId) return;
     }
 
+    let language = userInterview.language;
+    if (targetInterviewSection?.language) language = targetInterviewSection.language;
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
-        userInterview.language
+        language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewOpeningUserPrompt(
         targetInterviewSection?.interviewSection?.title,
-        userInterview.language
+        language
     );
 
     const result = await AiServiceSocket.emitAiServiceEventWithAck(
@@ -163,7 +165,7 @@ async function processMockInterviewOpen(
         prompt,
         hint,
         [],
-        userInterview.language,
+        language,
         MockInterviewConstants.PROCESS_EVENT_TAG.OPENING
     );
     if (result) return;
@@ -222,10 +224,12 @@ async function processMockInterviewContinue(
         (item) => item.id === lastAnswer?.interviewSectionQuestionId
     );
 
+    let language = userInterview.language;
+    if (targetInterviewSection?.language) language = targetInterviewSection.language;
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
-        userInterview.language
+        language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewContinuingUserPrompt(
         lastQuestion?.question,
@@ -234,7 +238,7 @@ async function processMockInterviewContinue(
             targetInterviewSection?.interviewSectionAnswers ?? [],
             targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
         ),
-        userInterview.language
+        language
     );
 
     let history = targetInterviewSection?.interviewSectionAnswers?.flatMap(
@@ -256,7 +260,7 @@ async function processMockInterviewContinue(
         prompt,
         hint,
         history,
-        userInterview.language,
+        language,
         MockInterviewConstants.PROCESS_EVENT_TAG.CONTINUING
     );
     if (result) return;
@@ -317,10 +321,12 @@ async function processMockInterviewRespond(
         sessionId
     );
 
+    let language = userInterview.language;
+    if (targetInterviewSection?.language) language = targetInterviewSection.language;
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
-        userInterview.language
+        language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondUserPrompt(
         lastAnswer?.answer ?? '',
@@ -328,7 +334,7 @@ async function processMockInterviewRespond(
             targetInterviewSection?.interviewSectionAnswers ?? [],
             targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
         ),
-        userInterview.language
+        language
     );
 
     let history = targetInterviewSection?.interviewSectionAnswers?.flatMap(
@@ -350,7 +356,7 @@ async function processMockInterviewRespond(
         prompt,
         hint,
         history,
-        userInterview.language,
+        language,
         MockInterviewConstants.PROCESS_EVENT_TAG.RESPONDING
     );
     if (result) return;
@@ -410,10 +416,12 @@ async function processMockInterviewRespondTransition(
         (item) => item.id === lastAnswer?.interviewSectionQuestionId
     );
 
+    let language = userInterview.language;
+    if (targetInterviewSection?.language) language = targetInterviewSection.language;
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
-        userInterview.language
+        language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondTransitionUserPrompt(
         completedInterviewSection?.interviewSection?.title,
@@ -423,7 +431,7 @@ async function processMockInterviewRespondTransition(
             targetInterviewSection?.interviewSectionAnswers ?? [],
             targetInterviewSection?.interviewSection?.interviewSectionQuestions ?? []
         ),
-        userInterview.language
+        language
     );
 
     let history = [
@@ -448,7 +456,7 @@ async function processMockInterviewRespondTransition(
         prompt,
         hint,
         history,
-        userInterview.language,
+        language,
         MockInterviewConstants.PROCESS_EVENT_TAG.TRANSITIONING
     );
     if (result) return;
@@ -510,14 +518,16 @@ async function processMockInterviewClose(
         targetInterviewSection.interviewSectionAnswers.length - 1
     ];
 
+    let language = userInterview.language;
+    if (targetInterviewSection?.language) language = targetInterviewSection.language;
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
-        userInterview.language
+        language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewClosingUserPrompt(
         lastAnswer?.answer ?? '',
-        userInterview.language
+        language
     );
 
     let history = targetInterviewSection?.interviewSectionAnswers?.flatMap(
@@ -539,7 +549,7 @@ async function processMockInterviewClose(
         prompt,
         hint,
         history,
-        userInterview.language,
+        language,
         MockInterviewConstants.PROCESS_EVENT_TAG.CLOSING
     );
     if (result) return;

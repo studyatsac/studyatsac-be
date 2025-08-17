@@ -14,6 +14,7 @@ exports.userInterviewSectionItem = (data, isRestricted = true) => {
         duration: data.duration,
         review: data.review,
         reviewStatus: data.reviewStatus,
+        language: data.language,
         interviewSectionAnswerCount: data.interviewSectionAnswerCount ?? data.dataValues?.interviewSectionAnswerCount,
         interviewSectionAnswers: UserInterviewSectionAnswerTransformer.userInterviewSectionAnswerList(data.interviewSectionAnswers, isRestricted)
     };
