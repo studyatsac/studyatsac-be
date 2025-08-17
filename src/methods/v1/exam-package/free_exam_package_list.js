@@ -26,7 +26,7 @@ exports.getListFreeExamPackage = async (req, res) => {
             data: rows.map(FreeExamPackageTransformer.item)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getListFreeExamPackage',
             message: err.message
         });

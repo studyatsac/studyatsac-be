@@ -9,6 +9,7 @@ exports.deleteUserPurchaseEssayPackage = async (req, res) => {
         lang = Language.getLanguage(req.locale);
 
         const { uuid } = req.params;
+        // TODO: Specify the product type
         const result = await UserPurchaseService.deleteUserPurchase({ uuid }, { lang });
 
         if (!result.status) {
@@ -17,7 +18,7 @@ exports.deleteUserPurchaseEssayPackage = async (req, res) => {
 
         return res.status(200).json({ message: lang.USER_PURCHASE.DELETE_SUCCESS });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'deleteUserPurchaseEssayPackage',
             message: err.message
         });

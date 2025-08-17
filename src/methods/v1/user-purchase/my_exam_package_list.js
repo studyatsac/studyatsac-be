@@ -29,7 +29,7 @@ exports.getMyExamPackage = async (req, res) => {
             data: rows.map(MyExamPackageTransformer.item)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getMyExamPackage',
             message: err.message
         });

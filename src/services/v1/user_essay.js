@@ -4,7 +4,7 @@ const UserEssayItemRepository = require('../../repositories/mysql/user_essay_ite
 const Response = require('../../utils/response');
 const Models = require('../../models/mysql');
 const Helpers = require('../../utils/helpers');
-const Queues = require('../../queues/redis');
+const Queues = require('../../queues/bullmq');
 const UserEssayConstants = require('../../constants/user_essay');
 const EssayReviewConstants = require('../../constants/essay_review');
 const EssayReviewUtils = require('../../utils/essay_review');
@@ -102,6 +102,7 @@ const createUserEssay = async (input, opts = {}) => {
         { uuid: input.essayUuid },
         { include: { model: Models.EssayItem, attributes: ['id', 'uuid'], as: 'essayItems' } }
     );
+
     if (!essay) {
         return Response.formatServiceReturn(false, 404, null, language.ESSAY.NOT_FOUND);
     }
@@ -118,6 +119,7 @@ const createUserEssay = async (input, opts = {}) => {
         }
     }
 
+    let job;
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
             const hasEssayItems = input.essayItems
@@ -129,7 +131,7 @@ const createUserEssay = async (input, opts = {}) => {
                 {
                     userId: input.userId,
                     essayId: essay.id,
-                    essayPackageId: input.essayPackageId,
+                    productPackageId: input.essayPackageId,
                     ...(input.language != null ? { language: input.language } : {}),
                     backgroundDescription: input.backgroundDescription,
                     ...(opts.withReview ? ({
@@ -162,18 +164,23 @@ const createUserEssay = async (input, opts = {}) => {
                 userEssay.essayItems = essayItems;
             }
 
+            if (userEssay && opts.withReview) {
+                job = await Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    { userEssayId: userEssay.id },
+                    { delay: EssayReviewConstants.JOB_DELAY }
+                );
+            }
+
             return userEssay;
         });
 
-        if (result.id && opts.withReview) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: result.id })
-            );
-        }
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
+        if (job) await job.remove();
+
         if (err instanceof UserEssayError) {
             return Response.formatServiceReturn(false, 500, null, err.message);
         }
@@ -216,6 +223,7 @@ const updateUserEssay = async (input, opts = {}) => {
         }
     }
 
+    let job;
     try {
         const result = await Models.sequelize.transaction(async (trx) => {
             let hasEssayItems = input.essayItems && Array.isArray(input.essayItems);
@@ -269,11 +277,13 @@ const updateUserEssay = async (input, opts = {}) => {
                 { id: userEssay.id },
                 trx
             );
-            if (!updatedItem) throw new UserEssayError(language.USER_ESSAY.UPDATE_FAILED);
+            if ((Array.isArray(updatedItem) && !updatedItem[0]) || !updatedItem) {
+                throw new UserEssayError(language.USER_ESSAY.UPDATE_FAILED);
+            }
 
             if (hasEssayItems) {
                 const updatingEssayItems = inputEssayItems.map(async (item) => {
-                    const updatedEssayItem = await UserEssayItemRepository.creatOrUpdate({
+                    const updatedEssayItem = await UserEssayItemRepository.createOrUpdate({
                         id: item.id,
                         userEssayId: userEssay.id,
                         essayItemId: item.essayItemId,
@@ -285,7 +295,9 @@ const updateUserEssay = async (input, opts = {}) => {
                         }),
                         ...(!opts.isRestricted ? { review: item.review } : {})
                     }, trx);
-                    if (!updatedEssayItem) throw new UserEssayError(language.USER_ESSAY_ITEM.UPDATE_FAILED);
+                    if ((Array.isArray(updatedEssayItem) && !updatedEssayItem[0]) || !updatedEssayItem) {
+                        throw new UserEssayError(language.USER_ESSAY_ITEM.UPDATE_FAILED);
+                    }
                 });
 
                 await Promise.all(updatingEssayItems);
@@ -293,18 +305,23 @@ const updateUserEssay = async (input, opts = {}) => {
                 userEssay.essayItems = inputEssayItems;
             }
 
+            if (userEssay && opts.withReview) {
+                job = await Queues.EssayReviewEntry.add(
+                    EssayReviewConstants.JOB_NAME.ENTRY,
+                    { userEssayId: userEssay.id },
+                    { delay: EssayReviewConstants.JOB_DELAY }
+                );
+            }
+
             return userEssay;
         });
 
-        if (result.id && opts.withReview) {
-            Queues.EssayReviewEntry.add(
-                EssayReviewConstants.JOB_NAME.ENTRY,
-                JSON.stringify({ userEssayId: result.id })
-            );
-        }
+        if (job && (await job.isDelayed())) await job.changeDelay(0);
 
         return Response.formatServiceReturn(true, 200, result, null);
     } catch (err) {
+        if (job) await job.remove();
+
         if (err instanceof UserEssayError) {
             return Response.formatServiceReturn(false, 500, null, err.message);
         }

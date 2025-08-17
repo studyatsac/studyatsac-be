@@ -17,7 +17,7 @@ exports.deleteUserEssay = async (req, res) => {
 
         return res.status(200).json({ message: lang.USER_ESSAY.DELETE_SUCCESS });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'deleteUserEssay',
             message: err.message
         });

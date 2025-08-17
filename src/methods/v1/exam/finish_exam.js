@@ -32,7 +32,7 @@ exports.postFinishExam = async (req, res) => {
             data: FinishExamTransformer.item(result.data)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'postFinishExam',
             message: err.message
         });

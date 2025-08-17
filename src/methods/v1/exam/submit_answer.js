@@ -31,7 +31,7 @@ exports.postAnswer = async (req, res) => {
             data: result.data
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'postAnswer',
             message: err.message
         });

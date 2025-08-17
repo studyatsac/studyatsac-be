@@ -1,6 +1,6 @@
-const UserPurchaseService = require('../../../services/v1/user_purchase');
+const UserPurchaseEssayPackageService = require('../../../services/v1/user_purchase_essay_package');
 const ListValidation = require('../../../validations/custom/list');
-const UserPurchaseTransformer = require('../../../transformers/v1/user-purchase/user_purchase');
+const UserPurchaseEssayPackageTransformer = require('../../../transformers/v1/user-purchase/user_purchase_essay_package');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 
@@ -17,14 +17,14 @@ exports.getUserPurchaseEssayPackageList = async (req, res) => {
             return res.status(400).json({ message: err.message });
         }
 
-        const result = await UserPurchaseService.getUserPurchaseEssayPackageList(null, { lang, params });
+        const result = await UserPurchaseEssayPackageService.getUserPurchaseEssayPackageList(null, { lang, params });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
         return res.status(200).json({
-            data: UserPurchaseTransformer.userPurchaseList(result.data.rows, false),
+            data: UserPurchaseEssayPackageTransformer.userPurchaseEssayPackageList(result.data.rows, false),
             message: '',
             meta: {
                 page: params.page,
@@ -34,7 +34,7 @@ exports.getUserPurchaseEssayPackageList = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getUserPurchaseEssayPackageList',
             message: err.message
         });

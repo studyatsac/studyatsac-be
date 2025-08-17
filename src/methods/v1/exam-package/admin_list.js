@@ -53,7 +53,7 @@ exports.getListExamPackage = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'admin_getListExamPackage',
             message: err.message
         });

@@ -30,7 +30,7 @@ exports.postRegister = async (req, res) => {
             data: TokenTransformer.item(result.data)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'postRegister',
             message: err.message,
             error: err

@@ -1,12 +1,11 @@
 const EssayTransformer = require('../essay/essay');
+const ProductPackageMappingTransformer = require('../product-package/product_package_mapping');
 
 exports.essayPackageMappingItem = (data, isRestricted = true) => {
     if (!data) return null;
 
     return {
-        uuid: data.uuid,
-        maxAttempt: data.maxAttempt,
-        currentAttempt: data.currentAttempt === null ? 0 : (data.currentAttempt || undefined),
+        ...(ProductPackageMappingTransformer.productPackageMappingItem(data) || {}),
         essay: data.essay && EssayTransformer.essayItem(data.essay, isRestricted)
     };
 };

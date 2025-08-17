@@ -1,8 +1,14 @@
-const loggingError = (err) => {
+const logError = (...params) => {
     // TODO: Logging to file
-    console.log(err);
+    console.error(new Date(), ...params);
 };
 
-exports.loggingError = loggingError;
+const logDebug = (...params) => {
+    // TODO: Logging to file
+    console.log(new Date(), ...params);
+};
+
+exports.logError = logError;
+exports.logDebug = logDebug;
 
 module.exports = exports;

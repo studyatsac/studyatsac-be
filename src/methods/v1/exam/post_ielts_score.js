@@ -31,7 +31,7 @@ exports.postIeltsScore = async (req, res) => {
             data: result.data
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'postIeltsScore',
             message: err.message
         });

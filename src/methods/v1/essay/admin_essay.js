@@ -18,7 +18,7 @@ exports.getEssay = async (req, res) => {
 
         return res.status(200).json({ data: EssayTransformer.essayItem(result.data, false), message: '' });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getEssay',
             message: err.message
         });

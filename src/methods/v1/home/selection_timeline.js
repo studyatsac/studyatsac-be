@@ -21,7 +21,7 @@ exports.getSelectionTimeline = async (req, res) => {
             data: data.map(SelectionTimeTransformer.item)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'getSelectionTimeline',
             message: err.message
         });

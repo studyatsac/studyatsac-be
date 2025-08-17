@@ -1,5 +1,5 @@
-const UserPurchaseService = require('../../../services/v1/user_purchase');
-const UserPurchaseTransformer = require('../../../transformers/v1/user-purchase/user_purchase');
+const UserPurchaseEssayPackageService = require('../../../services/v1/user_purchase_essay_package');
+const UserPurchaseEssayPackageTransformer = require('../../../transformers/v1/user-purchase/user_purchase_essay_package');
 const UserPurchaseValidation = require('../../../validations/v1/user-purchase/user_purchase');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
@@ -17,18 +17,18 @@ exports.createUserPurchaseEssayPackage = async (req, res) => {
             return res.status(400).json({ message: err.message });
         }
 
-        const result = await UserPurchaseService.createUserPurchase(input, { lang });
+        const result = await UserPurchaseEssayPackageService.createUserPurchaseEssayPackage(input, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
         return res.status(200).json({
-            data: UserPurchaseTransformer.userPurchaseItem(result.data, false),
+            data: UserPurchaseEssayPackageTransformer.userPurchaseEssayPackageItem(result.data, false),
             message: lang.USER_PURCHASE.CREATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'createUserPurchaseEssayPackage',
             message: err.message
         });

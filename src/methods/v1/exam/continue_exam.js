@@ -32,7 +32,7 @@ exports.getUserExamQuestions = async (req, res) => {
             data: ExamQuestionTransformer.item(result.data)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getUserExamQuestions',
             message: err.message
         });

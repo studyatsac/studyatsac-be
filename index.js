@@ -1,36 +1,57 @@
-/**
-    this code was written hastily and carelessly
-    there is no design beforehand carefully, because it is done with a short free time
-    :'(
- */
+// Setup configuration
 require('dotenv').config();
 
 const express = require('express');
-const cors = require('cors');
+const Server = require('./src/servers/http/main');
+const SocketServer = require('./src/servers/socket/main');
+
+// Init servers
+Server.initializeServer();
+SocketServer.initializeSocketServer(Server.getServer());
+
+const DbClient = require('./src/clients/db/main');
+const CacheClient = require('./src/clients/cache/main');
+const OpenAiClient = require('./src/clients/http/open_ai');
+const AiServiceSocketClient = require('./src/clients/socket/ai_service');
+
+// Init clients
+DbClient.initializeDbClient();
+CacheClient.initializeCacheClient();
+OpenAiClient.initializeOpenAiClient();
+AiServiceSocketClient.initializeAiServiceSocket();
+
+// Setup models
+const Models = require('./src/models/mysql');
+
+Models.setupModel();
+
+// Setup queues
+const Queues = require('./src/queues/bullmq');
+
+Queues.setupQueue();
+
+// Setup app
 const routerV1 = require('./src/routes/v1');
 
-const app = express();
-const host = process.env.APP_URL;
-const port = process.env.APP_PORT;
+Server.addAppMiddleware(express.static('./storage'));
+Server.addAppRoute('/v1', routerV1);
 
-app.set('trust proxy', 1);
+// Setup socket
+const eventV1 = require('./src/events/v1');
+const socketConnectionMiddleware = require('./src/middlewares/socket_connection_middleware');
 
-app.use(cors({
-    origin: '*',
-    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-    allowedHeaders: ['Content-Type', 'Accept-Language', 'Authorization', 'Accept', 'admin-api-key', 'x-requested-with'],
-    AccessControlAllowOrigin: '*',
-    credentials: true,
-    optionsSuccessStatus: 200
-}));
+SocketServer.addSocketMiddleware(socketConnectionMiddleware);
+SocketServer.addSocketEvent(eventV1);
 
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: false }));
-app.use(express.static('./storage'));
-app.use('/v1', routerV1);
+// Setup subscriptions
+const Subscriptions = require('./src/subscriptions/socket-io');
 
-// eslint-disable-next-line no-console
-app.listen(port, () => {
-    console.log(`app running on ${host}:${port}`);
-    console.log((new Date()));
-});
+Subscriptions.setupSubscription();
+
+// Setup workers
+const Workers = require('./src/workers/bullmq');
+
+Workers.setupWorker();
+
+// Start the sever
+Server.startServer();

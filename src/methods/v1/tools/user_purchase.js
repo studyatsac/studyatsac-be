@@ -30,7 +30,7 @@ exports.postUserPurchase = async (req, res) => {
             data: UserPurchaseTransformer.item(result.data)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'postUserPurchase',
             message: err.message
         });
