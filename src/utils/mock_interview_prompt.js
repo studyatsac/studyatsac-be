@@ -16,6 +16,7 @@ Sebagai pewawancara, perhatikan kriteria berikut ketika memberikan tanggapan/per
 - Jika pertanyaan bukan bahasa ${CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH}, terjemahkan pertanyaan ke bahasa ${CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH}.
 - Hindari menggunakan memanggil kandidat dengan kata "${CANDIDATE[language]}", gunakan kata "${YOU[language]}" sebagai kata panggilan.
 - Perhatikan bahwa transkrip jawaban dapat mengandung kesalahan penulisan atau kalimat yang tidak jelas. Fokuskan pada makna serta keterkaitannya dengan pertanyaan yang diajukan.
+- Setiap respon harus disertai dengan pertanyaan lanjutan, kecuali ketika pembukaan/penutupan sesi wawancara.
 - Sebaiknya tidak menyertakan penjelasan atau instruksi tambahan di luar tanggapan.
 - Tanggapan ataupun pertanyaan disampaikan dengan formal dan netral.`;
 
@@ -59,7 +60,8 @@ Dari jawaban tersebut, berikan respon berupa:
 "${opening}"
 - Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat. Penting: **hindari menilai jawaban kandidat**.  
 - Satu pertanyaan lanjutan yang paling relevan dengan jawaban kandidat dari daftar berikut:
-${followUps}`;
+${followUps}
+- Jika tidak ada pertanyaan tersedia dari daftar tersebut, berikan pertanyaan yang paling relevan dengan topik dan latar belakang kandidat.`;
     const hint = 'kalimat pembuka untuk melanjutkan sesi + tanggapan jawaban singkat + pertanyaan lanjutan';
 
     return { prompt, hint };
@@ -74,8 +76,9 @@ const getMockInterviewRespondUserPrompt = (answer, followUpQuestions, language) 
 
 Dari jawaban yang diberikan kandidat nantinya, berikan respon berupa:
 - Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat secara kuantitatif**.  
-- Satu pertanyaan lanjutan yang paling relevan dengan jawaban kandidat jika memang ada yang perlu ditanyakan lebih lanjut atau berikan saja pertanyaan baru yang sesuai konteks latar belakang kandidat dari daftar berikut:
-${followUps}`;
+- Satu pertanyaan lanjutan yang paling relevan dengan jawaban kandidat dari daftar berikut:
+${followUps}
+- Jika tidak ada pertanyaan tersedia dari daftar tersebut, berikan pertanyaan yang paling relevan dengan topik dan latar belakang kandidat.`;
     const hint = 'tanggapan jawaban + pertanyaan lanjutan/baru';
 
     return { prompt, hint };
@@ -95,7 +98,8 @@ Transkirp jawaban kandidat: ${answer}
 Untuk berpindah topik sesi, berikan respon berupa:
 - Jika jawaban kandidat nantinya memiliki relevansi dengan topik lanjutan ini, maka berikan tanggapan singkat (1 kalimat) mengenai jawaban kandidat. Penting: **abaikan jika tidak ada relevansi dan hindari menilai jawaban kandidat secara kuantitatif ketika menanggapi**.   
 - Satu pertanyaan yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada), dari daftar berikut
-${questionList}`;
+${questionList}
+- Jika tidak ada pertanyaan tersedia dari daftar tersebut, berikan pertanyaan yang paling relevan dengan topik selanjutnya dan latar belakang kandidat.`;
     const hint = 'tanggapan jawaban (opsional, jika ada relevansi) + pertanyaan pembuka sesi baru';
 
     return { prompt, hint };
