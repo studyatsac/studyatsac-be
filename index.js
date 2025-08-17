@@ -12,13 +12,13 @@ SocketServer.initializeSocketServer(Server.getServer());
 const DbClient = require('./src/clients/db/main');
 const CacheClient = require('./src/clients/cache/main');
 const OpenAiClient = require('./src/clients/http/open_ai');
-const AiServiceSocketClient = require('./src/clients/socket/ai_service');
+// const AiServiceSocketClient = require('./src/clients/socket/ai_service');
 
 // Init clients
 DbClient.initializeDbClient();
 CacheClient.initializeCacheClient();
 OpenAiClient.initializeOpenAiClient();
-AiServiceSocketClient.initializeAiServiceSocket();
+// AiServiceSocketClient.initializeAiServiceSocket();
 
 // Setup models
 const Models = require('./src/models/mysql');
@@ -44,9 +44,9 @@ SocketServer.addSocketMiddleware(socketConnectionMiddleware);
 SocketServer.addSocketEvent(eventV1);
 
 // Setup subscriptions
-const Subscriptions = require('./src/subscriptions/socket-io');
+// const Subscriptions = require('./src/subscriptions/socket-io');
 
-Subscriptions.setupSubscription();
+// Subscriptions.setupSubscription();
 
 // Setup workers
 const Workers = require('./src/workers/bullmq');
