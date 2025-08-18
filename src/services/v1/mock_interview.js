@@ -752,8 +752,8 @@ const recordMockInterviewText = async (input, data) => {
     const delayProcessJob = async (job) => {
         const targetJob = job || (await getProcessJob());
         if (targetJob && (await targetJob.isDelayed())) {
-            const timeLapsed = Date.now() - targetJob.timestamp;
-            await targetJob.changeDelay(timeLapsed + MockInterviewConstants.PROCESS_TIME_IN_MILLISECONDS);
+            const elapsedTime = Date.now() - targetJob.timestamp;
+            await targetJob.changeDelay(elapsedTime + MockInterviewConstants.PROCESS_TIME_IN_MILLISECONDS);
         }
     };
     const addProcessJob = async () => {
