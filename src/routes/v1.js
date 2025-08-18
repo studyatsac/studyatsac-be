@@ -8,6 +8,20 @@ const upload = require('../middlewares/upload_file');
 
 router.get('/ping', (req, res) => res.status(200).json({ message: 'PONG', date: new Date() }));
 
+//Endpoint untuk membuat user-review
+router.post(
+    '/user-reviews/create',
+    [tokenMiddleware],
+    require('../methods/v1/user-reviews/user_create_review').createUserReview
+);
+
+// Endpoint admin untuk mengambil semua user_reviews
+router.get(
+    '/admin/user-reviews',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-reviews/admin_list_review').getListUserReview
+);
+
 router.get(
     '/admin/user-purchases/essay-packages',
     [tokenMiddleware, adminOnlyMiddleware],
@@ -614,11 +628,5 @@ router.post(
     require('../methods/v1/essay-review/retry_user_essay_review').retryUserEssayReview
 );
 
-/**
- * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
- *
- */
-
-// Endpoint baru untuk mengambil resource berdasarkan questionId
 
 module.exports = router;

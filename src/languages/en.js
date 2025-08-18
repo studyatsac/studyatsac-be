@@ -160,5 +160,17 @@ module.exports = Object.freeze({
     PRODUCT: {
         CREATE_FAILED: 'Failed to create product',
         UPDATE_FAILED: 'Failed to update product'
+    },
+    USER_REVIEW: {
+        NOT_FOUND: 'User review not found',
+        UUID_NOT_VALID: 'ID not valid',
+        USER_ID_NOT_VALID: 'User ID not valid',
+        RATING_NOT_VALID: 'Rating not valid',
+        COMMENT_NOT_VALID: 'Comment not valid',
+        ALREADY_EXIST: 'User review already exist',
+        CREATE_FAILED: 'Failed to create user review',
+        UPDATE_FAILED: 'Failed to update user review',
+        DELETE_FAILED: 'Failed to delete user review',
+        CREATE_SUCCESS: 'Success to create user review'
     }
 });

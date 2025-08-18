@@ -159,5 +159,17 @@ module.exports = Object.freeze({
     PRODUCT: {
         CREATE_FAILED: 'Gagal membuat produk',
         UPDATE_FAILED: 'Gagal memperbarui produk'
+    },
+    USER_REVIEW: {
+        NOT_FOUND: 'Ulasan pengguna tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        USER_ID_NOT_VALID: 'ID pengguna tidak valid',
+        RATING_NOT_VALID: 'Rating tidak valid',
+        COMMENT_NOT_VALID: 'Komentar tidak valid',
+        ALREADY_EXIST: 'Ulasan pengguna sudah ada',
+        CREATE_FAILED: 'Gagal membuat ulasan pengguna',
+        UPDATE_FAILED: 'Gagal memperbarui ulasan pengguna',
+        DELETE_FAILED: 'Gagal menghapus ulasan pengguna',
+        CREATE_SUCCESS: 'Berhasil membuat ulasan pengguna'
     }
 });
