@@ -29,7 +29,7 @@ exports.getUserEssayList = async (req, res) => {
         }
 
         return res.status(200).json({
-            data: UserEssayTransformer.userEssayList(result.data.rows),
+            data: UserEssayTransformer.userEssayList(result.data.rows, false),
             message: '',
             meta: {
                 page: params.page,
@@ -39,7 +39,7 @@ exports.getUserEssayList = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getUserEssayList',
             message: err.message
         });

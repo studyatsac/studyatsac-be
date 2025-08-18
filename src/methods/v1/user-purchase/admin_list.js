@@ -57,7 +57,7 @@ exports.getListUserPurchase = async (req, res) => {
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'admin_getListUserPurchase',
             message: err.message
         });

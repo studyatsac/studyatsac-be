@@ -30,7 +30,7 @@ exports.updateEssayPackage = async (req, res) => {
             message: lang.ESSAY_PACKAGE.CREATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'updateEssayPackage',
             message: err.message
         });

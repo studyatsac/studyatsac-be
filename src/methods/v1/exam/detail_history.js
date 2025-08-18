@@ -32,7 +32,7 @@ exports.getExamHistoryDetail = async (req, res) => {
             data: ExamQuestionTransformer.item(result.data)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getExamHistoryDetail',
             message: err.message
         });

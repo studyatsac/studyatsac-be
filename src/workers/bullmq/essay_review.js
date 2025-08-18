@@ -1,0 +1,254 @@
+const { Worker } = require('bullmq');
+const LogUtils = require('../../utils/logger');
+const UserEssayRepository = require('../../repositories/mysql/user_essay');
+const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
+const UserEssayConstants = require('../../constants/user_essay');
+const EssayReviewLogRepository = require('../../repositories/mysql/essay_review_log');
+const Models = require('../../models/mysql');
+const EssayReviewConstants = require('../../constants/essay_review');
+const OpenAiUtils = require('../../clients/http/open_ai');
+const Queues = require('../../queues/bullmq');
+const EssayReviewUtils = require('../../utils/essay_review');
+
+async function insertEssayReviewLog(payload, data, isSuccess = false) {
+    try {
+        let metadata = {};
+        if (data && typeof data === 'object') {
+            if (isSuccess) {
+                metadata = {
+                    id: data?.id,
+                    object: data?.object,
+                    created: data?.created,
+                    model: data?.model,
+                    usage: data?.usage,
+                    service_tier: data?.service_tier,
+                    system_fingerprint: data?.system_fingerprint
+                };
+            } else {
+                metadata = {
+                    error: data?.error,
+                    requestID: data?.requestID,
+                    code: data?.code,
+                    param: data?.param,
+                    type: data?.type
+                };
+            }
+        }
+
+        await EssayReviewLogRepository.create({ ...payload, metadata });
+    } catch (err) {
+        LogUtils.logError({ functionName: 'insertEssayReviewLog', message: err.message });
+    }
+}
+
+async function callApiReview(
+    userEssayId,
+    content,
+    topic = 'Overall Essay',
+    criteria,
+    language,
+    backgroundDescription
+) {
+    try {
+        const response = await OpenAiUtils.callOpenAiCompletion({
+            messages: [
+                {
+                    role: 'system',
+                    content: EssayReviewUtils.getEssayReviewSystemPrompt(
+                        backgroundDescription,
+                        topic,
+                        language
+                    )
+                },
+                {
+                    role: 'user',
+                    content: EssayReviewUtils.getEssayReviewUserPrompt(
+                        criteria,
+                        content
+                    )
+                }
+            ]
+        });
+
+        await insertEssayReviewLog({ userEssayId }, response, true);
+
+        return response.choices[0].message.content;
+    } catch (err) {
+        await insertEssayReviewLog({ userEssayId, notes: err.message }, err);
+
+        throw err;
+    }
+}
+
+async function processEssayReviewOverallJob(job) {
+    const jobData = job.data;
+    const userEssayId = jobData.userEssayId;
+    if (!userEssayId) return;
+
+    const userEssay = await UserEssayRepository.findOne(
+        { id: userEssayId },
+        {
+            include: {
+                model: Models.UserEssayItem,
+                as: 'essayItems',
+                include: { model: Models.EssayItem, as: 'essayItem' }
+            }
+        }
+    );
+    if (
+        !userEssay
+        || userEssay.overallReviewStatus !== UserEssayConstants.STATUS.PENDING
+    ) {
+        return;
+    }
+
+    await UserEssayRepository.update(
+        { overallReviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
+        { id: userEssay.id }
+    );
+
+    let isReviewSuccess;
+    let overallReview;
+    try {
+        const overallContent = userEssay.essayItems.reduce(
+            (text, item) => `${text}\n=====
+                Topik: ${item.essayItem.topic}
+                -----
+                Isian: ${item.answer}\n=====`, ''
+        );
+
+        overallReview = await callApiReview(userEssayId, overallContent, 'Overall Essay', '', userEssay.language);
+        isReviewSuccess = true;
+    } catch (err) {
+        LogUtils.logError({ functionName: 'processEssayReviewOverallJob', message: err.message });
+    }
+
+    if (isReviewSuccess) {
+        await UserEssayRepository.update(
+            { overallReviewStatus: UserEssayConstants.STATUS.COMPLETED, overallReview },
+            { id: userEssay.id }
+        );
+    } else {
+        await UserEssayRepository.update(
+            { overallReviewStatus: UserEssayConstants.STATUS.FAILED },
+            { id: userEssay.id }
+        );
+    }
+}
+
+async function processEssayReviewItemJob(job) {
+    const jobData = job.data;
+    const userEssayId = jobData.userEssayId;
+    const userEssayItemId = jobData.userEssayItemId;
+    if (!userEssayId || !userEssayItemId) return;
+
+    const userEssay = await UserEssayRepository.findOne({ id: userEssayId });
+    const userEssayItem = await UserEssayItemRepository.findOne(
+        { id: userEssayItemId },
+        { include: { model: Models.EssayItem, as: 'essayItem' } }
+    );
+    if (
+        !userEssay
+        || !userEssayItem
+        || userEssayItem.reviewStatus !== UserEssayConstants.STATUS.PENDING
+    ) {
+        return;
+    }
+
+    await Models.sequelize.transaction(async (trx) => {
+        if (userEssay.itemReviewStatus !== UserEssayConstants.STATUS.IN_PROGRESS) {
+            await UserEssayRepository.update(
+                { itemReviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
+                { id: userEssay.id },
+                trx
+            );
+        }
+
+        await UserEssayItemRepository.update(
+            { reviewStatus: UserEssayConstants.STATUS.IN_PROGRESS },
+            { id: userEssayItem.id },
+            trx
+        );
+    });
+
+    let isReviewSuccess = false;
+    let review;
+    try {
+        review = await callApiReview(
+            userEssayId,
+            userEssayItem.answer,
+            userEssayItem.essayItem.topic,
+            userEssayItem.essayItem.systemPrompt,
+            userEssay.language,
+            userEssay.backgroundDescription
+        );
+        isReviewSuccess = true;
+    } catch (err) {
+        LogUtils.logError({ functionName: 'processEssayReviewItemJob', message: err.message });
+    }
+
+    if (isReviewSuccess) {
+        await UserEssayItemRepository.update(
+            { review, reviewStatus: UserEssayConstants.STATUS.COMPLETED },
+            { id: userEssayItem.id }
+        );
+    } else {
+        await UserEssayItemRepository.update(
+            { reviewStatus: UserEssayConstants.STATUS.FAILED },
+            { id: userEssayItem.id }
+        );
+    }
+
+    const pendingUserEssayItemIds = jobData.pendingUserEssayItemIds;
+    let itemReviewStatus = isReviewSuccess
+        ? UserEssayConstants.STATUS.COMPLETED
+        : UserEssayConstants.STATUS.PARTIALLY_COMPLETED;
+    if (pendingUserEssayItemIds && Array.isArray(pendingUserEssayItemIds)) {
+        const userEssayItems = await UserEssayItemRepository.findAll({
+            id: pendingUserEssayItemIds,
+            [Models.Op.or]: [
+                { reviewStatus: UserEssayConstants.STATUS.PENDING },
+                { reviewStatus: UserEssayConstants.STATUS.IN_PROGRESS }
+            ]
+        });
+
+        if (userEssayItems.length) itemReviewStatus = UserEssayConstants.STATUS.PARTIALLY_COMPLETED;
+    }
+    await UserEssayRepository.update({ itemReviewStatus }, { id: userEssay.id });
+}
+
+async function processEssayReviewJob(job) {
+    switch (job.name) {
+    case EssayReviewConstants.JOB_NAME.OVERALL:
+        await processEssayReviewOverallJob(job);
+        break;
+    case EssayReviewConstants.JOB_NAME.ITEM:
+        await processEssayReviewItemJob(job);
+        break;
+    default:
+        break;
+    }
+}
+
+module.exports = (redis) => {
+    const queue = Queues.EssayReview;
+    const queueName = queue.name;
+
+    const worker = new Worker(
+        queueName,
+        processEssayReviewJob,
+        {
+            connection: redis,
+            autorun: true,
+            concurrency: 1,
+            limiter: { max: 2, duration: 60 * 1000 }
+        }
+    );
+    worker.on('error', (err) => {
+        LogUtils.logError(`Worker ${queueName} Error: ${err.message}`);
+    });
+
+    queue.defaultWorker = worker;
+
+    return worker;
+};

@@ -1,4 +1,4 @@
-const EssayPackageTransformer = require('../essay-package/essay_package');
+const ProductPackageTransformer = require('../product-package/product_package');
 const ExamPackageTransformer = require('../exam-package/list');
 
 exports.userPurchaseItem = (data, isRestricted = true) => {
@@ -6,7 +6,7 @@ exports.userPurchaseItem = (data, isRestricted = true) => {
 
     const user = data.User || data.user;
     const examPackage = data.ExamPackage || data.examPackage;
-    const essayPackage = data.essayPackage || data.EssayPackage;
+    const productPackage = data.productPackage || data.ProductPackage;
 
     return {
         uuid: data.uuid,
@@ -17,7 +17,7 @@ exports.userPurchaseItem = (data, isRestricted = true) => {
             faculty: user.faculty
         },
         examPackage: examPackage && ExamPackageTransformer.item(examPackage),
-        essayPackage: essayPackage && EssayPackageTransformer.essayPackageItem(essayPackage, isRestricted),
+        productPackage: productPackage && ProductPackageTransformer.productPackageItem(productPackage, isRestricted),
         ...(!isRestricted ? { externalTransactionId: data.externalTransactionId } : {}),
         createdAt: data.created_at
     };

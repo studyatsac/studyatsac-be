@@ -32,7 +32,7 @@ exports.postClaimFreeExamPackage = async (req, res) => {
             data: null
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'postClaimFreeExamPackage',
             message: err.message
         });

@@ -30,7 +30,7 @@ exports.postLogin = async (req, res) => {
             data: TokenTransformer.item(result.data)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             function_name: 'postLogin',
             message: err.message
         });

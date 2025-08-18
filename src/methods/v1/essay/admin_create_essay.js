@@ -25,7 +25,7 @@ exports.createEssay = async (req, res) => {
 
         return res.status(200).json({ data: EssayTransformer.essayItem(result.data, false), message: lang.ESSAY.CREATE_SUCCESS });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'createEssay',
             message: err.message
         });

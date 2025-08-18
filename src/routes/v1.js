@@ -38,6 +38,22 @@ router.delete(
     require('../methods/v1/user-purchase/admin_delete_user_purchase_essay_package').deleteUserPurchaseEssayPackage
 );
 
+router.get(
+    '/admin/user-purchases/interview-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_user_purchase_interview_package_list').getUserPurchaseInterviewPackageList
+);
+router.post(
+    '/admin/user-purchases/interview-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_create_user_purchase_interview_package').createUserPurchaseInterviewPackage
+);
+router.delete(
+    '/admin/user-purchases/interview-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-purchase/admin_delete_user_purchase_interview_package').deleteUserPurchaseInterviewPackage
+);
+
 // Endpoint admin untuk mengambil total peserta beli paket exam tertentu
 router.get(
     '/admin/exam-package/participant-count',
@@ -558,7 +574,7 @@ router.get(
 router.get(
     '/user-essays/:uuid',
     [tokenMiddleware],
-    require('../methods/v1/user-essay/user_essay').getUserEssay
+    require('../methods/v1/user-essay/specific_user_essay').getSpecificUserEssay
 );
 router.put(
     '/user-essays/:uuid',
@@ -613,20 +629,187 @@ router.get(
 );
 
 router.post(
-    '/essay-review',
+    '/essay-reviews',
     [tokenMiddleware],
     require('../methods/v1/essay-review/review_user_essay').reviewUserEssay
 );
 router.post(
-    '/essay-review/:uuid/continue',
+    '/essay-reviews/:uuid/continue',
     [tokenMiddleware],
     require('../methods/v1/essay-review/continue_user_essay_review').continueUserEssayReview
 );
 router.post(
-    '/essay-review/:uuid/retry',
+    '/essay-reviews/:uuid/retry',
     [tokenMiddleware],
     require('../methods/v1/essay-review/retry_user_essay_review').retryUserEssayReview
 );
 
+router.get(
+    '/admin/interviews',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_interview_list').getInterviewList
+);
+router.post(
+    '/admin/interviews',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_create_interview').createInterview
+);
+router.get(
+    '/admin/interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_interview').getInterview
+);
+router.put(
+    '/admin/interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_update_interview').updateInterview
+);
+router.delete(
+    '/admin/interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview/admin_delete_interview').deleteInterview
+);
+// router.get(
+//     '/interviews',
+//     [tokenMiddleware],
+//     require('../methods/v1/interview/active_interview_list').getActiveInterviewList
+// );
+router.get(
+    '/interviews/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/interview/restricted_interview').getRestrictedInterview
+);
+
+router.get(
+    '/admin/user-interviews',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-interview/admin_user_interview_list').getUserInterviewList
+);
+router.get(
+    '/admin/user-interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-interview/admin_detailed_user_interview').getDetailedUserInterview
+);
+router.put(
+    '/admin/user-interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-interview/admin_update_user_interview').updateUserInterview
+);
+router.delete(
+    '/admin/user-interviews/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-interview/admin_delete_user_interview').deleteUserInterview
+);
+router.get(
+    '/user-interviews',
+    [tokenMiddleware],
+    require('../methods/v1/user-interview/specific_user_interview_list').getSpecificUserInterviewList
+);
+router.get(
+    '/user-interviews/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/user-interview/specific_user_interview').getSpecificUserInterview
+);
+router.put(
+    '/user-interviews/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/user-interview/update_specific_user_interview').updateSpecificUserInterview
+);
+
+router.get(
+    '/admin/interview-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_interview_package_list').getInterviewPackageList
+);
+router.post(
+    '/admin/interview-packages',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_create_interview_package').createInterviewPackage
+);
+router.get(
+    '/admin/interview-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_interview_package').getInterviewPackage
+);
+router.put(
+    '/admin/interview-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_update_interview_package').updateInterviewPackage
+);
+router.delete(
+    '/admin/interview-packages/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/interview-package/admin_delete_interview_package').deleteInterviewPackage
+);
+router.get(
+    '/interview-packages',
+    [tokenMiddleware],
+    require('../methods/v1/interview-package/active_interview_package_list').getActiveInterviewPackageList
+);
+router.post(
+    '/interview-packages/claim',
+    [tokenMiddleware],
+    require('../methods/v1/user-purchase/claim_user_purchase_interview_package').claimUserPurchaseInterviewPackage
+);
+router.get(
+    '/interview-packages/me',
+    [tokenMiddleware],
+    require('../methods/v1/interview-package/my_interview_package_list').getMyInterviewPackageList
+);
+router.get(
+    '/interview-packages/me/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/interview-package/paid_interview_package').getPaidInterviewPackage
+);
+
+router.post(
+    '/mock-interviews/init',
+    [tokenMiddleware],
+    require('../methods/v1/mock-interview/init_mock_interview').initMockInterview
+);
+router.post(
+    '/mock-interviews/:uuid/start',
+    [tokenMiddleware],
+    require('../methods/v1/mock-interview/start_mock_interview').startMockInterview
+);
+router.post(
+    '/mock-interviews/:uuid/pause',
+    [tokenMiddleware],
+    require('../methods/v1/mock-interview/pause_mock_interview').pauseMockInterview
+);
+router.post(
+    '/mock-interviews/:uuid/continue',
+    [tokenMiddleware],
+    require('../methods/v1/mock-interview/continue_mock_interview').continueMockInterview
+);
+router.post(
+    '/mock-interviews/:uuid/stop',
+    [tokenMiddleware],
+    require('../methods/v1/mock-interview/stop_mock_interview').stopMockInterview
+);
+router.post(
+    '/mock-interviews/:uuid/next',
+    [tokenMiddleware],
+    require('../methods/v1/mock-interview/next_mock_interview').nextMockInterview
+);
+
+router.post(
+    '/interview-reviews/:uuid',
+    [tokenMiddleware],
+    require('../methods/v1/interview-review/review_user_interview').reviewUserInterview
+);
+
+router.post(
+    '/interview-reviews/:uuid/retry',
+    [tokenMiddleware],
+    require('../methods/v1/interview-review/retry_user_interview_review').retryUserInterviewReview
+);
+
+/**
+ * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
+ *
+ */
+
+// Endpoint baru untuk mengambil resource berdasarkan questionId
 
 module.exports = router;

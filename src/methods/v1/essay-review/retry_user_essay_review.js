@@ -25,7 +25,7 @@ exports.retryUserEssayReview = async (req, res) => {
             message: lang.USER_ESSAY.UPDATE_SUCCESS
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'retryUserEssayReview',
             message: err.message
         });

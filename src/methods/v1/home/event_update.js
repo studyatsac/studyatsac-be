@@ -21,7 +21,7 @@ exports.getEventUpdate = async (req, res) => {
             data: data.map(EventUpdateTransformer.item)
         });
     } catch (err) {
-        LogUtils.loggingError({
+        LogUtils.logError({
             functionName: 'getEventUpdate',
             message: err.message
         });
