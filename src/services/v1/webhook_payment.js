@@ -224,7 +224,7 @@ const handleWebhookPayment = async (input, opts = {}) => {
         if (item.product?.ExamPackage) {
             const activeExamPackage = await UserPurchaseRepository.findOneExcludeExpired({
                 userId: paymentData.user.id,
-                examPackageId: paymentData.examPackage.id
+                examPackageId: item.product?.ExamPackage?.id
             });
             if (activeExamPackage) {
                 existedProductAndAmounts.push(item);
@@ -233,7 +233,7 @@ const handleWebhookPayment = async (input, opts = {}) => {
         } else if (item.product?.productPackage && input?.data?.transactionId) {
             const productPackage = await UserPurchaseRepository.findOne({
                 userId: paymentData.user.id,
-                productPackageId: item.product.productPackage.id,
+                productPackageId: item.product?.productPackage?.id,
                 externalTransactionId: input.data.transactionId
             });
             if (productPackage) {
