@@ -3,7 +3,6 @@ const LogUtils = require('../../utils/logger');
 const UserEssayRepository = require('../../repositories/mysql/user_essay');
 const UserEssayItemRepository = require('../../repositories/mysql/user_essay_item');
 const UserEssayConstants = require('../../constants/user_essay');
-const CommonConstants = require('../../constants/common');
 const EssayReviewLogRepository = require('../../repositories/mysql/essay_review_log');
 const Models = require('../../models/mysql');
 const EssayReviewConstants = require('../../constants/essay_review');
@@ -58,7 +57,7 @@ async function callApiReview(
                     content: EssayReviewUtils.getEssayReviewSystemPrompt(
                         backgroundDescription,
                         topic,
-                        CommonConstants.LANGUAGE_LABELS[language] || 'English'
+                        language
                     )
                 },
                 {

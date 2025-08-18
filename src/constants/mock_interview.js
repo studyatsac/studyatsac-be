@@ -33,19 +33,19 @@ const MAX_IDLE_TIME_IN_SECONDS = 3 * 60;
  */
 const MAX_IDLE_TIME_IN_MILLISECONDS = MAX_IDLE_TIME_IN_SECONDS * 1000;
 /**
- * 5 seconds
+ * 3 seconds
  */
-const PROCESS_TIME_IN_SECONDS = 5;
+const PROCESS_TIME_IN_SECONDS = 3;
 /**
- * 5 seconds
+ * 3 seconds
  */
 const PROCESS_TIME_IN_MILLISECONDS = PROCESS_TIME_IN_SECONDS * 1000;
 /**
- * 30 seconds
+ * 1 minute
  */
-const STOP_DELAY_TIME_IN_SECONDS = 30;
+const STOP_DELAY_TIME_IN_SECONDS = 60;
 /**
- * 30 seconds
+ * 1 minute
  */
 const STOP_DELAY_TIME_IN_MILLISECONDS = STOP_DELAY_TIME_IN_SECONDS * 1000;
 /**
@@ -81,6 +81,7 @@ const EVENT_NAME = {
 const AI_SERVICE_EVENT_NAME = {
     INIT_CLIENT: 'init_client',
     RESET_CLIENT: 'reset_client',
+    SET_INTERRUPT_CLIENT: 'set_interrupt_client',
     END_CLIENT: 'end_client',
     CLIENT_PROCESS: 'client_process',
     SERVER_SPEECH: 'server_speech',
@@ -95,6 +96,11 @@ const PROCESS_EVENT_TAG = {
     TRANSITIONING: 'transitioning',
     RESPONDING: 'responding',
     CLOSING: 'closing'
+};
+
+const PROCESS_EVENT_HISTORY_ROLE = {
+    USER: 'user',
+    ASSISTANT: 'assistant'
 };
 
 module.exports = {
@@ -113,5 +119,6 @@ module.exports = {
     STATUS,
     EVENT_NAME,
     AI_SERVICE_EVENT_NAME,
-    PROCESS_EVENT_TAG
+    PROCESS_EVENT_TAG,
+    PROCESS_EVENT_HISTORY_ROLE
 };

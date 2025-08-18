@@ -14,6 +14,9 @@ async function processMockInterviewScheduleTimerJob(job) {
     const userInterviewUuid = jobData.userInterviewUuid;
     if (!userInterviewUuid || !userId) return;
 
+    const interviewSectionUuid = jobData.userInterviewSectionUuid;
+    const shouldWaitForUpdate = (job?.timestamp ?? 0) <= MockInterviewConstants.JOB_DELAY
+        && !!interviewSectionUuid;
     try {
         const userInterview = await UserInterviewRepository.findOne(
             { uuid: userInterviewUuid, userId },
@@ -22,14 +25,26 @@ async function processMockInterviewScheduleTimerJob(job) {
                     required: false,
                     model: Models.UserInterviewSection,
                     as: 'interviewSections',
-                    where: { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS }
+                    where: {
+                        [Models.Op.or]: [
+                            { status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS },
+                            ...((interviewSectionUuid && shouldWaitForUpdate)
+                                ? [{ uuid: interviewSectionUuid }]
+                                : []
+                            )
+                        ]
+                    }
                 }
             }
         );
+
         if (
-            !userInterview
-            || (userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS
-            && userInterview.status !== UserInterviewConstants.STATUS.PAUSED)
+            !shouldWaitForUpdate
+            && (
+                !userInterview
+                || (userInterview.status !== UserInterviewConstants.STATUS.IN_PROGRESS
+                && userInterview.status !== UserInterviewConstants.STATUS.PAUSED)
+            )
         ) {
             const timerJobId = await MockInterviewCacheUtils.getMockInterviewScheduleTimerJobId(
                 userId,
@@ -43,7 +58,12 @@ async function processMockInterviewScheduleTimerJob(job) {
             return;
         }
 
-        const targetInterviewSection = userInterview.interviewSections?.[0];
+        let targetInterviewSection = userInterview.interviewSections?.find(
+            (item) => item.status === UserInterviewConstants.SECTION_STATUS.IN_PROGRESS
+        );
+        if (!targetInterviewSection && shouldWaitForUpdate) {
+            targetInterviewSection = userInterview.interviewSections?.[0];
+        }
         if (targetInterviewSection) {
             await UserInterviewSectionRepository.update(
                 { duration: targetInterviewSection.duration + MockInterviewConstants.TIMER_INTERVAL_IN_SECONDS },
