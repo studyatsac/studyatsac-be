@@ -323,5 +323,17 @@ module.exports = Object.freeze({
         IN_PROGRESS: 'Mock interview is in progress',
         NOT_IN_PROGRESS: 'Mock interview is not in progress',
         NOT_PAUSED: 'Mock interview is not paused'
+    },
+    USER_REVIEW: {
+        NOT_FOUND: 'User review not found',
+        UUID_NOT_VALID: 'ID not valid',
+        USER_ID_NOT_VALID: 'User ID not valid',
+        RATING_NOT_VALID: 'Rating not valid',
+        COMMENT_NOT_VALID: 'Comment not valid',
+        ALREADY_EXIST: 'User review already exist',
+        CREATE_FAILED: 'Failed to create user review',
+        UPDATE_FAILED: 'Failed to update user review',
+        DELETE_FAILED: 'Failed to delete user review',
+        CREATE_SUCCESS: 'Success to create user review'
     }
 });

@@ -8,6 +8,20 @@ const upload = require('../middlewares/upload_file');
 
 router.get('/ping', (req, res) => res.status(200).json({ message: 'PONG', date: new Date() }));
 
+//Endpoint untuk membuat user-review
+router.post(
+    '/user-reviews/create',
+    [tokenMiddleware],
+    require('../methods/v1/user-reviews/user_create_review').createUserReview
+);
+
+// Endpoint admin untuk mengambil semua user_reviews
+router.get(
+    '/admin/user-reviews',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-reviews/admin_list_review').getListUserReview
+);
+
 router.get(
     '/admin/user-purchases/essay-packages',
     [tokenMiddleware, adminOnlyMiddleware],
