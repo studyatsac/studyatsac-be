@@ -15,7 +15,8 @@ async function processMockInterviewScheduleTimerJob(job) {
     if (!userInterviewUuid || !userId) return;
 
     const interviewSectionUuid = jobData.userInterviewSectionUuid;
-    const shouldWaitForUpdate = (job?.timestamp ?? 0) <= MockInterviewConstants.JOB_DELAY
+    const elapsedTime = Date.now() - (job?.timestamp ?? 0);
+    const shouldWaitForUpdate = elapsedTime <= MockInterviewConstants.JOB_DELAY
         && !!interviewSectionUuid;
     try {
         const userInterview = await UserInterviewRepository.findOne(
