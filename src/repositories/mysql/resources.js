@@ -1,4 +1,4 @@
-const Models = require('../../models/mysql'); // Sesuaikan path Models kamu
+const Models = require('../../models/mysql');
 
 exports.findResources = function (questionId, opts = {}, trx = null) {
     return Models.Resources.findAll({
@@ -6,12 +6,20 @@ exports.findResources = function (questionId, opts = {}, trx = null) {
             {
                 model: Models.Resources,
                 where: { question_id: questionId },
-                attributes: [], // karena kita cuma butuh data resource saja
-      },
-    ],
-    ...opts,
-    transaction: trx,
-  });
+                attributes: []
+            }
+        ],
+        ...opts,
+        transaction: trx
+    });
+};
+
+exports.findAllResources = function (where, opts = {}, trx = null) {
+    return Models.Resources.findAll({ where, ...opts, transaction: trx });
+};
+
+exports.create = function (data, opts = {}, trx = null) {
+    return Models.Resources.create(data, { ...opts, transaction: trx });
 };
 
 module.exports = exports;

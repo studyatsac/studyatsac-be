@@ -63,4 +63,12 @@ exports.findAllWithUserAnswer = function (where, opts = {}, trx = null) {
     return Models.Question.findAll({ where: whereClause, ...opts, transaction: trx });
 };
 
+exports.create = function (payload, trx = null) {
+    return Models.Question.create(payload, { transaction: trx });
+};
+
+exports.findAndCountAll = function (where, opts = {}, trx = null) {
+    return Models.Question.findAndCountAll({ where, ...opts, transaction: trx });
+};
+
 module.exports = exports;

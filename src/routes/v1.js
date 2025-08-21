@@ -8,7 +8,35 @@ const upload = require('../middlewares/upload_file');
 
 router.get('/ping', (req, res) => res.status(200).json({ message: 'PONG', date: new Date() }));
 
-//Endpoint untuk membuat user-review
+// Endpoint untuk membuat resources
+router.post(
+    '/resources/create',
+    [tokenMiddleware, adminOnlyMiddleware, upload.single('file')],
+    require('../methods/v1/resources/admin_create').createResources
+);
+
+// Endpoint untuk list resources
+router.get(
+    '/resources',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/resources/admin_list').getListResources
+);
+
+// Endpoint untuk list question
+router.get(
+    '/questions',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_list').getListQuestions
+);
+
+// Endpoint untuk create question
+router.post(
+    '/questions/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_create').createQuestions
+);
+
+// Endpoint untuk membuat user-review
 router.post(
     '/user-reviews/create',
     [tokenMiddleware],

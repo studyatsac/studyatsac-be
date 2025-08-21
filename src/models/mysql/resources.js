@@ -22,10 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         source_link: {
             type: DataTypes.STRING(255),
             allowNull: false
-        },
+        }
     };
 
-    const options = {   
+    const options = {
         timestamps: true,
         paranoid: true,
         underscored: true,

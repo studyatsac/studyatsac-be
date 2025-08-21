@@ -9,7 +9,7 @@ const UserPurchaseRepository = require('../../repositories/mysql/user_purchase')
 const ConfigRepository = require('../../repositories/mysql/config');
 const Response = require('../../utils/response');
 const Config = require('../../configs/config');
-const sendResetPasswordEmail = require('../../utils/sendEmail.js'); 
+const sendResetPasswordEmail = require('../../utils/sendEmail');
 const generateResetPasswordToken = require('../../utils/tokenUtils');
 
 const generateToken = (account) => {
@@ -116,7 +116,7 @@ const login = async (input, opts = {}) => {
 
     // Pastikan account berupa plain object (bukan instance sequelize)
     const userData = account.toJSON ? account.toJSON() : account;
-    userData.roles = "user"
+    userData.roles = 'user';
 
     return Response.formatServiceReturn(true, 200, {
         token: tokenGenerated,
@@ -146,7 +146,7 @@ const verifyTokenAndGetUserData = async (token) => {
     }
 
     const userData = account.toJSON ? account.toJSON() : account;
-    userData.roles = userData.Roles ? userData.Roles.map(role => ({
+    userData.roles = userData.Roles ? userData.Roles.map((role) => ({
         id: role.id,
         uuid: role.uuid,
         name: role.name,
@@ -213,48 +213,47 @@ const resetPasswordToDefaultPassword = async (input, opts = {}) => {
 };
 
 const forgotPassword = async (input, opts = {}) => {
-  const language = opts.lang;
+    const language = opts.lang;
 
-  const account = await UserRepository.findOne({ email: input.email });
+    const account = await UserRepository.findOne({ email: input.email });
 
-  if (!account) {
-      return Response.formatServiceReturn(false, 404, null, language.EMAIL_NOT_FOUND);
-  }
+    if (!account) {
+        return Response.formatServiceReturn(false, 404, null, language.EMAIL_NOT_FOUND);
+    }
 
-  const resetToken = generateResetPasswordToken();
-  const expiresAt = Moment().add(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
+    const resetToken = generateResetPasswordToken();
+    const expiresAt = Moment().add(1, 'hour').format('YYYY-MM-DD HH:mm:ss');
 
+    await UserRepository.update({ id: account.id }, {
+        reset_password_token: resetToken,
+        reset_password_token_expires: expiresAt
+    });
 
-  await UserRepository.update({ id: account.id }, {
-    reset_password_token: resetToken,
-    reset_password_token_expires: expiresAt,
-  });
+    await sendResetPasswordEmail(account.email, resetToken);
 
-  await sendResetPasswordEmail(account.email, resetToken);
-
-  return Response.formatServiceReturn(true, 200, null, language.RESET_PASSWORD_EMAIL_SENT);
+    return Response.formatServiceReturn(true, 200, null, language.RESET_PASSWORD_EMAIL_SENT);
 };
 
 const resetPassword = async ({ token, newPassword }) => {
-  const user = await UserRepository.findOne({ reset_password_token: token });
-  if (!user) {
-    return { status: false, code: 404, message: 'Token invalid or expired' };
-  }
-  // Optional: cek expired token jika ada field expire
-  if (user.reset_password_token_expires && new Date(user.reset_password_token_expires) < new Date()) {
-    return { status: false, code: 400, message: 'Token expired' };
-  }
+    const user = await UserRepository.findOne({ reset_password_token: token });
+    if (!user) {
+        return { status: false, code: 404, message: 'Token invalid or expired' };
+    }
+    // Optional: cek expired token jika ada field expire
+    if (user.reset_password_token_expires && new Date(user.reset_password_token_expires) < new Date()) {
+        return { status: false, code: 400, message: 'Token expired' };
+    }
 
-  const salt = await Bcrypt.genSalt(10);
-  const password = await Bcrypt.hash(newPassword, salt);
+    const salt = await Bcrypt.genSalt(10);
+    const password = await Bcrypt.hash(newPassword, salt);
 
-  await UserRepository.update({ id: user.id }, {
-    password,
-    reset_password_token: null,
-    reset_password_token_expires: null,
-  });
+    await UserRepository.update({ id: user.id }, {
+        password,
+        reset_password_token: null,
+        reset_password_token_expires: null
+    });
 
-  return { status: true, code: 200, message: 'Password reset success' };
+    return { status: true, code: 200, message: 'Password reset success' };
 };
 
 exports.register = register;

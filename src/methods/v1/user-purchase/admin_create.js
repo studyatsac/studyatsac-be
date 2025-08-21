@@ -1,9 +1,11 @@
-const UserPurchaseRepository = require('../../../repositories/mysql/user_purchase');
 const bcrypt = require('bcrypt');
+const UserPurchaseRepository = require('../../../repositories/mysql/user_purchase');
 
 exports.createUserPurchase = async (req, res) => {
     try {
-        const { user_id, exam_package_id, created_at, expired_at } = req.body;
+        const {
+            user_id, exam_package_id, created_at, expired_at
+        } = req.body;
 
         if (!user_id || !exam_package_id) {
             return res.status(400).json({ message: 'User ID and Exam Package ID are required' });

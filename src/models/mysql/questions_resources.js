@@ -18,10 +18,10 @@ module.exports = (sequelize, DataTypes) => {
         question_id: {
             type: DataTypes.INTEGER().UNSIGNED,
             allowNull: false
-        },
+        }
     };
 
-    const options = {   
+    const options = {
         timestamps: true,
         paranoid: true,
         underscored: true,
@@ -32,7 +32,6 @@ module.exports = (sequelize, DataTypes) => {
     const QuestionResources = sequelize.define('questions_resources', attributes, options);
 
     QuestionResources.associate = (models) => {
-
         QuestionResources.belongsTo(models.Resources, {
             foreignKey: 'resource_id',
             as: 'resource'

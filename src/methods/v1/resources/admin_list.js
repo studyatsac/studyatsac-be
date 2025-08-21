@@ -1,9 +1,8 @@
 const { Op } = require('sequelize');
-const UserExamRepository = require('../../../repositories/mysql/user_exam');
-const Models = require('../../../models/mysql');
+const ResourcesRepository = require('../../../repositories/mysql/resources');
 const LogUtils = require('../../../utils/logger');
 
-exports.getListUserExam = async (req, res) => {
+exports.getListResources = async (req, res) => {
     try {
         const { page = 1, limit = 10, search } = req.query;
         const pageInt = parseInt(page, 10) || 1;
@@ -18,8 +17,8 @@ exports.getListUserExam = async (req, res) => {
         const whereClause = {};
         if (search) {
             whereClause[Op.or] = [
-                { '$User.full_name$': { [Op.like]: `%${search}%` } },
-                { '$User.email$': { [Op.like]: `%${search}%` } }
+                { '$Resources.resource_name$': { [Op.like]: `%${search}%` } },
+                { '$Resources.type$': { [Op.like]: `%${search}%` } }
             ];
         }
 
@@ -27,21 +26,11 @@ exports.getListUserExam = async (req, res) => {
             where: whereClause,
             order: [[orderBy, order]],
             limit: limitInt,
-            offset,
-            include: [
-                {
-                    model: Models.User,
-                    attributes: ['id', 'full_name', 'email', 'institution_name', 'faculty', 'nip']
-                },
-                {
-                    model: Models.Exam,
-                    attributes: ['id', 'title', 'number_of_question', 'duration', 'description', 'category_id', 'grade_rules', 'additional_information']
-                }
-            ]
+            offset
         };
 
-        const exams = await UserExamRepository.findAndCountAll(whereClause, optionsClause);
-        const data = { rows: exams.rows, count: exams.count };
+        const resources = await ResourcesRepository.findAllResources(whereClause, optionsClause);
+        const data = { rows: resources.rows, count: resources.count };
 
         return res.status(200).json({
             data: data.rows,
@@ -54,7 +43,7 @@ exports.getListUserExam = async (req, res) => {
         });
     } catch (err) {
         LogUtils.logError({
-            function_name: 'admin_getListUserExam',
+            function_name: 'admin_getListResources',
             message: err.message
         });
         return res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
