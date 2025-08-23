@@ -35,11 +35,11 @@ exports.getListUserPurchase = async (req, res) => {
                 },
                 {
                     model: Models.ExamPackage,
-                    attributes: ['id', 'title', 'price', 'description', 'category_id', 'grade_rules', 'additional_information']
+                    attributes: ['id', 'uuid', 'title', 'price', 'description', 'additional_information', 'isPrivate', 'imageUrl']
                 },
                 {
                     model: Models.ProductPackage,
-                    attributes: ['id', 'title', 'price', 'description', 'category_id', 'grade_rules', 'additional_information'],
+                    attributes: ['id', 'uuid', 'title', 'type', 'description', 'price', 'totalMaxAttempt', 'additional_information', 'defaultItemMaxAttempt', 'paymentUrl', 'isActive'],
                     as: 'productPackage'
                 }
             ]
