@@ -378,7 +378,6 @@ const examHistoryDetail = async (input, opts = {}) => {
         examId: userExam.examId
     });
 
-    console.log(questions);
     const data = {
         exam,
         userExam,

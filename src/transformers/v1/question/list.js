@@ -14,6 +14,11 @@ exports.item = (data) => {
         resource_id: data.resource_id || null,
         section_id: data.section_id || null
     };
+    if (data.isFinishedExam) {
+        responseData.explanation = data.explanation;
+        responseData.correctAnswer = data.correctAnswer;
+        responseData.isCorrect = userAnswer?.isCorrect || false;
+    }
     return responseData;
 };
 

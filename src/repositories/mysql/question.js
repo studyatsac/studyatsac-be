@@ -14,7 +14,6 @@ exports.findAll = function (where, opts = {}, trx = null) {
     });
     opts.include = include;
 
-    console.log( Models.Question.findAll({ where, ...opts, transaction: trx }));
     return Models.Question.findAll({ where, ...opts, transaction: trx });
 };
 
