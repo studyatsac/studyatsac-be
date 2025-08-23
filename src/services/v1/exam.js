@@ -11,6 +11,7 @@ const IeltsWritingSubmissionRepository = require('../../repositories/mysql/ielts
 const UserRepository = require('../../repositories/mysql/user');
 const Response = require('../../utils/response');
 const Helpers = require('../../utils/helpers');
+const { use } = require('react');
 
 const getActiveExam = async (input, opts = {}) => {
     const language = opts.lang;
@@ -384,6 +385,10 @@ const examHistoryDetail = async (input, opts = {}) => {
         questions,
         isFinishedExam: true
     };
+
+    console.log('Exam data Detail:', data);
+    console.log('Exam userExam Detail:', userExam);
+    console.log('Exam questions Detail:', questions);
 
     return Response.formatServiceReturn(true, 200, data, null);
 };
