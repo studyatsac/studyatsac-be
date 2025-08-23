@@ -335,5 +335,14 @@ module.exports = Object.freeze({
         UPDATE_FAILED: 'Failed to update user review',
         DELETE_FAILED: 'Failed to delete user review',
         CREATE_SUCCESS: 'Success to create user review'
+    },
+    QUESTION: {
+        NOT_FOUND: 'Question not found',
+        UUID_NOT_VALID: 'ID not valid',
+        TITLE_NOT_VALID: 'Title not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        CREATE_FAILED: 'Failed to create question',
+        UPDATE_FAILED: 'Failed to update question',
+        DELETE_FAILED: 'Failed to delete question'
     }
 });

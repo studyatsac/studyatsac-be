@@ -13,8 +13,28 @@ exports.findSections = function (questionId, opts = {}, trx = null) {
             }
         ],
         ...opts,
-        transaction: trx,
+        transaction: trx
     });
+};
+
+exports.findAndCountAll = function (where, opts = {}, trx = null) {
+    return Models.Section.findAndCountAll({
+        where,
+        ...opts,
+        transaction: trx
+    });
+};
+
+exports.findOne = function (where, opts = {}, trx = null) {
+    return Models.Section.findOne({ where, ...opts, transaction: trx });
+};
+
+exports.update = function (payload, where, trx = null) {
+    return Models.Section.update(payload, { where, transaction: trx });
+};
+
+exports.delete = function (where, trx = null) {
+    return Models.Section.destroy({ where, transaction: trx });
 };
 
 module.exports = exports;

@@ -1,13 +1,10 @@
 const { Op } = require('sequelize');
-const UserReviews = require('../../../repositories/mysql/user_reviews');
-const Models = require('../../../models/mysql');
+const ResourcesRepository = require('../../../repositories/mysql/resources');
 const LogUtils = require('../../../utils/logger');
 
-exports.getListUserReview = async (req, res) => {
+exports.getListResources = async (req, res) => {
     try {
         const { page = 1, limit = 10, search } = req.query;
-
-        // Validasi sederhana
         const pageInt = parseInt(page, 10) || 1;
         const limitInt = parseInt(limit, 10) || 10;
         const offset = (pageInt - 1) * limitInt;
@@ -20,8 +17,8 @@ exports.getListUserReview = async (req, res) => {
         const whereClause = {};
         if (search) {
             whereClause[Op.or] = [
-                { name: { [Op.like]: `%${search}%` } },
-                { comment: { [Op.like]: `%${search}%` } }
+                { '$Resources.resource_name$': { [Op.like]: `%${search}%` } },
+                { '$Resources.type$': { [Op.like]: `%${search}%` } }
             ];
         }
 
@@ -29,40 +26,24 @@ exports.getListUserReview = async (req, res) => {
             where: whereClause,
             order: [[orderBy, order]],
             limit: limitInt,
-            offset,
-            include: [
-                {
-                    model: Models.User,
-                    attributes: [
-                        'id',
-                        'full_name',
-                        'email',
-                        'institution_name',
-                        'faculty',
-                        'nip'
-                    ]
-                }
-            ]
+            offset
         };
 
-        const review = await UserReviews.findAndCountAll(
-            whereClause,
-            optionsClause
-        );
-        const data = { rows: review.rows, count: review.count };
+        const resources = await ResourcesRepository.findAllAndCount(whereClause, optionsClause);
+        const data = { rows: resources.rows, count: resources.count };
 
         return res.status(200).json({
             data: data.rows,
             meta: {
                 page: pageInt,
                 limit: limitInt,
-                totalData: data.count,
-                totalPage: Math.ceil(data.count / limitInt)
+                total_data: data.count,
+                total_page: Math.ceil(data.count / limitInt)
             }
         });
     } catch (err) {
-        LogUtils.loggingError({
-            functionName: 'admin_getReviewList',
+        LogUtils.logError({
+            function_name: 'admin_getListResources',
             message: err.message
         });
         return res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });

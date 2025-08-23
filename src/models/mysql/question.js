@@ -66,14 +66,17 @@ module.exports = (sequelize, DataTypes) => {
         });
         Question.belongsTo(models.Section, {
             foreignKey: 'section_id',
-            as: 'section',
+            as: 'section'
         });
         Question.belongsTo(models.Resources, {
             foreignKey: 'resource_id',
-            as: 'resource',
+            as: 'resource'
+        });
+        Question.belongsTo(models.Exam, {
+            foreignKey: 'examId',
+            as: 'exam'
         });
     };
-
 
     return Question;
 };
