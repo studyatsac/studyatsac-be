@@ -5,17 +5,16 @@ exports.createResources = async (req, res) => {
     try {
         const resource = await ResourcesService.createResources(req.body);
 
-        res.json({
-            message: 'Upload and save success',
+        return res.status(200).json({
+            message: 'Create resource success',
             data: resource
         });
-
-        return res.status(200).json({ data: res, message: 'Create resource success' });
     } catch (err) {
         LogUtils.logError({
-            function_name: 'admin_getListResources',
+            function_name: 'Admin_CreateResources',
             message: err.message
         });
+
         return res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
     }
 };

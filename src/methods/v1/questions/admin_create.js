@@ -1,6 +1,5 @@
 const QuestionServices = require('../../../services/v1/questions');
 const QuestionTransformer = require('../../../transformers/v1/question/question');
-const QuestionValidation = require('../../../validations/v1/question/create');
 const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
 
@@ -10,14 +9,28 @@ exports.createQuestions = async (req, res) => {
     try {
         lang = Language.getLanguage(req.locale);
 
-        let input;
-        try {
-            input = await QuestionValidation(lang).validateAsync(req.body);
-        } catch (err) {
-            return res.status(400).json({ message: err.message });
-        }
+        let input = {};
+        input = {
+            resource: req.body.resource,
+            examId: req.body.examId,
+            sectionId: req.body.sectionId,
+            question: req.body.question,
+            questionNumber: Number(req.body.questionNumber),
+            correctAnswer: req.body.correctAnswer,
+            answerOption: '',
+            explanation: req.body.explanation,
+            score: Number(req.body.score),
+            user: req.session
+        };
 
-        input.answerOption = QuestionTransformer.transformAnswerOptions(input.body.answerOptionA, input.body.answerOptionB, input.body.answerOptionC, input.body.answerOptionD);
+        const rawAnswer = {
+            answerOptionA: req.body.answerOptionA,
+            answerOptionB: req.body.answerOptionB,
+            answerOptionC: req.body.answerOptionC,
+            answerOptionD: req.body.answerOptionD
+        };
+
+        input.answerOption = QuestionTransformer.transformAnswerOptions(rawAnswer);
 
         const result = await QuestionServices.createQuestion(input, { lang });
 

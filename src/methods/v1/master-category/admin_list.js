@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
-const UserRepository = require('../../../repositories/mysql/user');
+const MasterCategoryRepositories = require('../../../repositories/mysql/master_category');
 
-exports.getListUser = async (req, res) => {
+exports.getListMasterCategory = async (req, res) => {
     try {
         // Ambil query pagination dan search
         const { page = 1, limit = 10, search } = req.query;
@@ -17,13 +17,12 @@ exports.getListUser = async (req, res) => {
         const whereClause = {};
         if (search) {
             whereClause[Op.or] = [
-                { full_name: { [Op.like]: `%${search}%` } },
-                { email: { [Op.like]: `%${search}%` } }
+                { title: { [Op.like]: `%${search}%` } }
             ];
         }
 
         // Query data user dan total count
-        const { rows, count } = await UserRepository.findAndCountAll(whereClause, {
+        const { rows, count } = await MasterCategoryRepositories.findAndCountAll(whereClause, {
             offset,
             limit: limitInt,
             order: [[orderBy, order]]

@@ -29,7 +29,7 @@ exports.getListResources = async (req, res) => {
             offset
         };
 
-        const resources = await ResourcesRepository.findAllResources(whereClause, optionsClause);
+        const resources = await ResourcesRepository.findAllAndCount(whereClause, optionsClause);
         const data = { rows: resources.rows, count: resources.count };
 
         return res.status(200).json({

@@ -8,6 +8,48 @@ const upload = require('../middlewares/upload_file');
 
 router.get('/ping', (req, res) => res.status(200).json({ message: 'PONG', date: new Date() }));
 
+// Endpoint untuk list section
+router.get(
+    '/admin/sections',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_list').getListSection
+);
+
+// Endpoint untuk create section
+router.post(
+    '/admin/sections/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_create').createSection
+);
+
+// Endpoint untuk hapus section
+router.delete(
+    '/admin/sections/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_delete').deleteSection
+);
+
+// Endpoint untuk detail section
+router.get(
+    '/admin/sections/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_detail').getSectionDetail
+);
+
+// Endpoint untuk update section
+router.put(
+    '/admin/sections/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_update').updateSection
+);
+
+// Endpoint untuk list master category
+router.get(
+    '/admin/master-categories',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_list').getListMasterCategory
+);
+
 // Endpoint untuk membuat resources
 router.post(
     '/resources/create',
@@ -17,23 +59,65 @@ router.post(
 
 // Endpoint untuk list resources
 router.get(
-    '/resources',
+    '/admin/resources',
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/resources/admin_list').getListResources
 );
 
+// Endpoint untuk delete resources
+router.delete(
+    '/admin/resources/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/resources/admin_delete').deleteResource
+);
+
+// Endpoint untuk update resources
+router.put(
+    '/admin/resources/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/resources/admin_update').updateResource
+);
+
+// Endpoint untuk detail resources
+router.get(
+    '/admin/resources/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/resources/admin_detail').getResourceDetail
+);
+
 // Endpoint untuk list question
 router.get(
-    '/questions',
+    '/admin/questions',
     [tokenMiddleware, adminOnlyMiddleware],
-    require('../methods/v1/questions/admin_list').getListQuestions
+    require('../methods/v1/questions/admin_list').getListQuestion
 );
 
 // Endpoint untuk create question
 router.post(
-    '/questions/create',
+    '/admin/questions/create',
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/questions/admin_create').createQuestions
+);
+
+// Endpoint delete question
+router.delete(
+    '/admin/questions/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_delete').deleteQuestion
+);
+
+// Endpoint update question
+router.put(
+    '/admin/questions/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_update').updateQuestion
+);
+
+// Endpoint untuk detail question
+router.get(
+    '/admin/questions/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_detail').getQuestionDetail
 );
 
 // Endpoint untuk membuat user-review

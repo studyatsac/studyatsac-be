@@ -71,4 +71,12 @@ exports.findAndCountAll = function (where, opts = {}, trx = null) {
     return Models.Question.findAndCountAll({ where, ...opts, transaction: trx });
 };
 
+exports.update = function (payload, where, trx = null) {
+    return Models.Question.update(payload, { where, transaction: trx });
+};
+
+exports.delete = function (where, trx = null) {
+    return Models.Question.destroy({ where, transaction: trx });
+};
+
 module.exports = exports;

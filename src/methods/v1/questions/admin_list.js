@@ -31,7 +31,18 @@ exports.getListQuestion = async (req, res) => {
             include: [
                 {
                     model: Models.Exam,
+                    as: 'exam',
                     attributes: ['id', 'title', 'number_of_question', 'duration', 'description', 'category_id', 'grade_rules', 'additional_information']
+                },
+                {
+                    model: Models.Resources,
+                    as: 'resource',
+                    attributes: ['id', 'resource_name', 'type', 'source_link']
+                },
+                {
+                    model: Models.Section,
+                    as: 'section',
+                    attributes: ['id', 'section_type', 'created_at', 'updated_at']
                 }
             ]
         };
