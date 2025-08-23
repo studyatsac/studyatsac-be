@@ -11,7 +11,6 @@ const IeltsWritingSubmissionRepository = require('../../repositories/mysql/ielts
 const UserRepository = require('../../repositories/mysql/user');
 const Response = require('../../utils/response');
 const Helpers = require('../../utils/helpers');
-const { use } = require('react');
 
 const getActiveExam = async (input, opts = {}) => {
     const language = opts.lang;
