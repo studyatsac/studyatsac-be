@@ -14,7 +14,7 @@ exports.updateResource = async (req, res) => {
 
         const { resourceName, type, sourceLink } = req.body;
         const updateData = { resource_name: resourceName, type, source_link: sourceLink };
-        await ResourcesRepository.update({ id }, updateData);
+        await ResourcesRepository.update(updateData, { id });
         const updatedResource = await ResourcesRepository.findOne({ id });
         return res.status(200).json({ data: updatedResource });
     } catch (err) {
