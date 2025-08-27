@@ -1,27 +1,23 @@
-name: Deploy to Server
+name: Deploy Production Server
 
 on:
   push:
-    branches:
-      - main
+    branches: [prod]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd /api.studyatsac.cloud/
-            git pull origin main
-            npm install
-            npx sequelize-cli db:migrate
-            pm2 restart all
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+           mkdir -p ~/.ssh
+           echo "${{ secrets.SSH_PRIVATE_KEY_PROD }}" > ~/.ssh/id_rsa
+           chmod 600 ~/.ssh/id_rsa
+           ssh-keyscan -H 36.50.77.55 >> ~/.ssh/known_hosts
+      - name: Deploy using SSH
+        run: |
+          ssh ${{ secrets.USERNAME_PROD }}@36.50.77.55 -p 64000 '~/./deploybe.sh'
