@@ -119,17 +119,22 @@ async function getCompletedTargetUserInterviewSectionSession(userId, userIntervi
     };
 }
 
-function getShouldTerminateHandler(callerId, userId, userInterviewUuid) {
-    let checkShouldTerminate;
-    if (callerId) {
-        checkShouldTerminate = async () => {
-            const jobId = await MockInterviewCacheUtils.getMockInterviewProcessJobId(userId, userInterviewUuid);
-            if (jobId === callerId) return callerId;
-            return null;
-        };
-    }
+function createProcessJobValidator(expectedJobId, userId, userInterviewUuid) {
+    const expected = expectedJobId != null ? String(expectedJobId) : null;
 
-    return checkShouldTerminate;
+    return async () => {
+        if (!expected) return { active: true, callerId: null };
+
+        try {
+            const stored = await MockInterviewCacheUtils.getMockInterviewProcessJobId(userId, userInterviewUuid);
+            if (stored == null) return { active: false, callerId: null };
+            const storedStr = String(stored);
+            const active = storedStr === expected;
+            return { active, callerId: active ? storedStr : null };
+        } catch {
+            return { active: false, callerId: null };
+        }
+    };
 }
 
 async function processMockInterviewOpen(
@@ -140,11 +145,9 @@ async function processMockInterviewOpen(
     job,
     token
 ) {
-    let callerId;
-    if (typeof checkShouldTerminate === 'function') {
-        callerId = await checkShouldTerminate();
-        if (!callerId) return;
-    }
+    const validation = (typeof checkShouldTerminate === 'function') ? await checkShouldTerminate() : { active: true, callerId: null };
+    if (!validation?.active) return;
+    const callerId = validation?.callerId ?? null;
 
     let language = userInterview.language;
     if (targetInterviewSection?.language) language = targetInterviewSection.language;
@@ -197,7 +200,7 @@ async function processMockInterviewOpenJob(job, token) {
         sessionId,
         userInterview,
         targetInterviewSection,
-        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
+        createProcessJobValidator(jobData.callerId, userId, userInterviewUuid),
         job,
         token
     );
@@ -211,11 +214,9 @@ async function processMockInterviewContinue(
     job,
     token
 ) {
-    let callerId;
-    if (typeof checkShouldTerminate === 'function') {
-        callerId = await checkShouldTerminate();
-        if (!callerId) return;
-    }
+    const validation = (typeof checkShouldTerminate === 'function') ? await checkShouldTerminate() : { active: true, callerId: null };
+    if (!validation?.active) return;
+    const callerId = validation?.callerId ?? null;
 
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
         targetInterviewSection.interviewSectionAnswers.length - 1
@@ -292,7 +293,7 @@ async function processMockInterviewContinueJob(job, token) {
         sessionId,
         userInterview,
         targetInterviewSection,
-        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
+        createProcessJobValidator(jobData.callerId, userId, userInterviewUuid),
         job,
         token
     );
@@ -306,11 +307,9 @@ async function processMockInterviewRespond(
     job,
     token
 ) {
-    let callerId;
-    if (typeof checkShouldTerminate === 'function') {
-        callerId = await checkShouldTerminate();
-        if (!callerId) return;
-    }
+    const validation = (typeof checkShouldTerminate === 'function') ? await checkShouldTerminate() : { active: true, callerId: null };
+    if (!validation?.active) return;
+    const callerId = validation?.callerId ?? null;
 
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
         targetInterviewSection.interviewSectionAnswers.length - 1
@@ -388,7 +387,7 @@ async function processMockInterviewRespondJob(job, token) {
         sessionId,
         userInterview,
         targetInterviewSection,
-        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
+        createProcessJobValidator(jobData.callerId, userId, userInterviewUuid),
         job,
         token
     );
@@ -403,11 +402,9 @@ async function processMockInterviewRespondTransition(
     job,
     token
 ) {
-    let callerId;
-    if (typeof checkShouldTerminate === 'function') {
-        callerId = await checkShouldTerminate();
-        if (!callerId) return;
-    }
+    const validation = (typeof checkShouldTerminate === 'function') ? await checkShouldTerminate() : { active: true, callerId: null };
+    if (!validation?.active) return;
+    const callerId = validation?.callerId ?? null;
 
     const lastAnswer = completedInterviewSection?.interviewSectionAnswers?.[
         completedInterviewSection.interviewSectionAnswers.length - 1
@@ -494,7 +491,7 @@ async function processMockInterviewRespondTransitionJob(job, token) {
         userInterview,
         completedInterviewSection,
         targetInterviewSection,
-        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
+        createProcessJobValidator(jobData.callerId, userId, userInterviewUuid),
         job,
         token
     );
@@ -508,11 +505,9 @@ async function processMockInterviewClose(
     job,
     token
 ) {
-    let callerId;
-    if (typeof checkShouldTerminate === 'function') {
-        callerId = await checkShouldTerminate();
-        if (!callerId) return;
-    }
+    const validation = (typeof checkShouldTerminate === 'function') ? await checkShouldTerminate() : { active: true, callerId: null };
+    if (!validation?.active) return;
+    const callerId = validation?.callerId ?? null;
 
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
         targetInterviewSection.interviewSectionAnswers.length - 1
@@ -581,7 +576,7 @@ async function processMockInterviewCloseJob(job, token) {
         sessionId,
         userInterview,
         targetInterviewSection,
-        getShouldTerminateHandler(jobData.callerId, userId, userInterviewUuid),
+        createProcessJobValidator(jobData.callerId, userId, userInterviewUuid),
         job,
         token
     );
@@ -631,8 +626,9 @@ async function processMockInterviewProcessJob(job) {
     const texts = await MockInterviewCacheUtils.getMockInterviewSpeechTexts(userInterview.userId, userInterview.uuid);
     if (!texts || !Array.isArray(texts) || texts.length === 0) return;
 
-    const checkShouldTerminate = getShouldTerminateHandler(job.id, userId, userInterviewUuid);
-    if (!(await checkShouldTerminate())) return;
+    const checkShouldTerminate = createProcessJobValidator(job.id, userId, userInterviewUuid);
+    const validation = await checkShouldTerminate();
+    if (!validation?.active) return;
 
     const text = texts.map((item) => item?.content ?? '').filter(Boolean).join(' ');
 
