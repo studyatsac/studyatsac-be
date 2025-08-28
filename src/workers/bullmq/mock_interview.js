@@ -137,6 +137,73 @@ function createProcessJobValidator(expectedJobId, userId, userInterviewUuid) {
     };
 }
 
+function getRetryDelay(attempt = 1, base = 1000, max = 5000) {
+    // eslint-disable-next-line no-restricted-properties -- Fine to use pow
+    return Math.min(base * Math.pow(2, Math.max(0, attempt - 1)), max);
+}
+
+async function handleRetryOrStop({
+    job,
+    token,
+    userInterview,
+    callerId,
+    jobName,
+    opts = {}
+}) {
+    const maxAttempts = opts.maxAttempts ?? 3;
+    const baseDelay = opts.baseDelay ?? 1000;
+    const maxDelay = opts.maxDelay ?? 5000;
+
+    const attemptsMade = (job && typeof job === 'object' && typeof job?.attemptsMade === 'number')
+        ? job.attemptsMade + 1
+        // eslint-disable-next-line no-underscore-dangle -- Fine to use dangling
+        : (job?.data?.__retryCount ?? 1);
+
+    if (attemptsMade >= maxAttempts) {
+        try {
+            await MockInterviewCacheUtils.setMockInterviewControlStopJobTime(
+                userInterview.userId,
+                userInterview.uuid,
+                Date.now() + 1000
+            );
+
+            try {
+                await MockInterviewCacheUtils.deleteMockInterviewProcessJobId(userInterview.userId, userInterview.uuid);
+            } catch {
+                // Do nothing
+            }
+
+            const clientSid = await MockInterviewCacheUtils.getMockInterviewSid(userInterview.userId, userInterview.uuid);
+            if (clientSid) SocketServer.emitEventToClient(clientSid, MockInterviewConstants.EVENT_NAME.STOPPED);
+        } catch {
+            // Do nothing
+        }
+
+        return;
+    }
+
+    const delay = getRetryDelay(attemptsMade, baseDelay, maxDelay);
+    if (job && token) {
+        await job.moveToDelayed(Date.now() + delay, token);
+        throw new DelayedError();
+    }
+
+    await Queues.MockInterview.add(
+        jobName,
+        {
+            userInterviewUuid: userInterview.uuid,
+            userId: userInterview.userId,
+            callerId,
+            __retryCount: attemptsMade
+        },
+        {
+            delay,
+            attempts: maxAttempts,
+            backoff: { type: 'exponential', delay: baseDelay }
+        }
+    );
+}
+
 async function processMockInterviewOpen(
     sessionId,
     userInterview,
@@ -173,17 +240,13 @@ async function processMockInterviewOpen(
     );
     if (result) return;
 
-    const delay = 1000;
-    if (job && token) {
-        await job.moveToDelayed(Date.now() + delay, token);
-        throw new DelayedError();
-    } else {
-        await Queues.MockInterview.add(
-            MockInterviewConstants.JOB_NAME.OPEN,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
-            { delay }
-        );
-    }
+    await handleRetryOrStop({
+        job,
+        token,
+        userInterview,
+        callerId,
+        jobName: MockInterviewConstants.JOB_NAME.OPEN
+    });
 }
 
 async function processMockInterviewOpenJob(job, token) {
@@ -266,17 +329,13 @@ async function processMockInterviewContinue(
     );
     if (result) return;
 
-    const delay = 1000;
-    if (job && token) {
-        await job.moveToDelayed(Date.now() + delay, token);
-        throw new DelayedError();
-    } else {
-        await Queues.MockInterview.add(
-            MockInterviewConstants.JOB_NAME.CONTINUE,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
-            { delay }
-        );
-    }
+    await handleRetryOrStop({
+        job,
+        token,
+        userInterview,
+        callerId,
+        jobName: MockInterviewConstants.JOB_NAME.CONTINUE
+    });
 }
 
 async function processMockInterviewContinueJob(job, token) {
@@ -360,17 +419,13 @@ async function processMockInterviewRespond(
     );
     if (result) return;
 
-    const delay = 1000;
-    if (job && token) {
-        await job.moveToDelayed(Date.now() + delay, token);
-        throw new DelayedError();
-    } else {
-        await Queues.MockInterview.add(
-            MockInterviewConstants.JOB_NAME.RESPOND,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
-            { delay }
-        );
-    }
+    await handleRetryOrStop({
+        job,
+        token,
+        userInterview,
+        callerId,
+        jobName: MockInterviewConstants.JOB_NAME.RESPOND
+    });
 }
 
 async function processMockInterviewRespondJob(job, token) {
@@ -458,17 +513,13 @@ async function processMockInterviewRespondTransition(
     );
     if (result) return;
 
-    const delay = 1000;
-    if (job && token) {
-        await job.moveToDelayed(Date.now() + delay, token);
-        throw new DelayedError();
-    } else {
-        await Queues.MockInterview.add(
-            MockInterviewConstants.JOB_NAME.RESPOND_TRANSITION,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
-            { delay }
-        );
-    }
+    await handleRetryOrStop({
+        job,
+        token,
+        userInterview,
+        callerId,
+        jobName: MockInterviewConstants.JOB_NAME.RESPOND_TRANSITION
+    });
 }
 
 async function processMockInterviewRespondTransitionJob(job, token) {
@@ -549,17 +600,13 @@ async function processMockInterviewClose(
     );
     if (result) return;
 
-    const delay = 1000;
-    if (job && token) {
-        await job.moveToDelayed(Date.now() + delay, token);
-        throw new DelayedError();
-    } else {
-        await Queues.MockInterview.add(
-            MockInterviewConstants.JOB_NAME.CLOSE,
-            { userInterviewUuid: userInterview.uuid, userId: userInterview.userId, callerId },
-            { delay }
-        );
-    }
+    await handleRetryOrStop({
+        job,
+        token,
+        userInterview,
+        callerId,
+        jobName: MockInterviewConstants.JOB_NAME.CLOSE
+    });
 }
 
 async function processMockInterviewCloseJob(job, token) {
