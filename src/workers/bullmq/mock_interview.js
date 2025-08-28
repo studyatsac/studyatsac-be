@@ -124,7 +124,8 @@ function getShouldTerminateHandler(callerId, userId, userInterviewUuid) {
     if (callerId) {
         checkShouldTerminate = async () => {
             const jobId = await MockInterviewCacheUtils.getMockInterviewProcessJobId(userId, userInterviewUuid);
-            return jobId !== callerId;
+            if (jobId === callerId) return callerId;
+            return null;
         };
     }
 
@@ -141,7 +142,8 @@ async function processMockInterviewOpen(
 ) {
     let callerId;
     if (typeof checkShouldTerminate === 'function') {
-        if (await checkShouldTerminate()) return;
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
     }
 
     let language = userInterview.language;
@@ -211,7 +213,8 @@ async function processMockInterviewContinue(
 ) {
     let callerId;
     if (typeof checkShouldTerminate === 'function') {
-        if (await checkShouldTerminate()) return;
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
     }
 
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
@@ -305,7 +308,8 @@ async function processMockInterviewRespond(
 ) {
     let callerId;
     if (typeof checkShouldTerminate === 'function') {
-        if (await checkShouldTerminate()) return;
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
     }
 
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
@@ -401,7 +405,8 @@ async function processMockInterviewRespondTransition(
 ) {
     let callerId;
     if (typeof checkShouldTerminate === 'function') {
-        if (await checkShouldTerminate()) return;
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
     }
 
     const lastAnswer = completedInterviewSection?.interviewSectionAnswers?.[
@@ -505,7 +510,8 @@ async function processMockInterviewClose(
 ) {
     let callerId;
     if (typeof checkShouldTerminate === 'function') {
-        if (await checkShouldTerminate()) return;
+        callerId = await checkShouldTerminate();
+        if (!callerId) return;
     }
 
     const lastAnswer = targetInterviewSection?.interviewSectionAnswers?.[
@@ -626,9 +632,7 @@ async function processMockInterviewProcessJob(job) {
     if (!texts || !Array.isArray(texts) || texts.length === 0) return;
 
     const checkShouldTerminate = getShouldTerminateHandler(job.id, userId, userInterviewUuid);
-    if (typeof checkShouldTerminate === 'function') {
-        if (await checkShouldTerminate()) return;
-    }
+    if (!(await checkShouldTerminate())) return;
 
     const text = texts.map((item) => item?.content ?? '').filter(Boolean).join(' ');
 
