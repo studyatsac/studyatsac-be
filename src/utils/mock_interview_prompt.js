@@ -32,7 +32,9 @@ const getMockInterviewOpeningUserPrompt = (topic, language) => {
         opening = `Welcome to the ${SCHOLARSHIP ? `${SCHOLARSHIP} ` : ''}scholarship interview session. First of all, congratulations on reaching this stage.`;
     }
 
-    const prompt = `Dari topik ${topic}, berikan:
+    const prompt = `${getMockInterviewBaseCriteriaPrompt(language)}
+
+Dari topik ${topic}, berikan:
 - Kalimat pembuka sesi wawancara, seperti:
 "${opening}"
 - Permintaan untuk memperkenalkan diri.`;
@@ -55,6 +57,8 @@ const getMockInterviewContinuingUserPrompt = (previousQuestion, answer, followUp
 
 Transkip jawaban kandidat: ${answer}
 
+${getMockInterviewBaseCriteriaPrompt(language)}
+
 Dari jawaban tersebut, berikan respon berupa:
 - Kalimat pembuka untuk sesi wawancara yang sempat terjeda, seperti:
 "${opening}"
@@ -72,6 +76,8 @@ const getMockInterviewRespondUserPrompt = (answer, followUpQuestions, language) 
     ).join('\n') ?? '';
 
     const prompt = `Transkip jawaban kandidat: ${answer}
+
+${getMockInterviewBaseCriteriaPrompt(language)}
 
 Dari jawaban yang diberikan kandidat nantinya, berikan respon berupa:
 - Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat secara kuantitatif**.  
@@ -93,6 +99,8 @@ Pertanyaan sesi sebelumnya: ${previousQuestion}
 
 Transkirp jawaban kandidat: ${answer}
 
+${getMockInterviewBaseCriteriaPrompt(language)}
+
 Untuk berpindah topik sesi, berikan respon berupa:
 - Jika jawaban kandidat nantinya memiliki relevansi dengan topik lanjutan ini, maka berikan tanggapan singkat (1 kalimat) mengenai jawaban kandidat. Penting: **abaikan jika tidak ada relevansi dan hindari menilai jawaban kandidat secara kuantitatif ketika menanggapi**.   
 - Satu pertanyaan yang paling menarik${typeof questionList === 'string' && !!questionList?.trim() ? `, pertimbangkan jika ada relevansi dengan latar belakang kandidat, dari daftar berikut:
@@ -109,6 +117,8 @@ const getMockInterviewClosingUserPrompt = (answer, language) => {
     }
 
     const prompt = `Transkirp jawaban kandidat: ${answer}
+
+${getMockInterviewBaseCriteriaPrompt(language)}
 
 Dari jawaban yang diberikan kandidat nantinya, berikan respon berupa:
 - Tanggapan singkat (1-2 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat secara kuantitatif**.  
