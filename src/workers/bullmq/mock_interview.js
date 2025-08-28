@@ -247,7 +247,7 @@ async function processMockInterviewContinue(
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
         ]
     ) || [];
-    const previousHistory = MockInterviewCacheUtils.getMockInterviewProcessHistory(
+    const previousHistory = await MockInterviewCacheUtils.getMockInterviewProcessHistory(
         userInterview.userId,
         userInterview.uuid
     );
@@ -343,7 +343,7 @@ async function processMockInterviewRespond(
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
         ]
     ) || [];
-    const previousHistory = MockInterviewCacheUtils.getMockInterviewProcessHistory(
+    const previousHistory = await MockInterviewCacheUtils.getMockInterviewProcessHistory(
         userInterview.userId,
         userInterview.uuid
     );
@@ -443,7 +443,7 @@ async function processMockInterviewRespondTransition(
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
         ]
     ) || [];
-    const previousHistory = MockInterviewCacheUtils.getMockInterviewProcessHistory(
+    const previousHistory = await MockInterviewCacheUtils.getMockInterviewProcessHistory(
         userInterview.userId,
         userInterview.uuid
     );
@@ -536,7 +536,7 @@ async function processMockInterviewClose(
             [MockInterviewConstants.PROCESS_EVENT_HISTORY_ROLE.USER, item?.answer || '']
         ]
     ) || [];
-    const previousHistory = MockInterviewCacheUtils.getMockInterviewProcessHistory(
+    const previousHistory = await MockInterviewCacheUtils.getMockInterviewProcessHistory(
         userInterview.userId,
         userInterview.uuid
     );
