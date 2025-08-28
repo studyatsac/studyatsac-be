@@ -54,6 +54,7 @@ async function processMockInterviewScheduleTimerJob(job) {
             if (timerJobId) {
                 await Queues.MockInterviewSchedule.removeJobScheduler(timerJobId);
                 await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerJobId(userId, userInterviewUuid);
+                await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(userId, userInterviewUuid);
             }
 
             return;
@@ -65,11 +66,16 @@ async function processMockInterviewScheduleTimerJob(job) {
         if (!targetInterviewSection && shouldWaitForUpdate) {
             targetInterviewSection = userInterview.interviewSections?.[0];
         }
+
+        const lastUpdate = await MockInterviewCacheUtils.getMockInterviewScheduleTimerLastUpdate(userId, userInterviewUuid);
+        let elapsedTimeInSeconds = MockInterviewConstants.TIMER_INTERVAL_IN_SECONDS;
+        if (lastUpdate) elapsedTimeInSeconds = Math.max(Math.round((Date.now() - lastUpdate) / 1000), elapsedTimeInSeconds);
         if (targetInterviewSection) {
             await UserInterviewSectionRepository.update(
-                { duration: targetInterviewSection.duration + MockInterviewConstants.TIMER_INTERVAL_IN_SECONDS },
+                { duration: targetInterviewSection.duration + elapsedTimeInSeconds },
                 { id: targetInterviewSection.id }
             );
+            await MockInterviewCacheUtils.setMockInterviewScheduleTimerLastUpdate(userId, userInterviewUuid);
         }
 
         const stopJobTime = await MockInterviewCacheUtils.getMockInterviewControlStopJobTime(
