@@ -76,7 +76,7 @@ const STATUS = {
 const EVENT_NAME = {
     STATUS: 'status',
     CONTROL: 'control',
-    STOP: 'stop'
+    PAUSE: 'pause'
 };
 
 const AI_SERVICE_EVENT_NAME = {

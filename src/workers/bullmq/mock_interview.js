@@ -161,7 +161,7 @@ async function handleRetryOrStop({
 
     if (attemptsMade >= maxAttempts) {
         try {
-            await MockInterviewCacheUtils.setMockInterviewControlStopJobTime(
+            await MockInterviewCacheUtils.setMockInterviewControlPauseJobTime(
                 userInterview.userId,
                 userInterview.uuid,
                 Date.now() + 1000
@@ -174,7 +174,7 @@ async function handleRetryOrStop({
             }
 
             const clientSid = await MockInterviewCacheUtils.getMockInterviewSid(userInterview.userId, userInterview.uuid);
-            if (clientSid) SocketServer.emitEventToClient(clientSid, MockInterviewConstants.EVENT_NAME.STOP);
+            if (clientSid) SocketServer.emitEventToClient(clientSid, MockInterviewConstants.EVENT_NAME.PAUSE);
         } catch {
             // Do nothing
         }
