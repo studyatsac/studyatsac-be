@@ -892,7 +892,7 @@ const recordMockInterviewProcess = async (input, data) => {
         }, trx);
 
         await MockInterviewCacheUtils.setMockInterviewProcessTarget(input.userId, input.uuid, {
-            userInterviewAnswerSectionId: interviewSectionAnswer.id,
+            userInterviewSectionAnswerId: interviewSectionAnswer.id,
             questionNumber: data?.questionNumber || -1,
             question: data.fullText
         });
@@ -937,12 +937,12 @@ const recordMockInterviewSpeech = async (input, data) => {
     if (processTarget.question === data.targetText) {
         isFullySpoken = true;
 
-        if (processTarget.userInterviewAnswerSectionId != null) {
+        if (processTarget.userInterviewSectionAnswerId != null) {
             await Models.sequelize.transaction(async (trx) => {
                 await UserInterviewSectionAnswerRepository.update({
                     status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKED,
                     askedAt: Moment().format()
-                }, { id: processTarget.userInterviewAnswerSectionId }, trx);
+                }, { id: processTarget.userInterviewSectionAnswerId }, trx);
 
                 await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(input.userId, input.uuid);
             });
@@ -951,10 +951,10 @@ const recordMockInterviewSpeech = async (input, data) => {
         return;
     }
 
-    if (processTarget.question.includes(data.currentText) && processTarget.userInterviewAnswerSectionId != null) {
+    if (processTarget.question.includes(data.currentText) && processTarget.userInterviewSectionAnswerId != null) {
         await UserInterviewSectionAnswerRepository.update({
             status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKING
-        }, { id: processTarget.userInterviewAnswerSectionId });
+        }, { id: processTarget.userInterviewSectionAnswerId });
     }
 
     if (data.tag !== MockInterviewConstants.PROCESS_EVENT_TAG.CLOSING) return;
