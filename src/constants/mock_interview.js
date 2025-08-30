@@ -80,6 +80,7 @@ const EVENT_NAME = {
 };
 
 const AI_SERVICE_EVENT_NAME = {
+    PING: 'ping',
     INIT_CLIENT: 'init_client',
     RESET_CLIENT: 'reset_client',
     SET_INTERRUPT_CLIENT: 'set_interrupt_client',

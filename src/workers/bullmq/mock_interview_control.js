@@ -93,7 +93,8 @@ async function processMockInterviewControlPauseJob(job, token) {
             }
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                AiServiceSocket.isAiServiceSocketConnected()
+                && !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_CLIENT,
                     sessionId
                 ))
@@ -208,7 +209,8 @@ async function processMockInterviewControlStopJob(job, token) {
             isStopUpdated = true;
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                AiServiceSocket.isAiServiceSocketConnected()
+                && !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_CLIENT,
                     sessionId
                 ))

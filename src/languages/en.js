@@ -323,5 +323,8 @@ module.exports = Object.freeze({
         IN_PROGRESS: 'Mock interview is in progress',
         NOT_IN_PROGRESS: 'Mock interview is not in progress',
         NOT_PAUSED: 'Mock interview is not paused'
+    },
+    AI_SERVICE: {
+        NOT_CONNECTED: 'Something went wrong, please contact admin or try again later!'
     }
 });

@@ -70,6 +70,10 @@ const startMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
     }
 
+    if (!AiServiceSocket.isAiServiceSocketConnected()) {
+        return Response.formatServiceReturn(false, 500, null, language.AI_SERVICE.NOT_CONNECTED);
+    }
+
     const completedInterviewSections = userInterview.interviewSections.filter(
         (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
     );
@@ -146,7 +150,7 @@ const startMockInterview = async (input, opts = {}) => {
             );
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.INIT_CLIENT,
                     userInterview.uuid,
                     userInterview.userId,
@@ -265,7 +269,8 @@ const pauseMockInterview = async (input, opts = {}) => {
             }
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                AiServiceSocket.isAiServiceSocketConnected()
+                && !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_CLIENT,
                     sessionId
                 ))
@@ -415,7 +420,8 @@ const stopMockInterview = async (input, opts = {}) => {
             }
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                AiServiceSocket.isAiServiceSocketConnected()
+                && !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_CLIENT,
                     sessionId
                 ))
@@ -524,6 +530,10 @@ const continueMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
     }
 
+    if (!AiServiceSocket.isAiServiceSocketConnected()) {
+        return Response.formatServiceReturn(false, 500, null, language.AI_SERVICE.NOT_CONNECTED);
+    }
+
     const completedInterviewSections = userInterview.interviewSections.filter(
         (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
     );
@@ -598,7 +608,7 @@ const continueMockInterview = async (input, opts = {}) => {
             );
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.INIT_CLIENT,
                     userInterview.uuid,
                     userInterview.userId,

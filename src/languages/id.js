@@ -322,5 +322,8 @@ module.exports = Object.freeze({
         IN_PROGRESS: 'Mockup wawancara sedang berjalan',
         NOT_IN_PROGRESS: 'Mockup wawancara tidak sedang berjalan',
         NOT_PAUSED: 'Mockup wawancara tidak sedang dijeda'
+    },
+    AI_SERVICE: {
+        NOT_CONNECTED: 'Terjadi kesalahan, silahkan hubungi admin atau coba lagi nanti!'
     }
 });
