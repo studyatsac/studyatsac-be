@@ -181,7 +181,7 @@ async function processMockInterviewControlStopJob(job, token) {
     try {
         await Models.sequelize.transaction(async (trx) => {
             const result = await UserInterviewRepository.update(
-                { status: UserInterviewConstants.SECTION_STATUS.COMPLETED, completedAt: Moment().format() },
+                { status: UserInterviewConstants.STATUS.COMPLETED, completedAt: Moment().format() },
                 { id: userInterview.id },
                 trx
             );
