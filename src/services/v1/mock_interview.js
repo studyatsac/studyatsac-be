@@ -213,6 +213,7 @@ const pauseMockInterview = async (input, opts = {}) => {
     let stopJobTime;
     let timerJobId;
     let isTimerUpdated = false;
+    let lastTimeUpdate;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -239,6 +240,17 @@ const pauseMockInterview = async (input, opts = {}) => {
             }
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+
+            lastTimeUpdate = await MockInterviewCacheUtils.getMockInterviewScheduleTimerLastUpdate(
+                userInterview.userId,
+                userInterview.uuid
+            );
+            if (lastTimeUpdate) {
+                await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(
+                    userInterview.userId,
+                    userInterview.uuid
+                );
+            }
 
             pauseJobTime = await MockInterviewCacheUtils.getMockInterviewControlPauseJobTime(
                 userInterview.userId,
@@ -279,6 +291,13 @@ const pauseMockInterview = async (input, opts = {}) => {
             return result;
         });
     } catch (err) {
+        if (lastTimeUpdate) {
+            await MockInterviewCacheUtils.setMockInterviewScheduleTimerLastUpdate(
+                userInterview.userId,
+                userInterview.uuid,
+                lastTimeUpdate
+            );
+        }
         if (pauseJobTime) {
             await MockInterviewCacheUtils.setMockInterviewControlPauseJobTime(
                 userInterview.userId,
@@ -364,6 +383,7 @@ const stopMockInterview = async (input, opts = {}) => {
     let stopJobTime;
     let timerJobId;
     let isTimerUpdated = false;
+    let lastTimeUpdate;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -390,6 +410,17 @@ const stopMockInterview = async (input, opts = {}) => {
             }
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+
+            lastTimeUpdate = await MockInterviewCacheUtils.getMockInterviewScheduleTimerLastUpdate(
+                userInterview.userId,
+                userInterview.uuid
+            );
+            if (lastTimeUpdate) {
+                await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(
+                    userInterview.userId,
+                    userInterview.uuid
+                );
+            }
 
             pauseJobTime = await MockInterviewCacheUtils.getMockInterviewControlPauseJobTime(
                 userInterview.userId,
@@ -430,6 +461,13 @@ const stopMockInterview = async (input, opts = {}) => {
             return result;
         });
     } catch (err) {
+        if (lastTimeUpdate) {
+            await MockInterviewCacheUtils.setMockInterviewScheduleTimerLastUpdate(
+                userInterview.userId,
+                userInterview.uuid,
+                lastTimeUpdate
+            );
+        }
         if (pauseJobTime) {
             await MockInterviewCacheUtils.setMockInterviewControlPauseJobTime(
                 userInterview.userId,
