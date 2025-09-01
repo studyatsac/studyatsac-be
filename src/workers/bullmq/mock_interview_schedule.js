@@ -73,7 +73,7 @@ async function processMockInterviewScheduleTimerJob(job) {
         if (targetInterviewSection) {
             await UserInterviewSectionRepository.update(
                 { duration: targetInterviewSection.duration + elapsedTimeInSeconds },
-                { id: targetInterviewSection.id }
+                { id: targetInterviewSection.id, status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS }
             );
             await MockInterviewCacheUtils.setMockInterviewScheduleTimerLastUpdate(userId, userInterviewUuid);
         }

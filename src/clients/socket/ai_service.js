@@ -9,6 +9,7 @@ let aiServiceSocket;
  * @type {Record<string, Function>}
  */
 const closeCallbacks = {};
+let isConnected = false;
 
 /**
  * 5 seconds
@@ -23,14 +24,20 @@ const initializeAiServiceSocket = () => {
 
     aiServiceSocket.on('connect', () => {
         LogUtils.logDebug('ai service socket connected');
+
+        isConnected = true;
         closeCallbacks.disconnect = () => aiServiceSocket.disconnect();
     });
     aiServiceSocket.on('connect_error', (reason) => {
         LogUtils.logError('ai service socket connection error', reason?.message ?? reason);
+
+        isConnected = false;
         delete closeCallbacks.disconnect;
     });
     aiServiceSocket.on('disconnect', (reason) => {
         LogUtils.logDebug('ai service socket disconnected', reason?.message ?? reason);
+
+        isConnected = false;
         delete closeCallbacks.disconnect;
     });
 };
@@ -51,7 +58,7 @@ const closeAiServiceSocket = () => {
     });
 };
 
-const isAiServiceSocketConnected = () => Boolean(aiServiceSocket && aiServiceSocket.connected);
+const isAiServiceSocketConnected = () => isConnected || Boolean(aiServiceSocket && aiServiceSocket.connected);
 
 const emitAiServiceEventWithAckTimeout = (event, ...args) => {
     let options = {};
