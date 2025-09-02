@@ -50,6 +50,31 @@ router.get(
     require('../methods/v1/master-category/admin_list').getListMasterCategory
 );
 
+
+router.get(
+    '/admin/master-categories/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_detail').getDetailMasterCategory
+)
+
+router.post(
+    '/admin/master-categories/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_create').createMasterCategory
+)
+
+router.put(
+    '/admin/master-categories/update/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_update').updateMasterCategory
+)
+
+router.delete(
+    '/admin/master-categories/delete/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_delete').deleteMasterCategory
+)
+
 // Endpoint untuk membuat resources
 router.post(
     '/resources/create',
