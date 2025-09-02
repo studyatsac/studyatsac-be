@@ -344,5 +344,14 @@ module.exports = Object.freeze({
         CREATE_FAILED: 'Failed to create question',
         UPDATE_FAILED: 'Failed to update question',
         DELETE_FAILED: 'Failed to delete question'
+    },
+    MASTER_CATEGORY: {
+        NOT_FOUND: 'Master Category not found',
+        ALREADY_EXISTS: 'Master Category already exist',
+        CREATE_FAILED: 'Failed create master category',
+        UPDATE_FAILED: 'Failed update master category',
+        CREATE_SUCCESS: 'Success to create master category',
+        UPDATE_SUCCESS: 'Success update master category',
+        DELETE_SUCCESS: 'Succes to delete master category'
     }
 });

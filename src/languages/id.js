@@ -349,5 +349,14 @@ module.exports = Object.freeze({
         CREATE_FAILED: 'Gagal membuat pertanyaan',
         UPDATE_FAILED: 'Gagal memperbarui pertanyaan',
         DELETE_FAILED: 'Gagal menghapus pertanyaan'
+    },
+    MASTER_CATEGORY: {
+        NOT_FOUND: 'Kategori master tidak ditemukan',
+        ALREADY_EXISTS: 'Kategori master sudah ada',
+        CREATE_FAILED: 'Gagal membuat kategori master',
+        UPDATE_FAILED: 'Gagal memperbarui kategori master',
+        CREATE_SUCCESS: 'Sukses membuat kategori master',
+        UPDATE_SUCCESS: 'Sukses memperbarui kategori master',
+        DELETE_SUCCESS: 'Sukses menghapus kategori master'
     }
 });
