@@ -1,5 +1,5 @@
 exports.item = (data) => {
-    const exam = data.Exam;
+    const exam = data.exam;
 
     const responseData = {
         uuid: exam.uuid,
