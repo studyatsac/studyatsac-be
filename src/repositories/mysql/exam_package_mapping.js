@@ -16,10 +16,12 @@ exports.findAllWithExamAndPackage = function (where, opts = {}, trx = null) {
 
     const includeExam = {
         model: Models.Exam,
+        as: 'exam',
         required: true
     };
     const includeExamPackage = {
         model: Models.ExamPackage,
+        as: 'exam_package',
         required: true
     };
 
