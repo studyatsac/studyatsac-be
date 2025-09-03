@@ -25,7 +25,9 @@ exports.updateQuestion = async (req, res) => {
             answerOptionD: req.body.answerOptionD
         };
 
-        updateData.answerOption = QuestionTransformer.transformAnswerOptions(rawAnswer);
+        // Ubah objek menjadi string JSON
+        const transformedOptions = QuestionTransformer.transformAnswerOptions(rawAnswer);
+        updateData.answerOption = JSON.stringify(transformedOptions);
 
         if (!id) {
             return res.status(400).json({ message: 'Question id is required' });

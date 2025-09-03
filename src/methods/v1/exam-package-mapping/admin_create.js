@@ -1,16 +1,15 @@
-const MasterCategoryServices = require('../../../services/v1/master_category');
 const Language = require('../../../languages');
+const ExamPackageMappingService = require('../../../services/v1/exam_package_mapping');
 
-exports.updateMasterCategory = async (req, res) => {
+exports.createExamPackageMapping = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { title } = req.body;
+        const { examPackageId, examId } = req.body;
 
         const lang = Language.getLanguage(req.locale);
 
-        const result = await MasterCategoryServices.updateCategory({
-            uuid: id,
-            title
+        const result = await ExamPackageMappingService.createExamPackageMapping({
+            examPackageId,
+            examId
         }, { lang });
 
         if (!result.success) {
@@ -22,5 +21,4 @@ exports.updateMasterCategory = async (req, res) => {
         return res.status(500).json({ message: err.message });
     }
 };
-
 module.exports = exports;
