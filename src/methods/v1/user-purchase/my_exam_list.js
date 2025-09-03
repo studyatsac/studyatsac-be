@@ -32,13 +32,7 @@ exports.getMyExam = async (req, res) => {
         const rows = data.rows || [];
 
         return res.status(200).json({
-            data: rows.map(MyExamTransformer.item),
-            meta: {
-                page: input.page,
-                limit: input.limit,
-                total_data: data.count,
-                total_page: Math.ceil(data.count / input.limit)
-            }
+            data: rows.map(MyExamTransformer.item)
         });
     } catch (err) {
         LogUtils.logError({
