@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
 const MasterCategoryRepositories = require('../../../repositories/mysql/master_category');
+require('../../../services/v1/master_category');
 
 exports.getListMasterCategory = async (req, res) => {
     try {
@@ -41,5 +42,4 @@ exports.getListMasterCategory = async (req, res) => {
         return res.status(500).json({ message: err.message });
     }
 };
-
 module.exports = exports;

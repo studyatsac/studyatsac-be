@@ -344,5 +344,23 @@ module.exports = Object.freeze({
         CREATE_FAILED: 'Failed to create question',
         UPDATE_FAILED: 'Failed to update question',
         DELETE_FAILED: 'Failed to delete question'
+    },
+    MASTER_CATEGORY: {
+        NOT_FOUND: 'Master Category not found',
+        ALREADY_EXISTS: 'Master Category already exist',
+        SUCCESS_GET_DETAIL: 'Success get detailed master category',
+        CREATE_FAILED: 'Failed create master category',
+        UPDATE_FAILED: 'Failed update master category',
+        CREATE_SUCCESS: 'Success to create master category',
+        UPDATE_SUCCESS: 'Success update master category',
+        DELETE_SUCCESS: 'Success to delete master category'
+    },
+    EXAM_PACKAGE_MAPPING: {
+        CREATE_FAILED: 'Failed create exam package mapping',
+        CREATE_SUCCESS: 'Success to create exam package mapping',
+        SUCCESS_GET_DETAIL: 'Success get detailed exam package mapping',
+        UPDATE_SUCCESS: 'Success updated exam package mapping',
+        UPDATE_FAILED: 'Failed to update exam package mapping',
+        DELETE_SUCCESS: 'Success  to deleted exam package mapping',
     }
 });

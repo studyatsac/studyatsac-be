@@ -1,0 +1,24 @@
+const MasterCategoryServices = require('../../../services/v1/master_category');
+const Language = require('../../../languages');
+
+exports.deleteMasterCategory = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const lang = Language.getLanguage(req.locale);
+
+        const result = await MasterCategoryServices.deleteCategory({
+            uuid: id
+        }, { lang });
+
+        if (!result.success) {
+            return res.status(result.code).json({ message: result.message });
+        }
+
+        return res.status(result.code).json({ message: result.message });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+module.exports = exports;

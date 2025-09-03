@@ -50,6 +50,31 @@ router.get(
     require('../methods/v1/master-category/admin_list').getListMasterCategory
 );
 
+
+router.get(
+    '/admin/master-categories/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_detail').getDetailMasterCategory
+)
+
+router.post(
+    '/admin/master-categories/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_create').createMasterCategory
+)
+
+router.put(
+    '/admin/master-categories/update/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_update').updateMasterCategory
+)
+
+router.delete(
+    '/admin/master-categories/delete/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_delete').deleteMasterCategory
+)
+
 // Endpoint untuk membuat resources
 router.post(
     '/resources/create',
@@ -916,6 +941,37 @@ router.post(
     [tokenMiddleware],
     require('../methods/v1/interview-review/retry_user_interview_review').retryUserInterviewReview
 );
+
+//route untuk ecam-package-mapping
+router.get(
+    'admin/exam-package-mapping/',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_list').getListExamPackageMapping
+);
+
+router.get(
+    'admin/exam-package-mapping/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_detail').getExamPackageMappingDetail
+);
+
+router.post(
+    'admin/exam-package-mapping',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_create').createExamPackageMapping
+)
+
+router.put(
+    'admin/exam-package-mapping/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_update').updateExamPackageMapping
+)
+
+router.delete(
+    'admin/exam-package-mapping/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_delete').deleteExamPackageMapping
+)
 
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam

@@ -349,5 +349,23 @@ module.exports = Object.freeze({
         CREATE_FAILED: 'Gagal membuat pertanyaan',
         UPDATE_FAILED: 'Gagal memperbarui pertanyaan',
         DELETE_FAILED: 'Gagal menghapus pertanyaan'
+    },
+    MASTER_CATEGORY: {
+        NOT_FOUND: 'Kategori master tidak ditemukan',
+        ALREADY_EXISTS: 'Kategori master sudah ada',
+        SUCCESS_GET_DETAIL: 'Sukses mendapatkan detail kategori master',
+        CREATE_FAILED: 'Gagal membuat kategori master',
+        UPDATE_FAILED: 'Gagal memperbarui kategori master',
+        CREATE_SUCCESS: 'Sukses membuat kategori master',
+        UPDATE_SUCCESS: 'Sukses memperbarui kategori master',
+        DELETE_SUCCESS: 'Sukses menghapus kategori master'
+    },
+    EXAM_PACKAGE_MAPPING: {
+        CREATE_FAILED: 'Gagal membuat pemetaan paket ujian',
+        CREATE_SUCCESS: 'Sukses membuat pemetaan paket ujian',
+        SUCCESS_GET_DETAIL: 'Sukses mendapat detail pemetaan paket ujian',
+        UPDATE_SUCCESS: 'Sukses memperbarui pemetaan paket ujian',
+        UPDATE_FAILED: 'Gagal memperbarui pemetaan paket ujian',
+        DELETE_SUCCESS: 'Sukses menghapus pemetaan paket ujian',
     }
 });
