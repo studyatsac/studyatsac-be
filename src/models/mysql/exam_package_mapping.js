@@ -34,7 +34,8 @@ module.exports = (sequelize, DataTypes) => {
     ExamPackageMapping.associate = (models) => {
         ExamPackageMapping.belongsTo(models.Exam, {
             targetKey: 'id',
-            foreignKey: 'exam_id'
+            foreignKey: 'exam_id',
+            as: 'exam'
         });
         ExamPackageMapping.belongsTo(models.ExamPackage, {
             targetKey: 'id',
