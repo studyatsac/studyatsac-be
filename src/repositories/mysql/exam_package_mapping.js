@@ -8,6 +8,12 @@ exports.findAllWithExamAndPackage = function (where, opts = {}, trx = null) {
         ...whereClause
     } = where;
 
+    const whereClauseExam = {};
+
+    if (categoryId) {
+        whereClauseExam.categoryId = categoryId;
+    }
+
     const includeExam = {
         model: Models.Exam,
         required: true
@@ -16,6 +22,10 @@ exports.findAllWithExamAndPackage = function (where, opts = {}, trx = null) {
         model: Models.ExamPackage,
         required: true
     };
+
+    if (Object.keys(whereClauseExam).length > 0) {
+        includeExam.where = whereClauseExam;
+    }
 
     // Logika untuk menambahkan filter pencarian
     if (search) {
@@ -35,7 +45,7 @@ exports.findAllWithExamAndPackage = function (where, opts = {}, trx = null) {
     if (categoryId) {
         includeExam.where = {
             ...includeExam.where,
-            categoryId: categoryId
+            categoryId
         };
     }
 
@@ -61,7 +71,9 @@ exports.findOneWithExamAndPackage = function (where, opts = {}, trx = null) {
         as: 'exam_package' // Pastikan alias ini benar
     }];
 
-    return Models.ExamPackageMapping.findOne({ where, include, ...opts, transaction: trx });
+    return Models.ExamPackageMapping.findOne({
+        where, include, ...opts, transaction: trx
+    });
 };
 exports.findAndCountAll = function (where, opts = {}, trx = null) {
     return Models.ExamPackageMapping.findAndCountAll({ where, ...opts, transaction: trx });
@@ -82,6 +94,5 @@ exports.update = function (payload, where, trx = null) {
 exports.delete = function (where, opts = {}, trx = null) {
     return Models.ExamPackageMapping.destroy({ where, ...opts, transaction: trx });
 };
-
 
 module.exports = exports;
