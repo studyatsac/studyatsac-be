@@ -942,6 +942,37 @@ router.post(
     require('../methods/v1/interview-review/retry_user_interview_review').retryUserInterviewReview
 );
 
+//route untuk ecam-package-mapping
+router.get(
+    'admin/exam-package-mapping/',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_list').getListExamPackageMapping
+);
+
+router.get(
+    'admin/exam-package-mapping/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_detail').getExamPackageMappingDetail
+);
+
+router.post(
+    'admin/exam-package-mapping',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_create').createExamPackageMapping
+)
+
+router.put(
+    'admin/exam-package-mapping/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_update').updateExamPackageMapping
+)
+
+router.delete(
+    'admin/exam-package-mapping/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_delete').deleteExamPackageMapping
+)
+
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *

@@ -25,7 +25,7 @@ const getDetailCategory = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.MASTER_CATEGORY.NOT_FOUND);
     }
 
-    return Response.formatServiceReturn(true, 200, masterCategory, null);
+    return Response.formatServiceReturn(true, 200, masterCategory, language.MASTER_CATEGORY.SUCCESS_GET_DETAIL);
 };
 
 const createCategory = async (input, opts = {}) => {
