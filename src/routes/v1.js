@@ -78,7 +78,7 @@ router.delete(
 // Endpoint untuk membuat resources
 router.post(
     '/resources/create',
-    [tokenMiddleware, adminOnlyMiddleware, upload.single('file')],
+    [tokenMiddleware, adminOnlyMiddleware, upload.single('resources')],
     require('../methods/v1/resources/admin_create').createResources
 );
 
