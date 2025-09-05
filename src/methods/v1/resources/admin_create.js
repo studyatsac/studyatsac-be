@@ -3,7 +3,14 @@ const LogUtils = require('../../../utils/logger');
 
 exports.createResources = async (req, res) => {
     try {
-        const resource = await ResourcesService.createResources(req.body);
+        // const resource = await ResourcesService.createResources(req.body);
+
+        const input = {
+            ...req.body,
+            resources: req.file
+        };
+
+        const resource = await ResourcesService.createResources(input);
 
         return res.status(200).json({
             message: 'Create resource success',
