@@ -1,13 +1,13 @@
-const MasterCategoryServices = require('../../../services/v1/master_category');
+const ExamPackageCategoryService = require('../../../services/v1/exam_package_category');
 const Language = require('../../../languages');
 
-exports.getDetailMasterCategory = async (req, res) => {
+exports.getDetailExamPackageCategory = async (req, res) => {
     try {
         const { uuid } = req.params;
 
         const lang = Language.getLanguage(req.locale);
 
-        const result = await MasterCategoryServices.getDetailCategory({
+        const result = await ExamPackageCategoryService.getDetailExamPackageCategory({
             uuid
         }, { lang });
 
