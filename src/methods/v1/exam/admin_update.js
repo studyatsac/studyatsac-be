@@ -11,7 +11,7 @@ exports.updateExam = async (req, res) => {
         if (!exam) {
             return res.status(404).json({ message: 'Exam not found' });
         }
-        await ExamRepository.update({ id }, updateData);
+        await ExamRepository.update(updateData, { id });
         const updatedExam = await ExamRepository.findOne({ id });
         return res.status(200).json({ data: updatedExam });
     } catch (err) {

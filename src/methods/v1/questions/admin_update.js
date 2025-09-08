@@ -37,7 +37,7 @@ exports.updateQuestion = async (req, res) => {
         if (!question) {
             return res.status(404).json({ message: 'Question not found' });
         }
-        await QuestionRepository.update({ id }, updateData);
+        await QuestionRepository.update(updateData, { id });
         return res.status(200).json({ data: updateData });
     } catch (err) {
         return res.status(500).json({ message: err.message });
