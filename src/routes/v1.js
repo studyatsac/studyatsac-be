@@ -973,6 +973,36 @@ router.delete(
     require('../methods/v1/exam-package-mapping/admin_delete').deleteExamPackageMapping
 )
 
+//exam-package-category
+router.get(
+    'admin/exam-package-category',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_list').getListExamPackageCategory
+)
+
+router.get(
+    'admin/exam-package-category/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_detail').getDetailExamPackageCategory
+)
+
+router.post(
+    'admin/exam-package-category',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_create').createExamPackageCategory
+)
+
+router.put(
+    'admin/exam-package-category/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_update').updateExamPackageCategory
+)
+
+router.delete(
+    'admin/exam-package-category/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_delete').deleteExamPackageCategory
+)
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
