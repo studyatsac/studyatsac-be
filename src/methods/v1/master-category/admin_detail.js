@@ -3,19 +3,19 @@ const Language = require('../../../languages');
 
 exports.getDetailMasterCategory = async (req, res) => {
     try {
-        const { uuid } = req.params;
+        const { id } = req.params;
 
         const lang = Language.getLanguage(req.locale);
 
         const result = await MasterCategoryServices.getDetailCategory({
-            uuid
+            uuid: id
         }, { lang });
 
-        if (!result.success) {
+        if (!result.status) {
             return res.status(result.code).json({ message: result.message });
         }
 
-        return res.status(result.code).json({ data: result.data });
+        return res.status(result.code).json({ code: result.code, message: result.message, data: result.data });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
