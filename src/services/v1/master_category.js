@@ -85,7 +85,7 @@ const deleteCategory = async (input, opts = {}) => {
 
     await MasterCategoryRepository.delete({ id: masterCategory.id });
 
-    return Response.formatServiceReturn(true, 200, null, language.MASTER_CATEGORY.DELETE_SUCCESS);
+    return Response.formatServiceReturn(true, 200, masterCategory, language.MASTER_CATEGORY.DELETE_SUCCESS);
 };
 exports.getListCategory = getListCategory;
 exports.getDetailCategory = getDetailCategory;

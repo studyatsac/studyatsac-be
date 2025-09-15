@@ -78,7 +78,7 @@ const getDetailExamPackageCategory = async (input, opts = {}) => {
             title: result.master_category.title
         }
     };
-    return Response.formatServiceReturn(true, 200, formattedData, null);
+    return Response.formatServiceReturn(true, 200, formattedData, language.EXAM_PACKAGE_CATEGORY.SUCCESS_GET_DETAIL);
 };
 
 const createExamPackageCategory = async (input, opts = {}) => {
