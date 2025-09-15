@@ -9,12 +9,12 @@ const createExamPackageMapping = async (input, opts = {}) => {
 
     const examPackage = await ExamPackageRepository.findOne({ id: input.examPackageId });
     if (!examPackage) {
-        return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE.NOT_FOUND);
+        return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_NOT_FOUND);
     }
 
     const exam = await ExamRepository.findOne({ id: input.examId });
     if (!exam) {
-        return Response.formatServiceReturn(false, 404, null, language.EXAM.NOT_FOUND);
+        return Response.formatServiceReturn(false, 404, null, language.EXAM_NOT_FOUND);
     }
 
     const existingMapping = await ExamPackageMappingRepository.findOne({

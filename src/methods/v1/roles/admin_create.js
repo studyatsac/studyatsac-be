@@ -1,14 +1,15 @@
-const MasterCategoryServices = require('../../../services/v1/master_category');
 const Language = require('../../../languages');
+const RolesServices = require('../../../services/v1/roles');
 
-exports.deleteMasterCategory = async (req, res) => {
+exports.createRole = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { name, description } = req.body;
 
         const lang = Language.getLanguage(req.locale);
 
-        const result = await MasterCategoryServices.deleteCategory({
-            uuid: id
+        const result = await RolesServices.createRole({
+            name,
+            description
         }, { lang });
 
         if (!result.status) {

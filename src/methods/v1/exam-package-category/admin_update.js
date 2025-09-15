@@ -1,14 +1,17 @@
-const MasterCategoryServices = require('../../../services/v1/master_category');
+const ExamPackageCategoryService = require('../../../services/v1/exam_package_category');
 const Language = require('../../../languages');
 
-exports.deleteMasterCategory = async (req, res) => {
+exports.updateExamPackageCategory = async (req, res) => {
     try {
         const { id } = req.params;
+        const { examPackageId, masterCategoryId } = req.body;
 
         const lang = Language.getLanguage(req.locale);
 
-        const result = await MasterCategoryServices.deleteCategory({
-            uuid: id
+        const result = await ExamPackageCategoryService.updateExamPackageCategory({
+            uuid: id,
+            examPackageId,
+            masterCategoryId
         }, { lang });
 
         if (!result.status) {

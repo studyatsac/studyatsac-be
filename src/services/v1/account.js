@@ -96,10 +96,45 @@ const register = async (input, opts = {}) => {
     return Response.formatServiceReturn(true, 200, { token: tokenGenerated }, null);
 };
 
+// const login = async (input, opts = {}) => {
+//     const language = opts.lang;
+//
+//     // Ambil user beserta roles
+//     const account = await UserRepository.findOne({ email: input.email }, { includeRoles: true });
+//
+//     if (!account) {
+//         return Response.formatServiceReturn(false, 404, null, language.EMAIL_OR_PASSWORD_INVALID);
+//     }
+//
+//     const compared = await Bcrypt.compare(input.password, account.password);
+//
+//     if (!compared) {
+//         return Response.formatServiceReturn(false, 404, null, language.EMAIL_OR_PASSWORD_INVALID);
+//     }
+//
+//     const tokenGenerated = generateToken(account);
+//
+//     // Pastikan account berupa plain object (bukan instance sequelize)
+//     const userData = account.toJSON ? account.toJSON() : account;
+//     userData.roles = 'user';
+//
+//     return Response.formatServiceReturn(true, 200, {
+//         token: tokenGenerated,
+//         user: {
+//             id: userData.id,
+//             uuid: userData.uuid,
+//             fullName: userData.fullName,
+//             email: userData.email,
+//             roles: userData.roles
+//         }
+//     }, null);
+// };
+
 const login = async (input, opts = {}) => {
     const language = opts.lang;
 
     // Ambil user beserta roles
+    // Asumsikan `findOne` di repository sudah mendukung include.
     const account = await UserRepository.findOne({ email: input.email }, { includeRoles: true });
 
     if (!account) {
@@ -112,24 +147,24 @@ const login = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.EMAIL_OR_PASSWORD_INVALID);
     }
 
-    const tokenGenerated = generateToken(account);
-
     // Pastikan account berupa plain object (bukan instance sequelize)
     const userData = account.toJSON ? account.toJSON() : account;
-    userData.roles = 'user';
+
+    // Ambil roles dari object `userData` yang sudah di-include dari database
+    const userRoles = userData.Roles.map((role) => role.name);
+
+    const tokenGenerated = generateToken(userData, userRoles); // Perbarui `generateToken` untuk menerima roles
 
     return Response.formatServiceReturn(true, 200, {
         token: tokenGenerated,
         user: {
             id: userData.id,
-            uuid: userData.uuid,
             fullName: userData.fullName,
             email: userData.email,
-            roles: userData.roles
+            roles: userRoles.join(',') // Join array roles menjadi string untuk frontend
         }
     }, null);
 };
-
 const verifyTokenAndGetUserData = async (token) => {
     const verifyOptions = {
         algorithm: Config.jwt.algorithm

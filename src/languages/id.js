@@ -366,6 +366,26 @@ module.exports = Object.freeze({
         SUCCESS_GET_DETAIL: 'Sukses mendapat detail pemetaan paket ujian',
         UPDATE_SUCCESS: 'Sukses memperbarui pemetaan paket ujian',
         UPDATE_FAILED: 'Gagal memperbarui pemetaan paket ujian',
-        DELETE_SUCCESS: 'Sukses menghapus pemetaan paket ujian',
+        DELETE_SUCCESS: 'Sukses menghapus pemetaan paket ujian'
+    },
+    EXAM_PACKAGE_CATEGORY: {
+        NOT_FOUND: 'Kategori paket ujian tidak ditemukan',
+        ALREADY_EXISTS: 'Kategori paket ujian sudah ada',
+        SUCCESS_GET_DETAIL: 'Sukses mendapat detail kategori paket ujian',
+        CREATE_FAILED: 'Gagal membuat kategori paket ujian',
+        CREATE_SUCCESS: 'Sukses membuat kategori paket ujian',
+        UPDATE_FAILED: 'Gagal memperbarui kategori paket ujian',
+        UPDATE_SUCCESS: 'Sukses memperbarui kategori paket ujian',
+        DELETE_SUCCESS: 'Sukses menghapus kategori paket ujian'
+    },
+    Role: {
+        NOT_FOUND: 'Role tidak ditemukan',
+        ALREADY_EXISTS: 'Role sudah ada',
+        SUCCESS_GET_DETAIL: 'Sukses mendapat detail role',
+        CREATE_FAILED: 'Gagal membuat Role',
+        CREATE_SUCCESS: 'Sukses membuat Role',
+        UPDATE_FAILED: 'Gagal memperbarui Role',
+        UPDATE_SUCCESS: 'Sukses memperbarui Role',
+        DELETE_SUCCESS: 'Sukses menghapus Role'
     }
 });

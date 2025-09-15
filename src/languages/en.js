@@ -361,6 +361,26 @@ module.exports = Object.freeze({
         SUCCESS_GET_DETAIL: 'Success get detailed exam package mapping',
         UPDATE_SUCCESS: 'Success updated exam package mapping',
         UPDATE_FAILED: 'Failed to update exam package mapping',
-        DELETE_SUCCESS: 'Success  to deleted exam package mapping',
+        DELETE_SUCCESS: 'Success to deleted exam package mapping'
+    },
+    EXAM_PACKAGE_CATEGORY: {
+        NOT_FOUND: 'Exam package category not found',
+        ALREADY_EXISTS: 'Exam package category already exist',
+        SUCCESS_GET_DETAIL: 'Success get detailed exam package category',
+        CREATE_FAILED: 'Failed to create exam package category',
+        CREATE_SUCCESS: 'Success created exam package category',
+        UPDATE_FAILED: 'Failed to update exam package category',
+        UPDATE_SUCCESS: 'Success updated exam package category',
+        DELETE_SUCCESS: 'Success to deleted exam package category'
+    },
+    ROLE: {
+        NOT_FOUND: 'Role Not Found',
+        ALREADY_EXISTS: 'Role already exist',
+        SUCCESS_GET_DETAIL: 'Success get detailed role',
+        CREATE_FAILED: 'Failed to create role',
+        CREATE_SUCCESS: 'Success created role',
+        UPDATE_FAILED: 'Failed to update role',
+        UPDATE_SUCCESS: 'Success updated role',
+        DELETE_SUCCESS: 'Success to deleted role'
     }
 });
