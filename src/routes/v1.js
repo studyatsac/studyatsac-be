@@ -956,7 +956,7 @@ router.get(
 );
 
 router.post(
-    '/admin/exam-package-mapping',
+    '/admin/exam-package-mapping/create',
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/exam-package-mapping/admin_create').createExamPackageMapping
 );
