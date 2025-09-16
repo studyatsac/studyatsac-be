@@ -8,10 +8,10 @@ exports.getListExamPackageCategory = async (req, res) => {
         const pageInt = parseInt(page, 10) || 1;
         const limitInt = parseInt(limit, 10) || 10;
 
-        // Validasi bahwa setidaknya satu ID filter harus ada (meniru logika wajib 'examPackageId')
-        if (!examPackageId && !masterCategoryId) {
-            return res.status(400).json({ message: 'At least one of examPackageId or masterCategoryId is required for filtering.' });
-        }
+        // // Validasi bahwa setidaknya satu ID filter harus ada (meniru logika wajib 'examPackageId')
+        // if (!examPackageId && !masterCategoryId) {
+        //     return res.status(400).json({ message: 'At least one of examPackageId or masterCategoryId is required for filtering.' });
+        // }
 
         // Panggil Service
         const result = await ExamPackageCategoryService.getListExamPackageCategory({

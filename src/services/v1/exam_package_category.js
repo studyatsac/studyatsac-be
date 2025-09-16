@@ -55,7 +55,7 @@ const getListExamPackageCategory = async (input, opts = {}) => {
         };
     });
 
-    return Response.formatServiceReturn(true, 200, { rows, count: result.count }, null);
+    return Response.formatServiceReturn(true, 200, { rows, count: result.count }, 'Success retrieved exam-package category');
 };
 
 const getDetailExamPackageCategory = async (input, opts = {}) => {
