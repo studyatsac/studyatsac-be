@@ -1018,7 +1018,7 @@ router.get(
 );
 
 router.post(
-    '/super-user/role',
+    '/super-user/role/create',
     [tokenMiddleware, superUserMiddleware],
     require('../methods/v1/roles/admin_create').createRole
 );
