@@ -987,7 +987,7 @@ router.get(
 );
 
 router.post(
-    '/admin/exam-package-category',
+    '/admin/exam-package-category/create',
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/exam-package-category/admin_create').createExamPackageCategory
 );
