@@ -382,5 +382,9 @@ module.exports = Object.freeze({
         UPDATE_FAILED: 'Failed to update role',
         UPDATE_SUCCESS: 'Success updated role',
         DELETE_SUCCESS: 'Success to deleted role'
+    },
+    ROLE_USER: {
+        ASSIGN_SUCCESS: 'Success assign role to user',
+        ALREADY_ASSIGNED: 'Role already assigned',
     }
 });

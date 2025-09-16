@@ -1034,6 +1034,25 @@ router.delete(
     [tokenMiddleware, superUserMiddleware],
     require('../methods/v1/roles/admin_delete').deleteRole
 );
+
+//role-user
+router.get(
+    '/super-user/role-user',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/role-user/list').getListUsersWithRoles
+)
+
+router.get(
+    '/super-user/role-user/:id',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/role-user/detail').getDetailUser
+)
+
+router.post(
+    '/super-user/role-user',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/role-user/asssign_role_to_user').assignRoleToUser
+)
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
