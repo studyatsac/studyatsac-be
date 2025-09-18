@@ -6,6 +6,7 @@ exports.findOne = function (where, opts = {}, trx = null) {
         queryOpts.include = queryOpts.include || [];
         queryOpts.include.push({
             model: Models.Role,
+            as: 'Roles',
             through: { attributes: [] }
         });
     }
@@ -39,7 +40,16 @@ exports.findAll = function (where, opts = {}, trx = null) {
 };
 
 exports.findAndCountAll = function (where = {}, opts = {}, trx = null) {
-    return Models.User.findAndCountAll({ where, ...opts, transaction: trx });
+    const queryOpts = { where, ...opts, transaction: trx };
+    if (opts.includeRoles) {
+        queryOpts.include = queryOpts.include || [];
+        queryOpts.include.push({
+            model: Models.Role,
+            as: 'Roles',
+            through: { attributes: [] }
+        });
+    }
+    return Models.User.findAndCountAll(queryOpts);
 };
 
 exports.countAll = function (where = {}, trx = null) {
