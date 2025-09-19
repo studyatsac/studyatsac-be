@@ -1,4 +1,5 @@
 const ExamPackageCategoryService = require('../../../services/v1/exam_package_category');
+
 exports.createExamPackageCategory = async (req, res) => {
     try {
         const { examPackageId, masterCategoryId } = req.body;

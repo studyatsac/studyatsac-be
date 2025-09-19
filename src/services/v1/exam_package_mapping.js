@@ -39,13 +39,6 @@ const createExamPackageMapping = async (input, opts = {}) => {
 const getExamMappingList = async (input, opts = {}) => {
     const language = opts.language;
 
-    const examPackage = await ExamPackageRepository.findOne({
-        id: input.examPackageId
-    });
-    if (!examPackage) {
-        return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_NOT_FOUND);
-    }
-
     const whereClause = {
         examPackageIds: input.examPackageIds,
         categoryId: input.categoryId

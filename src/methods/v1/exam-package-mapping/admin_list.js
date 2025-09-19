@@ -2,24 +2,18 @@ const ExamPackageMappingService = require('../../../services/v1/exam_package_map
 
 exports.getListExamPackageMapping = async (req, res) => {
     try {
-        const { page = 1, limit = 10, search, orderBy, order, examPackageId, categoryId } = req.query;
+        const { page = 1, limit = 10, search, orderBy, order } = req.query;
 
         // Validasi input
         const pageInt = parseInt(page, 10) || 1;
         const limitInt = parseInt(limit, 10) || 10;
-
-        if (!examPackageId) {
-            return res.status(400).json({ message: 'examPackageId is required.' });
-        }
 
         const result = await ExamPackageMappingService.getListExamPackageMapping({
             page: pageInt,
             limit: limitInt,
             search,
             orderBy: orderBy || 'created_at',
-            order: order || 'desc',
-            examPackageId,
-            categoryId
+            order: order || 'desc'
         });
 
         if (!result.success) {
