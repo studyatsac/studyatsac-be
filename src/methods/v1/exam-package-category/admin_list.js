@@ -2,16 +2,11 @@ const ExamPackageCategoryService = require('../../../services/v1/exam_package_ca
 
 exports.getListExamPackageCategory = async (req, res) => {
     try {
-        const { page = 1, limit = 10, search, orderBy, order, examPackageId, masterCategoryId } = req.query;
+        const { page = 1, limit = 10, search, orderBy, order } = req.query;
 
         // Validasi input
         const pageInt = parseInt(page, 10) || 1;
         const limitInt = parseInt(limit, 10) || 10;
-
-        // // Validasi bahwa setidaknya satu ID filter harus ada (meniru logika wajib 'examPackageId')
-        // if (!examPackageId && !masterCategoryId) {
-        //     return res.status(400).json({ message: 'At least one of examPackageId or masterCategoryId is required for filtering.' });
-        // }
 
         // Panggil Service
         const result = await ExamPackageCategoryService.getListExamPackageCategory({
@@ -19,9 +14,7 @@ exports.getListExamPackageCategory = async (req, res) => {
             limit: limitInt,
             search,
             orderBy: orderBy || 'created_at',
-            order: order || 'desc',
-            examPackageId,
-            masterCategoryId
+            order: order || 'desc'
         }, { lang: req.lang }); // Pastikan lang dikirim ke service
 
         if (!result.success) {

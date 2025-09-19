@@ -2,6 +2,9 @@ const Uuid = require('uuid');
 const Cache = require('../clients/cache/main');
 const MockInterviewConstants = require('../constants/mock_interview');
 
+/**
+ * 24 hours
+ */
 const MAX_TTL_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 const MOCK_INTERVIEW_PREFIX_KEY = 'mock_interview';
@@ -14,6 +17,7 @@ const MOCK_INTERVIEW_CONTROL_PAUSE_ID_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}
 const MOCK_INTERVIEW_CONTROL_STOP_ID_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_control_stop_id`;
 const MOCK_INTERVIEW_PROCESS_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_process`;
 const MOCK_INTERVIEW_SCHEDULE_TIMER_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_schedule_timer`;
+const MOCK_INTERVIEW_SCHEDULE_TIMER_LAST_UPDATE_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_schedule_timer_last_update`;
 const MOCK_INTERVIEW_SPEECH_TEXTS_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_texts`;
 const MOCK_INTERVIEW_SPEECH_COUNTER_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_counter`;
 const MOCK_INTERVIEW_PROCESS_TARGET_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_process_target`;
@@ -188,6 +192,27 @@ const deleteMockInterviewScheduleTimerJobId = async (userId, userInterviewUuid) 
     await Cache.deleteCache(key);
 };
 
+const getMockInterviewScheduleTimerLastUpdate = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_SCHEDULE_TIMER_LAST_UPDATE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    const data = await Cache.getCache(key);
+    if (!data) return 0;
+
+    return JSON.parse(data) || 0;
+};
+
+const setMockInterviewScheduleTimerLastUpdate = async (userId, userInterviewUuid, lastUpdate) => {
+    const key = `${MOCK_INTERVIEW_SCHEDULE_TIMER_LAST_UPDATE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    let targetLastUpdate = lastUpdate;
+    if (!targetLastUpdate) targetLastUpdate = Date.now();
+
+    await Cache.setCache(key, JSON.stringify(targetLastUpdate), MAX_TTL_MILLISECONDS);
+};
+
+const deleteMockInterviewScheduleTimerLastUpdate = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_SCHEDULE_TIMER_LAST_UPDATE_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    await Cache.deleteCache(key);
+};
+
 const getMockInterviewSpeechTexts = async (userId, userInterviewUuid) => {
     const key = `${MOCK_INTERVIEW_SPEECH_TEXTS_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
     const data = await Cache.getCache(key);
@@ -335,6 +360,9 @@ exports.setMockInterviewScheduleTimerJobId = setMockInterviewScheduleTimerJobId;
 exports.getMockInterviewScheduleTimerJobId = getMockInterviewScheduleTimerJobId;
 exports.generateMockInterviewScheduleTimerJobId = generateMockInterviewScheduleTimerJobId;
 exports.deleteMockInterviewScheduleTimerJobId = deleteMockInterviewScheduleTimerJobId;
+exports.getMockInterviewScheduleTimerLastUpdate = getMockInterviewScheduleTimerLastUpdate;
+exports.setMockInterviewScheduleTimerLastUpdate = setMockInterviewScheduleTimerLastUpdate;
+exports.deleteMockInterviewScheduleTimerLastUpdate = deleteMockInterviewScheduleTimerLastUpdate;
 exports.hasMockInterviewSpeechTexts = hasMockInterviewSpeechTexts;
 exports.getMockInterviewSpeechTexts = getMockInterviewSpeechTexts;
 exports.updateMockInterviewSpeechTexts = updateMockInterviewSpeechTexts;

@@ -23,23 +23,18 @@ const ExamPackageMappingService = require('../../../services/v1/exam_package_map
 // };
 exports.getListExamPackageMapping = async (req, res) => {
     try {
-        const { page = 1, limit = 10, search, orderBy, order, examPackageId, categoryId } = req.query;
+        const { page = 1, limit = 10, search, orderBy, order } = req.query;
 
         // Validasi input
         const pageInt = parseInt(page, 10) || 1;
         const limitInt = parseInt(limit, 10) || 10;
-
-        // Ubah examPackageId menjadi array jika ada
-        const examPackageIds = examPackageId ? [examPackageId] : null;
 
         const result = await ExamPackageMappingService.getExamMappingList({
             page: pageInt,
             limit: limitInt,
             search,
             orderBy: orderBy || 'created_at',
-            order: order || 'desc',
-            examPackageIds: examPackageIds, // Gunakan variabel examPackageIds yang baru
-            categoryId
+            order: order || 'desc'
         });
 
         // Tangani respons berdasarkan properti `success`
