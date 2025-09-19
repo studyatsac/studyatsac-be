@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const ExamPackageRepository = require('../../repositories/mysql/exam_package');
 const Response = require('../../utils/response');
 const ExamPackageMappingRepository = require('../../repositories/mysql/exam_package_mapping');
@@ -40,16 +41,30 @@ const createExamPackageMapping = async (input, opts = {}) => {
 const getExamMappingList = async (input, opts = {}) => {
     const language = opts.language;
 
-    const whereClause = {
-        examPackageIds: input.examPackageIds, // variabel ini sudah berupa array
-        categoryId: input.categoryId,
-        search: input.search // Tambahkan search agar bisa digunakan oleh repositori
-    };
+    const whereClause = {};
+    if (input.search) {
+        whereClause[Op.or] = [
+            { '$Exam.title$': { [Op.like]: `%${input.search}%` } },
+            { '$ExamPackage.title$': { [Op.like]: `%${input.search}%` } }
+        ];
+    }
 
     const optionsClause = {
         order: [['created_at', 'ASC']],
         limit: input.limit,
-        offset: Helpers.setOffset(input.page, input.limit)
+        offset: Helpers.setOffset(input.page, input.limit),
+        include: [
+            {
+                model: ExamRepository.model,
+                as: 'exam',
+                attributes: ['id', 'title', 'number_of_question', 'duration', 'description', 'category_id', 'grade_rules', 'additional_information']
+            },
+            {
+                model: ExamPackageRepository.model,
+                as: 'exam_package',
+                attributes: ['id', 'uuid', 'title', 'description', 'additional_information', 'price', 'image_url', 'is_private']
+            }
+        ]
     };
 
     const result = await ExamPackageMappingRepository.findAllWithExamAndPackage(whereClause, optionsClause);
@@ -59,25 +74,13 @@ const getExamMappingList = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_MAPPING.NOT_FOUND);
     }
 
+    const data = { rows: result.rows, count: result.count };
+
     // Jika data berhasil ditemukan, kirimkan data dan pesan sukses dengan status 200
     return Response.formatServiceReturn(true, 200, {
-        rows: result.rows,
-        count: result.count
+        rows: data.rows,
+        count: data.count
     }, 'Success retrieved exam package mapping');
-};
-
-
-const getExamMappingListSimple = async () => {
-    const result = await ExamPackageMappingRepository.findAllSimple();
-
-    if (!result || !result.rows.length) {
-        return Response.formatServiceReturn(false, 404, null, 'No data found');
-    }
-
-    return Response.formatServiceReturn(true, 200, {
-        rows: result.rows,
-        count: result.count
-    }, 'Success retrieved simple exam package mapping');
 };
 
 const getExamPackageMappingDetail = async (input, opts = {}) => {
@@ -149,5 +152,4 @@ exports.getExamMappingList = getExamMappingList;
 exports.getExamPackageMappingDetail = getExamPackageMappingDetail;
 exports.updateExamPackageMapping = updateExamPackageMapping;
 exports.deleteExamPackageMapping = deleteExamPackageMapping;
-exports.getExamMappingListSimple = getExamMappingListSimple;
 module.exports = exports;

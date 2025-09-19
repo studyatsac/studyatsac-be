@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const ExamPackageCategoryRepository = require('../../repositories/mysql/exam_package_category');
 const ExamPackageRepository = require('../../repositories/mysql/exam_package');
 const MasterCategoryRepository = require('../../repositories/mysql/master_category');
@@ -8,14 +9,31 @@ const Helpers = require('../../utils/helpers');
 const getListExamPackageCategory = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const whereClause = {
-        search: input.search
-    };
+    const whereClause = {};
+    if (input.search) {
+        whereClause[Op.or] = [
+            { '$MasterCategory.title$': { [Op.like]: `%${input.search}%` } },
+            { '$ExamPackage.title$': { [Op.like]: `%${input.search}%` } }
+        ];
+    }
 
     const optionsClause = {
+        where: whereClause,
         offset: Helpers.setOffset(input.page, input.limit),
         limit: input.limit,
-        order: [[input.orderBy, input.order]]
+        order: [[input.orderBy, input.order]],
+        include: [
+            {
+                model: Models.ExamPackage,
+                as: 'exam_package',
+                attributes: ['id', 'uuid', 'title', 'description', 'additional_information', 'price', 'image_url', 'is_private']
+            },
+            {
+                model: Models.MasterCategory,
+                as: 'master_category',
+                attributes: ['id', 'uuid', 'title']
+            }
+        ]
     };
 
     const result = await ExamPackageCategoryRepository.findAllExamPackageWithCategory(whereClause, optionsClause);
@@ -24,21 +42,9 @@ const getListExamPackageCategory = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_CATEGORY.NOT_FOUND);
     }
 
-    const rows = result.rows.map((item) => {
-        return {
-            uuid: item.uuid,
-            exam_package: {
-                uuid: item.exam_package.uuid,
-                title: item.exam_package.title
-            },
-            master_category: {
-                uuid: item.master_category.uuid,
-                title: item.master_category.title
-            }
-        };
-    });
+    const data = { rows: result.rows, count: result.count };
 
-    return Response.formatServiceReturn(true, 200, { rows, count: result.count }, 'Success retrieved exam-package category');
+    return Response.formatServiceReturn(true, 200, { rows: data.rows, count: data.count }, 'Success retrieved exam-package category');
 };
 
 const getDetailExamPackageCategory = async (input, opts = {}) => {
@@ -79,7 +85,7 @@ const createExamPackageCategory = async (input, opts = {}) => {
 
     const existingMapping = await ExamPackageCategoryRepository.findOne({
         examPackageId: input.examPackageId,
-        masterCategoryId: input.masterCategoryId,
+        masterCategoryId: input.masterCategoryId
     });
 
     if (existingMapping) {
@@ -88,7 +94,7 @@ const createExamPackageCategory = async (input, opts = {}) => {
 
     const createdMapping = await ExamPackageCategoryRepository.create({
         examPackageId: input.examPackageId,
-        masterCategoryId: input.masterCategoryId,
+        masterCategoryId: input.masterCategoryId
     });
 
     if (!createdMapping) {
