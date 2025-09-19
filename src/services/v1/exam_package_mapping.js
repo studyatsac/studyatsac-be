@@ -74,13 +74,8 @@ const getExamMappingList = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_MAPPING.NOT_FOUND);
     }
 
-    const data = { rows: result.rows, count: result.count };
-
     // Jika data berhasil ditemukan, kirimkan data dan pesan sukses dengan status 200
-    return Response.formatServiceReturn(true, 200, {
-        rows: data.rows,
-        count: data.count
-    }, 'Success retrieved exam package mapping');
+    return Response.formatServiceReturn(true, 200, { result }, 'Success retrieved exam package mapping');
 };
 
 const getExamPackageMappingDetail = async (input, opts = {}) => {
