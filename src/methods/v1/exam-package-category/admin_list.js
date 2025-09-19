@@ -27,7 +27,7 @@ exports.getListExamPackageCategory = async (req, res) => {
 
         // Kembalikan respons dengan format meta data
         return res.status(200).json({
-            status: result.data.code,
+            status: result.code,
             message: result.message,
             data: data.rows,
             meta: {

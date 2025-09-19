@@ -28,7 +28,7 @@ exports.getListExamPackageMapping = async (req, res) => {
         const data = { rows: result.data.rows, count: result.data.count };
 
         return res.status(200).json({
-            status: result.data.code,
+            status: result.code,
             message: result.message,
             data: data.rows,
             meta: {
