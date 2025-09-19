@@ -25,10 +25,10 @@ exports.getListExamPackageMapping = async (req, res) => {
         }
 
         // Jika `success` true, kembalikan data
-        const data = { rows: result.rows, count: result.count };
+        const data = { rows: result.data.rows, count: result.data.count };
 
-        return res.status(result.code).json({
-            status: result.code,
+        return res.status(200).json({
+            status: result.data.code,
             message: result.message,
             data: data.rows,
             meta: {

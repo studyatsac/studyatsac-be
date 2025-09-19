@@ -20,14 +20,14 @@ exports.getListExamPackageCategory = async (req, res) => {
         }); // Pastikan lang dikirim ke service
 
         if (!result.success) {
-            return res.status(result.code).json({ message: result.message });
+            return res.status(result.data.code).json({ message: result.message });
         }
 
-        const data = { rows: result.rows, count: result.count };
+        const data = { rows: result.data.rows, count: result.data.count };
 
         // Kembalikan respons dengan format meta data
-        return res.status(result.code).json({
-            status: result.code,
+        return res.status(200).json({
+            status: result.data.code,
             message: result.message,
             data: data.rows,
             meta: {
