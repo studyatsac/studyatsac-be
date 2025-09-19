@@ -70,6 +70,10 @@ const startMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
     }
 
+    if (!AiServiceSocket.isAiServiceSocketConnected()) {
+        return Response.formatServiceReturn(false, 500, null, language.AI_SERVICE.NOT_CONNECTED);
+    }
+
     const completedInterviewSections = userInterview.interviewSections.filter(
         (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
     );
@@ -146,7 +150,7 @@ const startMockInterview = async (input, opts = {}) => {
             );
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.INIT_CLIENT,
                     userInterview.uuid,
                     userInterview.userId,
@@ -209,6 +213,7 @@ const pauseMockInterview = async (input, opts = {}) => {
     let stopJobTime;
     let timerJobId;
     let isTimerUpdated = false;
+    let lastTimeUpdate;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -235,6 +240,17 @@ const pauseMockInterview = async (input, opts = {}) => {
             }
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+
+            lastTimeUpdate = await MockInterviewCacheUtils.getMockInterviewScheduleTimerLastUpdate(
+                userInterview.userId,
+                userInterview.uuid
+            );
+            if (lastTimeUpdate) {
+                await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(
+                    userInterview.userId,
+                    userInterview.uuid
+                );
+            }
 
             pauseJobTime = await MockInterviewCacheUtils.getMockInterviewControlPauseJobTime(
                 userInterview.userId,
@@ -265,7 +281,8 @@ const pauseMockInterview = async (input, opts = {}) => {
             }
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                AiServiceSocket.isAiServiceSocketConnected()
+                && !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_CLIENT,
                     sessionId
                 ))
@@ -274,6 +291,13 @@ const pauseMockInterview = async (input, opts = {}) => {
             return result;
         });
     } catch (err) {
+        if (lastTimeUpdate) {
+            await MockInterviewCacheUtils.setMockInterviewScheduleTimerLastUpdate(
+                userInterview.userId,
+                userInterview.uuid,
+                lastTimeUpdate
+            );
+        }
         if (pauseJobTime) {
             await MockInterviewCacheUtils.setMockInterviewControlPauseJobTime(
                 userInterview.userId,
@@ -359,6 +383,7 @@ const stopMockInterview = async (input, opts = {}) => {
     let stopJobTime;
     let timerJobId;
     let isTimerUpdated = false;
+    let lastTimeUpdate;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -385,6 +410,17 @@ const stopMockInterview = async (input, opts = {}) => {
             }
 
             await MockInterviewCacheUtils.deleteMockInterviewSessionId(userInterview.userId, userInterview.uuid);
+
+            lastTimeUpdate = await MockInterviewCacheUtils.getMockInterviewScheduleTimerLastUpdate(
+                userInterview.userId,
+                userInterview.uuid
+            );
+            if (lastTimeUpdate) {
+                await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(
+                    userInterview.userId,
+                    userInterview.uuid
+                );
+            }
 
             pauseJobTime = await MockInterviewCacheUtils.getMockInterviewControlPauseJobTime(
                 userInterview.userId,
@@ -415,7 +451,8 @@ const stopMockInterview = async (input, opts = {}) => {
             }
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                AiServiceSocket.isAiServiceSocketConnected()
+                && !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.END_CLIENT,
                     sessionId
                 ))
@@ -424,6 +461,13 @@ const stopMockInterview = async (input, opts = {}) => {
             return result;
         });
     } catch (err) {
+        if (lastTimeUpdate) {
+            await MockInterviewCacheUtils.setMockInterviewScheduleTimerLastUpdate(
+                userInterview.userId,
+                userInterview.uuid,
+                lastTimeUpdate
+            );
+        }
         if (pauseJobTime) {
             await MockInterviewCacheUtils.setMockInterviewControlPauseJobTime(
                 userInterview.userId,
@@ -524,6 +568,10 @@ const continueMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
     }
 
+    if (!AiServiceSocket.isAiServiceSocketConnected()) {
+        return Response.formatServiceReturn(false, 500, null, language.AI_SERVICE.NOT_CONNECTED);
+    }
+
     const completedInterviewSections = userInterview.interviewSections.filter(
         (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
     );
@@ -598,7 +646,7 @@ const continueMockInterview = async (input, opts = {}) => {
             );
 
             if (
-                !(await AiServiceSocket.emitAiServiceEventWithAck(
+                !(await AiServiceSocket.emitAiServiceEventWithAckBooleanTimeout(
                     MockInterviewConstants.AI_SERVICE_EVENT_NAME.INIT_CLIENT,
                     userInterview.uuid,
                     userInterview.userId,
@@ -751,9 +799,9 @@ const recordMockInterviewText = async (input, data) => {
     };
     const delayProcessJob = async (job) => {
         const targetJob = job || (await getProcessJob());
-        if (targetJob) {
-            const timeLapsed = Date.now() - targetJob.timestamp;
-            await targetJob.changeDelay(timeLapsed + MockInterviewConstants.PROCESS_TIME_IN_MILLISECONDS);
+        if (targetJob && (await targetJob.isDelayed())) {
+            const elapsedTime = Date.now() - targetJob.timestamp;
+            await targetJob.changeDelay(elapsedTime + MockInterviewConstants.PROCESS_TIME_IN_MILLISECONDS);
         }
     };
     const addProcessJob = async () => {
@@ -892,7 +940,7 @@ const recordMockInterviewProcess = async (input, data) => {
         }, trx);
 
         await MockInterviewCacheUtils.setMockInterviewProcessTarget(input.userId, input.uuid, {
-            userInterviewAnswerSectionId: interviewSectionAnswer.id,
+            userInterviewSectionAnswerId: interviewSectionAnswer.id,
             questionNumber: data?.questionNumber || -1,
             question: data.fullText
         });
@@ -937,12 +985,12 @@ const recordMockInterviewSpeech = async (input, data) => {
     if (processTarget.question === data.targetText) {
         isFullySpoken = true;
 
-        if (processTarget.userInterviewAnswerSectionId != null) {
+        if (processTarget.userInterviewSectionAnswerId != null) {
             await Models.sequelize.transaction(async (trx) => {
                 await UserInterviewSectionAnswerRepository.update({
                     status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKED,
                     askedAt: Moment().format()
-                }, { id: processTarget.userInterviewAnswerSectionId }, trx);
+                }, { id: processTarget.userInterviewSectionAnswerId }, trx);
 
                 await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(input.userId, input.uuid);
             });
@@ -951,10 +999,10 @@ const recordMockInterviewSpeech = async (input, data) => {
         return;
     }
 
-    if (processTarget.question.includes(data.currentText) && processTarget.userInterviewAnswerSectionId != null) {
+    if (processTarget.question.includes(data.currentText) && processTarget.userInterviewSectionAnswerId != null) {
         await UserInterviewSectionAnswerRepository.update({
             status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKING
-        }, { id: processTarget.userInterviewAnswerSectionId });
+        }, { id: processTarget.userInterviewSectionAnswerId });
     }
 
     if (data.tag !== MockInterviewConstants.PROCESS_EVENT_TAG.CLOSING) return;

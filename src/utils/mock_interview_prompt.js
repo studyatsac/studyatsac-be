@@ -32,7 +32,9 @@ const getMockInterviewOpeningUserPrompt = (topic, language) => {
         opening = `Welcome to the ${SCHOLARSHIP ? `${SCHOLARSHIP} ` : ''}scholarship interview session. First of all, congratulations on reaching this stage.`;
     }
 
-    const prompt = `Dari topik ${topic}, berikan:
+    const prompt = `${getMockInterviewBaseCriteriaPrompt(language)}
+
+Dari topik ${topic}, berikan:
 - Kalimat pembuka sesi wawancara, seperti:
 "${opening}"
 - Permintaan untuk memperkenalkan diri.`;
@@ -55,13 +57,14 @@ const getMockInterviewContinuingUserPrompt = (previousQuestion, answer, followUp
 
 Transkip jawaban kandidat: ${answer}
 
+${getMockInterviewBaseCriteriaPrompt(language)}
+
 Dari jawaban tersebut, berikan respon berupa:
 - Kalimat pembuka untuk sesi wawancara yang sempat terjeda, seperti:
 "${opening}"
-- Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat. Penting: **hindari menilai jawaban kandidat**.  
-- Satu pertanyaan lanjutan yang paling relevan dengan jawaban kandidat dari daftar berikut:
-${followUps}
-- Jika tidak ada pertanyaan tersedia dari daftar tersebut, berikan pertanyaan yang paling relevan dengan topik dan latar belakang kandidat.`;
+- Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat. Penting: **hindari menilai jawaban kandidat**.
+- Satu pertanyaan lanjutan yang paling relevan dengan ${typeof followUps === 'string' && !!followUps?.trim() ? `jawaban kandidat dari daftar berikut:
+${followUps}` : 'topik dan jawaban/latar belakang kandidat.'}`;
     const hint = 'kalimat pembuka untuk melanjutkan sesi + tanggapan jawaban singkat + pertanyaan lanjutan';
 
     return { prompt, hint };
@@ -74,12 +77,13 @@ const getMockInterviewRespondUserPrompt = (answer, followUpQuestions, language) 
 
     const prompt = `Transkip jawaban kandidat: ${answer}
 
+${getMockInterviewBaseCriteriaPrompt(language)}
+
 Dari jawaban yang diberikan kandidat nantinya, berikan respon berupa:
-- Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat secara kuantitatif**.  
-- Satu pertanyaan lanjutan yang paling relevan dengan jawaban kandidat dari daftar berikut:
-${followUps}
-- Jika tidak ada pertanyaan tersedia dari daftar tersebut, berikan pertanyaan yang paling relevan dengan topik dan latar belakang kandidat.`;
-    const hint = 'tanggapan jawaban + pertanyaan lanjutan/baru';
+- Tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat. Penting: **hindari menilai jawaban kandidat secara kuantitatif**.  
+- Satu pertanyaan lanjutan yang paling relevan dengan ${typeof followUps === 'string' && !!followUps?.trim() ? `jawaban kandidat dari daftar berikut:
+${followUps}` : 'topik dan jawaban/latar belakang kandidat.'}`;
+    const hint = 'tanggapan jawaban + pertanyaan lanjutan';
 
     return { prompt, hint };
 };
@@ -95,11 +99,12 @@ Pertanyaan sesi sebelumnya: ${previousQuestion}
 
 Transkirp jawaban kandidat: ${answer}
 
+${getMockInterviewBaseCriteriaPrompt(language)}
+
 Untuk berpindah topik sesi, berikan respon berupa:
 - Jika jawaban kandidat nantinya memiliki relevansi dengan topik lanjutan ini, maka berikan tanggapan singkat (1 kalimat) mengenai jawaban kandidat. Penting: **abaikan jika tidak ada relevansi dan hindari menilai jawaban kandidat secara kuantitatif ketika menanggapi**.   
-- Satu pertanyaan yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada), dari daftar berikut
-${questionList}
-- Jika tidak ada pertanyaan tersedia dari daftar tersebut, berikan pertanyaan yang paling relevan dengan topik selanjutnya dan latar belakang kandidat.`;
+- Satu pertanyaan ${typeof questionList === 'string' && !!questionList?.trim() ? `yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat, dari daftar berikut:
+${questionList}` : 'yang relevan dengan topik selanjutnya dan latar belakang kandidat.'}`;
     const hint = 'tanggapan jawaban (opsional, jika ada relevansi) + pertanyaan pembuka sesi baru';
 
     return { prompt, hint };
@@ -112,6 +117,8 @@ const getMockInterviewClosingUserPrompt = (answer, language) => {
     }
 
     const prompt = `Transkirp jawaban kandidat: ${answer}
+
+${getMockInterviewBaseCriteriaPrompt(language)}
 
 Dari jawaban yang diberikan kandidat nantinya, berikan respon berupa:
 - Tanggapan singkat (1-2 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat secara kuantitatif**.  
