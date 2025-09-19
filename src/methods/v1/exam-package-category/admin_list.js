@@ -21,16 +21,16 @@ exports.getListExamPackageCategory = async (req, res) => {
             return res.status(result.code).json({ message: result.message });
         }
 
-        const { rows, count } = result.data;
+        const data = { rows: result.rows, count: result.count };
 
         // Kembalikan respons dengan format meta data
         return res.status(result.code).json({
-            data: rows,
+            data: data.rows,
             meta: {
                 page: pageInt,
                 limit: limitInt,
-                total_data: count,
-                total_page: Math.ceil(count / limitInt)
+                total_data: data.count,
+                total_page: Math.ceil(data.count / limitInt)
             }
         });
     } catch (err) {
