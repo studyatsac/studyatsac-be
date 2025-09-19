@@ -36,30 +36,80 @@ const createExamPackageMapping = async (input, opts = {}) => {
 
     return Response.formatServiceReturn(true, 201, createdMapping, language.EXAM_PACKAGE_MAPPING.CREATE_SUCCESS);
 };
+// const getExamMappingList = async (input, opts = {}) => {
+//     const language = opts.language;
+//
+//     const examPackage = await ExamPackageRepository.findOne({
+//         id: input.examPackageId
+//     });
+//     if (!examPackage) {
+//         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_NOT_FOUND);
+//     }
+//
+//     const whereClause = {
+//         examPackageIds: input.examPackageIds,
+//         categoryId: input.categoryId
+//     };
+//
+//     const optionsClause = {
+//         order: [['createdAt', 'asc']],
+//         limit: input.limit,
+//         offset: Helpers.setOffset(input.page, input.limit)
+//     };
+//     const result = await ExamPackageMappingRepository.findAllWithExamAndPackage(whereClause, optionsClause);
+//
+//     if (!result || !result.length) {
+//         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_MAPPING.NOT_FOUND);
+//     }
+//     const rows = result.map(mapping => ({
+//         ...mapping.get({ plain: true }),
+//         exam: mapping.Exam // Mengambil data exam dari properti yang benar
+//     }));
+//
+//     return Response.formatServiceReturn(true, 200, { rows, count: result.length }, null);
+// };
+
 const getExamMappingList = async (input, opts = {}) => {
     const language = opts.language;
 
     const whereClause = {
-        examPackageIds: input.examPackageIds,
-        categoryId: input.categoryId
+        examPackageIds: input.examPackageIds, // variabel ini sudah berupa array
+        categoryId: input.categoryId,
+        search: input.search // Tambahkan search agar bisa digunakan oleh repositori
     };
 
     const optionsClause = {
-        order: [['createdAt', 'asc']],
+        order: [['created_at', 'ASC']],
         limit: input.limit,
         offset: Helpers.setOffset(input.page, input.limit)
     };
+
     const result = await ExamPackageMappingRepository.findAllWithExamAndPackage(whereClause, optionsClause);
 
-    if (!result || !result.length) {
+    if (!result || !result.rows.length) {
+        // Jika data tidak ditemukan, kirimkan pesan not found dengan status 404
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_MAPPING.NOT_FOUND);
     }
-    const rows = result.map(mapping => ({
-        ...mapping.get({ plain: true }),
-        exam: mapping.Exam // Mengambil data exam dari properti yang benar
-    }));
 
-    return Response.formatServiceReturn(true, 200, { rows, count: result.length }, null);
+    // Jika data berhasil ditemukan, kirimkan data dan pesan sukses dengan status 200
+    return Response.formatServiceReturn(true, 200, {
+        rows: result.rows,
+        count: result.count
+    }, 'Success retrieved exam package mapping');
+};
+
+
+const getExamMappingListSimple = async () => {
+    const result = await ExamPackageMappingRepository.findAllSimple();
+
+    if (!result || !result.rows.length) {
+        return Response.formatServiceReturn(false, 404, null, 'No data found');
+    }
+
+    return Response.formatServiceReturn(true, 200, {
+        rows: result.rows,
+        count: result.count
+    }, 'Success retrieved simple exam package mapping');
 };
 
 const getExamPackageMappingDetail = async (input, opts = {}) => {
@@ -131,4 +181,5 @@ exports.getExamMappingList = getExamMappingList;
 exports.getExamPackageMappingDetail = getExamPackageMappingDetail;
 exports.updateExamPackageMapping = updateExamPackageMapping;
 exports.deleteExamPackageMapping = deleteExamPackageMapping;
+exports.getExamMappingListSimple = getExamMappingListSimple;
 module.exports = exports;

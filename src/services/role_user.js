@@ -4,37 +4,70 @@ const Response = require('../utils/response');
 const UsersRepository = require('../repositories/mysql/user');
 const RolesRepository = require('../repositories/mysql/roles');
 
+// const getListUsersWithRoles = async (input) => {
+//     const users = await UsersRepository.findAndCountAll(
+//         {},
+//         {
+//             limit: input.limit,
+//             offset: Helpers.setOffset(input.page, input.limit),
+//             include: 'Roles' // Ambil peran untuk setiap pengguna
+//         }
+//     );
+//     // Lakukan transformasi data di sini
+//     return users;
+// };
+
 const getListUsersWithRoles = async (input) => {
-    const users = await UsersRepository.findAndCountAll(
+    // Ambil data user beserta perannya dari repository
+    const { rows: users, count } = await UsersRepository.findAndCountAll(
         {},
         {
             limit: input.limit,
             offset: Helpers.setOffset(input.page, input.limit),
-            include: 'Roles' // Ambil peran untuk setiap pengguna
+            // Pastikan alias 'Roles' ada di sini
+            includeRoles: true
         }
     );
-    // Lakukan transformasi data di sini
-    return users;
-};
 
-const getUserWithRoles = async (userUuid) => {
-    // Panggil findOne dari repository dengan opsi `include`
-    const user = await UsersRepository.findOne({ uuid: userUuid }, {
-        include: [{ model: RolesRepository.getModel(), as: 'Roles' }] // Ini menginstruksikan Sequelize untuk mengambil data roles
-    });
+    // Lakukan transformasi data untuk setiap user
+    const formattedUsers = users.map(user => {
+        // Gabungkan nama peran menjadi satu string
+        const roleNames = user.Roles.map(role => role.name).join(', ');
 
-    // Anda mungkin perlu mentransformasi data di sini untuk menyesuaikan output API
-    if (user) {
         return {
             uuid: user.uuid,
             fullName: user.fullName,
             email: user.email,
-            roles: user.Roles.map(role => ({
-                uuid: role.uuid,
-                name: role.name
-            }))
+            // Format 'roles' sekarang adalah string
+            roles: roleNames
+        };
+    });
+
+    // Kembalikan data yang sudah diformat bersama total count
+    return {
+        rows: formattedUsers,
+        count
+    };
+};
+
+const getUserWithRoles = async (userUuid) => {
+    // Panggil findOne dari repository dengan opsi `includeRoles: true`
+    const user = await UsersRepository.findOne({ uuid: userUuid }, {
+        includeRoles: true // Ini memberi tahu repository untuk menyertakan data roles
+    });
+
+    if (user && user.Roles) {
+        // Ambil nama peran dan gabungkan menjadi string
+        const roleNames = user.Roles.map(role => role.name).join(', ');
+
+        return {
+            uuid: user.uuid,
+            fullName: user.fullName,
+            email: user.email,
+            roles: roleNames // <-- Sekarang nilainya adalah string
         };
     }
+    // Kembalikan null jika user tidak ditemukan
     return null;
 };
 
@@ -71,6 +104,7 @@ const assignRoleToUser = async (input, opts = {}) => {
 
     return Response.formatServiceReturn(true, 201, {
         uuid: newRoleUser.uuid,
+        new_role: role.name,
         message: language.ROLE_USER.ASSIGN_SUCCESS
     });
 };

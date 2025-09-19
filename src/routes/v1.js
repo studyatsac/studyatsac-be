@@ -1043,7 +1043,7 @@ router.get(
 )
 
 router.get(
-    '/super-user/role-user/:id',
+    '/super-user/role-user/:uuid',
     [tokenMiddleware, superUserMiddleware],
     require('../methods/v1/role-user/detail').getDetailUser
 )
