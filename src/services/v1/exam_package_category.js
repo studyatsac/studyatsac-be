@@ -41,10 +41,7 @@ const getListExamPackageCategory = async (input, opts = {}) => {
     if (!result || !result.rows.length) {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_CATEGORY.NOT_FOUND);
     }
-
-    const data = { rows: result.rows, count: result.count };
-
-    return Response.formatServiceReturn(true, 200, { rows: data.rows, count: data.count }, 'Success retrieved exam-package category');
+    return Response.formatServiceReturn(true, 200, { result }, 'Success retrieved exam-package category');
 };
 
 const getDetailExamPackageCategory = async (input, opts = {}) => {
