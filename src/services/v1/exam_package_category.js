@@ -8,31 +8,14 @@ const Helpers = require('../../utils/helpers');
 const getListExamPackageCategory = async (input, opts = {}) => {
     const language = opts.lang;
 
-    // Periksa apakah examPackageId atau masterCategoryId valid jika diberikan
-    if (input.examPackageId) {
-        const examPackage = await ExamPackageRepository.findOne({ id: input.examPackageId });
-        if (!examPackage) {
-            return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_NOT_FOUND);
-        }
-    }
-
-    if (input.masterCategoryId) {
-        const masterCategory = await MasterCategoryRepository.findOne({ id: input.masterCategoryId });
-        if (!masterCategory) {
-            return Response.formatServiceReturn(false, 404, null, language.MASTER_CATEGORY.NOT_FOUND);
-        }
-    }
-
     const whereClause = {
-        search: input.search,
-        examPackageId: input.examPackageId,
-        masterCategoryId: input.masterCategoryId,
+        search: input.search
     };
 
     const optionsClause = {
         offset: Helpers.setOffset(input.page, input.limit),
         limit: input.limit,
-        order: [[input.orderBy, input.order]],
+        order: [[input.orderBy, input.order]]
     };
 
     const result = await ExamPackageCategoryRepository.findAllExamPackageWithCategory(whereClause, optionsClause);
@@ -55,7 +38,7 @@ const getListExamPackageCategory = async (input, opts = {}) => {
         };
     });
 
-    return Response.formatServiceReturn(true, 200, { rows, count: result.count }, null);
+    return Response.formatServiceReturn(true, 200, { rows, count: result.count }, 'Success retrieved exam-package category');
 };
 
 const getDetailExamPackageCategory = async (input, opts = {}) => {

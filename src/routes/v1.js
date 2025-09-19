@@ -956,7 +956,7 @@ router.get(
 );
 
 router.post(
-    '/admin/exam-package-mapping',
+    '/admin/exam-package-mapping/create',
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/exam-package-mapping/admin_create').createExamPackageMapping
 );
@@ -987,7 +987,7 @@ router.get(
 );
 
 router.post(
-    '/admin/exam-package-category',
+    '/admin/exam-package-category/create',
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/exam-package-category/admin_create').createExamPackageCategory
 );
@@ -1018,7 +1018,7 @@ router.get(
 );
 
 router.post(
-    '/super-user/role',
+    '/super-user/role/create',
     [tokenMiddleware, superUserMiddleware],
     require('../methods/v1/roles/admin_create').createRole
 );
@@ -1034,6 +1034,25 @@ router.delete(
     [tokenMiddleware, superUserMiddleware],
     require('../methods/v1/roles/admin_delete').deleteRole
 );
+
+//role-user
+router.get(
+    '/super-user/role-user',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/role-user/list').getListUsersWithRoles
+)
+
+router.get(
+    '/super-user/role-user/:uuid',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/role-user/detail').getDetailUser
+)
+
+router.post(
+    '/super-user/role-user',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/role-user/asssign_role_to_user').assignRoleToUser
+)
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *

@@ -324,6 +324,9 @@ module.exports = Object.freeze({
         NOT_IN_PROGRESS: 'Mock interview is not in progress',
         NOT_PAUSED: 'Mock interview is not paused'
     },
+    AI_SERVICE: {
+        NOT_CONNECTED: 'Something went wrong, please contact admin or try again later!'
+    },
     USER_REVIEW: {
         NOT_FOUND: 'User review not found',
         UUID_NOT_VALID: 'ID not valid',
@@ -382,5 +385,9 @@ module.exports = Object.freeze({
         UPDATE_FAILED: 'Failed to update role',
         UPDATE_SUCCESS: 'Success updated role',
         DELETE_SUCCESS: 'Success to deleted role'
+    },
+    ROLE_USER: {
+        ASSIGN_SUCCESS: 'Success assign role to user',
+        ALREADY_ASSIGNED: 'Role already assigned',
     }
 });

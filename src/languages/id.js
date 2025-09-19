@@ -329,6 +329,9 @@ module.exports = Object.freeze({
         NOT_IN_PROGRESS: 'Mockup wawancara tidak sedang berjalan',
         NOT_PAUSED: 'Mockup wawancara tidak sedang dijeda'
     },
+    AI_SERVICE: {
+        NOT_CONNECTED: 'Terjadi kesalahan, silahkan hubungi admin atau coba lagi nanti!'
+    },
     USER_REVIEW: {
         NOT_FOUND: 'Ulasan pengguna tidak ditemukan',
         UUID_NOT_VALID: 'ID tidak valid',
