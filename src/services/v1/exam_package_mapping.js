@@ -36,38 +36,6 @@ const createExamPackageMapping = async (input, opts = {}) => {
 
     return Response.formatServiceReturn(true, 201, createdMapping, language.EXAM_PACKAGE_MAPPING.CREATE_SUCCESS);
 };
-// const getExamMappingList = async (input, opts = {}) => {
-//     const language = opts.language;
-//
-//     const examPackage = await ExamPackageRepository.findOne({
-//         id: input.examPackageId
-//     });
-//     if (!examPackage) {
-//         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_NOT_FOUND);
-//     }
-//
-//     const whereClause = {
-//         examPackageIds: input.examPackageIds,
-//         categoryId: input.categoryId
-//     };
-//
-//     const optionsClause = {
-//         order: [['createdAt', 'asc']],
-//         limit: input.limit,
-//         offset: Helpers.setOffset(input.page, input.limit)
-//     };
-//     const result = await ExamPackageMappingRepository.findAllWithExamAndPackage(whereClause, optionsClause);
-//
-//     if (!result || !result.length) {
-//         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_MAPPING.NOT_FOUND);
-//     }
-//     const rows = result.map(mapping => ({
-//         ...mapping.get({ plain: true }),
-//         exam: mapping.Exam // Mengambil data exam dari properti yang benar
-//     }));
-//
-//     return Response.formatServiceReturn(true, 200, { rows, count: result.length }, null);
-// };
 
 const getExamMappingList = async (input, opts = {}) => {
     const language = opts.language;
