@@ -13,6 +13,7 @@ exports.findAll = function (where, opts = {}, trx = null) {
         required: false
     });
     opts.include = include;
+
     return Models.Question.findAll({ where, ...opts, transaction: trx });
 };
 
@@ -61,6 +62,22 @@ exports.findAllWithUserAnswer = function (where, opts = {}, trx = null) {
     opts.include = include;
 
     return Models.Question.findAll({ where: whereClause, ...opts, transaction: trx });
+};
+
+exports.create = function (payload, trx = null) {
+    return Models.Question.create(payload, { transaction: trx });
+};
+
+exports.findAndCountAll = function (where, opts = {}, trx = null) {
+    return Models.Question.findAndCountAll({ where, ...opts, transaction: trx });
+};
+
+exports.update = function (payload, where, trx = null) {
+    return Models.Question.update(payload, { where, transaction: trx });
+};
+
+exports.delete = function (where, trx = null) {
+    return Models.Question.destroy({ where, transaction: trx });
 };
 
 module.exports = exports;

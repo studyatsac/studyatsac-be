@@ -1,13 +1,11 @@
+const { Op } = require('sequelize');
 const UserExamRepository = require('../../../repositories/mysql/user_exam');
 const Models = require('../../../models/mysql');
-const Language = require('../../../languages');
 const LogUtils = require('../../../utils/logger');
-const { Op } = require('sequelize');
 
 exports.getListUserExam = async (req, res) => {
     try {
         const { page = 1, limit = 10, search } = req.query;
-        const lang = Language.getLanguage(req.locale);
         const pageInt = parseInt(page, 10) || 1;
         const limitInt = parseInt(limit, 10) || 10;
         const offset = (pageInt - 1) * limitInt;
@@ -29,7 +27,7 @@ exports.getListUserExam = async (req, res) => {
             where: whereClause,
             order: [[orderBy, order]],
             limit: limitInt,
-            offset: offset,
+            offset,
             include: [
                 {
                     model: Models.User,

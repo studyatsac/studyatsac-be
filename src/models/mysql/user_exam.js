@@ -58,11 +58,11 @@ module.exports = (sequelize, DataTypes) => {
     UserExam.associate = (models) => {
         UserExam.belongsTo(models.User, {
             targetKey: 'id',
-            foreignKey: 'user_id'
+            foreignKey: 'userId'
         });
         UserExam.belongsTo(models.Exam, {
             targetKey: 'id',
-            foreignKey: 'exam_id'
+            foreignKey: 'examId'
         });
     };
 

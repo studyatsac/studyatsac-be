@@ -326,5 +326,68 @@ module.exports = Object.freeze({
     },
     AI_SERVICE: {
         NOT_CONNECTED: 'Something went wrong, please contact admin or try again later!'
+    },
+    USER_REVIEW: {
+        NOT_FOUND: 'User review not found',
+        UUID_NOT_VALID: 'ID not valid',
+        USER_ID_NOT_VALID: 'User ID not valid',
+        RATING_NOT_VALID: 'Rating not valid',
+        COMMENT_NOT_VALID: 'Comment not valid',
+        ALREADY_EXIST: 'User review already exist',
+        CREATE_FAILED: 'Failed to create user review',
+        UPDATE_FAILED: 'Failed to update user review',
+        DELETE_FAILED: 'Failed to delete user review',
+        CREATE_SUCCESS: 'Success to create user review'
+    },
+    QUESTION: {
+        NOT_FOUND: 'Question not found',
+        UUID_NOT_VALID: 'ID not valid',
+        TITLE_NOT_VALID: 'Title not valid',
+        DESCRIPTION_NOT_VALID: 'Description not valid',
+        CREATE_FAILED: 'Failed to create question',
+        UPDATE_FAILED: 'Failed to update question',
+        DELETE_FAILED: 'Failed to delete question'
+    },
+    MASTER_CATEGORY: {
+        NOT_FOUND: 'Master Category not found',
+        ALREADY_EXISTS: 'Master Category already exist',
+        SUCCESS_GET_DETAIL: 'Success get detailed master category',
+        CREATE_FAILED: 'Failed create master category',
+        UPDATE_FAILED: 'Failed update master category',
+        CREATE_SUCCESS: 'Success to create master category',
+        UPDATE_SUCCESS: 'Success update master category',
+        DELETE_SUCCESS: 'Success to delete master category'
+    },
+    EXAM_PACKAGE_MAPPING: {
+        CREATE_FAILED: 'Failed create exam package mapping',
+        CREATE_SUCCESS: 'Success to create exam package mapping',
+        SUCCESS_GET_DETAIL: 'Success get detailed exam package mapping',
+        UPDATE_SUCCESS: 'Success updated exam package mapping',
+        UPDATE_FAILED: 'Failed to update exam package mapping',
+        DELETE_SUCCESS: 'Success to deleted exam package mapping'
+    },
+    EXAM_PACKAGE_CATEGORY: {
+        NOT_FOUND: 'Exam package category not found',
+        ALREADY_EXISTS: 'Exam package category already exist',
+        SUCCESS_GET_DETAIL: 'Success get detailed exam package category',
+        CREATE_FAILED: 'Failed to create exam package category',
+        CREATE_SUCCESS: 'Success created exam package category',
+        UPDATE_FAILED: 'Failed to update exam package category',
+        UPDATE_SUCCESS: 'Success updated exam package category',
+        DELETE_SUCCESS: 'Success to deleted exam package category'
+    },
+    ROLE: {
+        NOT_FOUND: 'Role Not Found',
+        ALREADY_EXISTS: 'Role already exist',
+        SUCCESS_GET_DETAIL: 'Success get detailed role',
+        CREATE_FAILED: 'Failed to create role',
+        CREATE_SUCCESS: 'Success created role',
+        UPDATE_FAILED: 'Failed to update role',
+        UPDATE_SUCCESS: 'Success updated role',
+        DELETE_SUCCESS: 'Success to deleted role'
+    },
+    ROLE_USER: {
+        ASSIGN_SUCCESS: 'Success assign role to user',
+        ALREADY_ASSIGNED: 'Role already assigned',
     }
 });

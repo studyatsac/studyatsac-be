@@ -48,7 +48,8 @@ module.exports = Object.freeze({
     EMAIL_INVALID: 'Format email tidak valid',
     EMAIL_REQUIRED: 'Email wajib diisi',
     INTERNAL_SERVER_ERROR: 'Terjadi kesalahan server',
-    RESET_PASSWORD_EMAIL_SENT: 'Email reset password telah terkirim, silahkan cek di email anda',
+    RESET_PASSWORD_EMAIL_SENT:
+    'Email reset password telah terkirim, silahkan cek di email anda',
     PASSWORD_RESET_SUCCESS: 'Reset Password Sukses',
     TOKEN_IS_REQUIRED: 'Token wajib diisi',
     PASSWORD_IS_REQUIRED: 'Password wajib diisi',
@@ -112,7 +113,8 @@ module.exports = Object.freeze({
         ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information tidak valid',
         PRICE_NOT_VALID: 'Harga tidak valid',
         TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total maksimal percobaan tidak valid',
-        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Jumlah default maksimal percobaan tidak valid',
+        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID:
+      'Jumlah default maksimal percobaan tidak valid',
         PAYMENT_URL_NOT_VALID: 'Link pembayaran tidak valid',
         IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
         ESSAY_PACKAGE_MAPPINGS_NOT_VALID: 'Item paket esai tidak valid',
@@ -185,7 +187,8 @@ module.exports = Object.freeze({
         DESCRIPTION_NOT_VALID: 'Deskripsi tidak valid',
         SYSTEM_PROMPT_NOT_VALID: 'AI prompt tidak valid',
         DURATION_NOT_VALID: 'Durasi tidak valid',
-        INTERVIEW_SECTION_QUESTIONS_NOT_VALID: 'Sesi wawancara question tidak valid',
+        INTERVIEW_SECTION_QUESTIONS_NOT_VALID:
+      'Sesi wawancara question tidak valid',
         CREATE_SUCCESS: 'Berhasil membuat sesi wawancara',
         CREATE_FAILED: 'Gagal membuat sesi wawancara',
         UPDATE_SUCCESS: 'Berhasil memperbarui sesi wawancara',
@@ -243,7 +246,8 @@ module.exports = Object.freeze({
     USER_INTERVIEW_SECTION_ANSWER: {
         NOT_FOUND: 'Jawaban sesi wawancara pengguna tidak ditemukan',
         UUID_NOT_VALID: 'ID tidak valid',
-        INTERVIEW_SECTION_QUESTION_UUID_NOT_VALID: 'ID pertanyaan sesi wawancara tidak valid',
+        INTERVIEW_SECTION_QUESTION_UUID_NOT_VALID:
+      'ID pertanyaan sesi wawancara tidak valid',
         ANSWER_NOT_VALID: 'Jawaban tidak valid',
         REVIEW_NOT_VALID: 'Review tidak valid',
         CREATE_SUCCESS: 'Berhasil membuat jawaban sesi wawancara pengguna',
@@ -260,7 +264,8 @@ module.exports = Object.freeze({
         ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information tidak valid',
         PRICE_NOT_VALID: 'Harga tidak valid',
         TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total maksimal percobaan tidak valid',
-        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Jumlah default maksimal percobaan tidak valid',
+        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID:
+      'Jumlah default maksimal percobaan tidak valid',
         PAYMENT_URL_NOT_VALID: 'Link pembayaran tidak valid',
         IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
         PRODUCT_PACKAGE_MAPPINGS_NOT_VALID: 'Item paket produk tidak valid',
@@ -290,7 +295,8 @@ module.exports = Object.freeze({
         ADDITIONAL_INFORMATION_NOT_VALID: 'Additional information tidak valid',
         PRICE_NOT_VALID: 'Harga tidak valid',
         TOTAL_MAX_ATTEMPT_NOT_VALID: 'Total maksimal percobaan tidak valid',
-        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID: 'Jumlah default maksimal percobaan tidak valid',
+        DEFAULT_ITEM_MAX_ATTEMPT_NOT_VALID:
+      'Jumlah default maksimal percobaan tidak valid',
         PAYMENT_URL_NOT_VALID: 'Link pembayaran tidak valid',
         IS_ACTIVE_NOT_VALID: 'Status aktif tidak valid',
         INTERVIEW_PACKAGE_MAPPINGS_NOT_VALID: 'Item paket wawancara tidak valid',
@@ -325,5 +331,64 @@ module.exports = Object.freeze({
     },
     AI_SERVICE: {
         NOT_CONNECTED: 'Terjadi kesalahan, silahkan hubungi admin atau coba lagi nanti!'
+    },
+    USER_REVIEW: {
+        NOT_FOUND: 'Ulasan pengguna tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        USER_ID_NOT_VALID: 'ID pengguna tidak valid',
+        RATING_NOT_VALID: 'Rating tidak valid',
+        COMMENT_NOT_VALID: 'Komentar tidak valid',
+        ALREADY_EXIST: 'Ulasan pengguna sudah ada',
+        CREATE_FAILED: 'Gagal membuat ulasan pengguna',
+        UPDATE_FAILED: 'Gagal memperbarui ulasan pengguna',
+        DELETE_FAILED: 'Gagal menghapus ulasan pengguna',
+        CREATE_SUCCESS: 'Berhasil membuat ulasan pengguna'
+    },
+    QUESTION: {
+        NOT_FOUND: 'Pertanyaan tidak ditemukan',
+        UUID_NOT_VALID: 'ID tidak valid',
+        TITLE_NOT_VALID: 'Judul tidak valid',
+        DESCRIPTION_NOT_VALID: 'Deskripsi tidak valid',
+        CREATE_FAILED: 'Gagal membuat pertanyaan',
+        UPDATE_FAILED: 'Gagal memperbarui pertanyaan',
+        DELETE_FAILED: 'Gagal menghapus pertanyaan'
+    },
+    MASTER_CATEGORY: {
+        NOT_FOUND: 'Kategori master tidak ditemukan',
+        ALREADY_EXISTS: 'Kategori master sudah ada',
+        SUCCESS_GET_DETAIL: 'Sukses mendapatkan detail kategori master',
+        CREATE_FAILED: 'Gagal membuat kategori master',
+        UPDATE_FAILED: 'Gagal memperbarui kategori master',
+        CREATE_SUCCESS: 'Sukses membuat kategori master',
+        UPDATE_SUCCESS: 'Sukses memperbarui kategori master',
+        DELETE_SUCCESS: 'Sukses menghapus kategori master'
+    },
+    EXAM_PACKAGE_MAPPING: {
+        CREATE_FAILED: 'Gagal membuat pemetaan paket ujian',
+        CREATE_SUCCESS: 'Sukses membuat pemetaan paket ujian',
+        SUCCESS_GET_DETAIL: 'Sukses mendapat detail pemetaan paket ujian',
+        UPDATE_SUCCESS: 'Sukses memperbarui pemetaan paket ujian',
+        UPDATE_FAILED: 'Gagal memperbarui pemetaan paket ujian',
+        DELETE_SUCCESS: 'Sukses menghapus pemetaan paket ujian'
+    },
+    EXAM_PACKAGE_CATEGORY: {
+        NOT_FOUND: 'Kategori paket ujian tidak ditemukan',
+        ALREADY_EXISTS: 'Kategori paket ujian sudah ada',
+        SUCCESS_GET_DETAIL: 'Sukses mendapat detail kategori paket ujian',
+        CREATE_FAILED: 'Gagal membuat kategori paket ujian',
+        CREATE_SUCCESS: 'Sukses membuat kategori paket ujian',
+        UPDATE_FAILED: 'Gagal memperbarui kategori paket ujian',
+        UPDATE_SUCCESS: 'Sukses memperbarui kategori paket ujian',
+        DELETE_SUCCESS: 'Sukses menghapus kategori paket ujian'
+    },
+    Role: {
+        NOT_FOUND: 'Role tidak ditemukan',
+        ALREADY_EXISTS: 'Role sudah ada',
+        SUCCESS_GET_DETAIL: 'Sukses mendapat detail role',
+        CREATE_FAILED: 'Gagal membuat Role',
+        CREATE_SUCCESS: 'Sukses membuat Role',
+        UPDATE_FAILED: 'Gagal memperbarui Role',
+        UPDATE_SUCCESS: 'Sukses memperbarui Role',
+        DELETE_SUCCESS: 'Sukses menghapus Role'
     }
 });

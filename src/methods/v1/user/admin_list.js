@@ -1,5 +1,5 @@
-const UserRepository = require('../../../repositories/mysql/user');
 const { Op } = require('sequelize');
+const UserRepository = require('../../../repositories/mysql/user');
 
 exports.getListUser = async (req, res) => {
     try {
@@ -23,8 +23,8 @@ exports.getListUser = async (req, res) => {
         }
 
         // Query data user dan total count
-        const { rows, count } = await UserRepository.findAndCountAll(whereClause, { 
-            offset, 
+        const { rows, count } = await UserRepository.findAndCountAll(whereClause, {
+            offset,
             limit: limitInt,
             order: [[orderBy, order]]
         });

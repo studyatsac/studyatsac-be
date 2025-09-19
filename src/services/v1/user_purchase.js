@@ -96,7 +96,7 @@ const getMyExam = async (input, opts = {}) => {
 
     whereClauseExam.examPackageIds = userPurchases.map((userPurchase) => userPurchase.examPackageId);
 
-    const examPackageMappings = await ExamPackageMappingRepository.findAllWithExam(whereClauseExam);
+    const examPackageMappings = await ExamPackageMappingRepository.findAllWithExamAndPackage(whereClauseExam);
 
     return Response.formatServiceReturn(true, 200, examPackageMappings, null);
 };

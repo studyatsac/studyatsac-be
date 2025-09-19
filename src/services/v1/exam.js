@@ -69,7 +69,7 @@ const startExam = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_NOT_FOUND);
     }
 
-    const examPackageMapping = await ExamPackageMappingRepository.findOne({
+    const examPackageMapping = await ExamPackageMappingRepository.findOneWithExamAndPackage({
         examPackageId: examPackage.id,
         examId: exam.id
     });
@@ -95,7 +95,7 @@ const startExam = async (input, opts = {}) => {
     // Ambil resources unik dari questions
     const resources = [];
     const resourceIds = new Set();
-    questions.forEach(q => {
+    questions.forEach((q) => {
         if (q.resource && q.resource.id && !resourceIds.has(q.resource.id)) {
             resources.push(q.resource);
             resourceIds.add(q.resource.id);
@@ -105,7 +105,7 @@ const startExam = async (input, opts = {}) => {
     // Ambil sections unik dari questions
     const sections = [];
     const sectionIds = new Set();
-    questions.forEach(q => {
+    questions.forEach((q) => {
         if (q.section && q.section.id && !sectionIds.has(q.section.id)) {
             sections.push(q.section);
             sectionIds.add(q.section.id);
@@ -149,7 +149,7 @@ const getUserExamWithQuestionAndAnswer = async (input, opts = {}) => {
     // Ambil resources unik dari questions
     const resources = [];
     const resourceIds = new Set();
-    questions.forEach(q => {
+    questions.forEach((q) => {
         if (q.resource && q.resource.id && !resourceIds.has(q.resource.id)) {
             resources.push(q.resource);
             resourceIds.add(q.resource.id);
@@ -159,7 +159,7 @@ const getUserExamWithQuestionAndAnswer = async (input, opts = {}) => {
     // Ambil sections unik dari questions
     const sections = [];
     const sectionIds = new Set();
-    questions.forEach(q => {
+    questions.forEach((q) => {
         if (q.section && q.section.id && !sectionIds.has(q.section.id)) {
             sections.push(q.section);
             sectionIds.add(q.section.id);

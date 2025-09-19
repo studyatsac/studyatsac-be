@@ -28,7 +28,8 @@ exports.getMyExam = async (req, res) => {
             return res.status(result.code).json({ message: result.message });
         }
 
-        const rows = result.data || {};
+        const data = result.data || {};
+        const rows = data.rows || [];
 
         return res.status(200).json({
             data: rows.map(MyExamTransformer.item)

@@ -2,11 +2,162 @@ const router = require('express').Router();
 const adminOnlyMiddleware = require('../middlewares/admin_only');
 const tokenMiddleware = require('../middlewares/token_middleware');
 const tokenParserMiddleware = require('../middlewares/token_parser_middleware');
+const superUserMiddleware = require('../middlewares/superUser_only');
 const apiKeyMiddleware = require('../middlewares/api_key_middleware');
 const webhookPaymentTokenMiddleware = require('../middlewares/webhook_payment_callback');
 const upload = require('../middlewares/upload_file');
 
 router.get('/ping', (req, res) => res.status(200).json({ message: 'PONG', date: new Date() }));
+
+// Endpoint untuk list section
+router.get(
+    '/admin/sections',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_list').getListSection
+);
+
+// Endpoint untuk create section
+router.post(
+    '/admin/sections/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_create').createSection
+);
+
+// Endpoint untuk hapus section
+router.delete(
+    '/admin/sections/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_delete').deleteSection
+);
+
+// Endpoint untuk detail section
+router.get(
+    '/admin/sections/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_detail').getSectionDetail
+);
+
+// Endpoint untuk update section
+router.put(
+    '/admin/sections/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/section/admin_update').updateSection
+);
+
+// Endpoint untuk list master category
+router.get(
+    '/admin/master-categories',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_list').getListMasterCategory
+);
+
+router.get(
+    '/admin/master-categories/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_detail').getDetailMasterCategory
+);
+
+router.post(
+    '/admin/master-categories/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_create').createMasterCategory
+);
+
+router.put(
+    '/admin/master-categories/update/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_update').updateMasterCategory
+);
+
+router.delete(
+    '/admin/master-categories/delete/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/master-category/admin_delete').deleteMasterCategory
+);
+
+// Endpoint untuk membuat resources
+router.post(
+    '/resources/create',
+    [tokenMiddleware, adminOnlyMiddleware, upload.single('resources')],
+    require('../methods/v1/resources/admin_create').createResources
+);
+
+// Endpoint untuk list resources
+router.get(
+    '/admin/resources',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/resources/admin_list').getListResources
+);
+
+// Endpoint untuk delete resources
+router.delete(
+    '/admin/resources/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/resources/admin_delete').deleteResource
+);
+
+// Endpoint untuk update resources
+router.put(
+    '/admin/resources/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/resources/admin_update').updateResource
+);
+
+// Endpoint untuk detail resources
+router.get(
+    '/admin/resources/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/resources/admin_detail').getResourceDetail
+);
+
+// Endpoint untuk list question
+router.get(
+    '/admin/questions',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_list').getListQuestion
+);
+
+// Endpoint untuk create question
+router.post(
+    '/admin/questions/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_create').createQuestions
+);
+
+// Endpoint delete question
+router.delete(
+    '/admin/questions/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_delete').deleteQuestion
+);
+
+// Endpoint update question
+router.put(
+    '/admin/questions/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_update').updateQuestion
+);
+
+// Endpoint untuk detail question
+router.get(
+    '/admin/questions/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/questions/admin_detail').getQuestionDetail
+);
+
+// Endpoint untuk membuat user-review
+router.post(
+    '/user-reviews/create',
+    [tokenMiddleware],
+    require('../methods/v1/user-reviews/user_create_review').createUserReview
+);
+
+// Endpoint admin untuk mengambil semua user_reviews
+router.get(
+    '/admin/user-reviews',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/user-reviews/admin_list_review').getListUserReview
+);
 
 router.get(
     '/admin/user-purchases/essay-packages',
@@ -791,6 +942,117 @@ router.post(
     require('../methods/v1/interview-review/retry_user_interview_review').retryUserInterviewReview
 );
 
+// route untuk ecam-package-mapping
+router.get(
+    '/admin/exam-package-mapping/',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_list').getListExamPackageMapping
+);
+
+router.get(
+    '/admin/exam-package-mapping/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_detail').getExamPackageMappingDetail
+);
+
+router.post(
+    '/admin/exam-package-mapping/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_create').createExamPackageMapping
+);
+
+router.put(
+    '/admin/exam-package-mapping/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_update').updateExamPackageMapping
+);
+
+router.delete(
+    '/admin/exam-package-mapping/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-mapping/admin_delete').deleteExamPackageMapping
+);
+
+// exam-package-category
+router.get(
+    '/admin/exam-package-category',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_list').getListExamPackageCategory
+);
+
+router.get(
+    '/admin/exam-package-category/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_detail').getDetailExamPackageCategory
+);
+
+router.post(
+    '/admin/exam-package-category/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_create').createExamPackageCategory
+);
+
+router.put(
+    '/admin/exam-package-category/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_update').updateExamPackageCategory
+);
+
+router.delete(
+    '/admin/exam-package-category/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/exam-package-category/admin_delete').deleteExamPackageCategory
+);
+
+// role superUser
+router.get(
+    '/super-user/role',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/roles/admin_list').getListRoles
+);
+
+router.get(
+    '/super-user/role/:id',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/roles/admin_detail').getDetailRole
+);
+
+router.post(
+    '/super-user/role/create',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/roles/admin_create').createRole
+);
+
+router.put(
+    '/super-user/role/:id',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/roles/admin_update').updateRole
+);
+
+router.delete(
+    '/super-user/role/:id',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/roles/admin_delete').deleteRole
+);
+
+//role-user
+router.get(
+    '/super-user/role-user',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/role-user/list').getListUsersWithRoles
+)
+
+router.get(
+    '/super-user/role-user/:id',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/role-user/detail').getDetailUser
+)
+
+router.post(
+    '/super-user/role-user',
+    [tokenMiddleware, superUserMiddleware],
+    require('../methods/v1/role-user/asssign_role_to_user').assignRoleToUser
+)
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
