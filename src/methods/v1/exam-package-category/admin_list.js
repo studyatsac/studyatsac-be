@@ -2,7 +2,9 @@ const ExamPackageCategoryService = require('../../../services/v1/exam_package_ca
 
 exports.getListExamPackageCategory = async (req, res) => {
     try {
-        const { page = 1, limit = 10, search, orderBy, order } = req.query;
+        const {
+            page = 1, limit = 10, search, orderBy, order
+        } = req.query;
 
         // Validasi input
         const pageInt = parseInt(page, 10) || 1;
@@ -15,7 +17,7 @@ exports.getListExamPackageCategory = async (req, res) => {
             search,
             orderBy: orderBy || 'created_at',
             order: order || 'desc'
-        }, { lang: req.lang }); // Pastikan lang dikirim ke service
+        }); // Pastikan lang dikirim ke service
 
         if (!result.success) {
             return res.status(result.code).json({ message: result.message });
@@ -25,6 +27,8 @@ exports.getListExamPackageCategory = async (req, res) => {
 
         // Kembalikan respons dengan format meta data
         return res.status(result.code).json({
+            status: result.code,
+            message: result.message,
             data: data.rows,
             meta: {
                 page: pageInt,

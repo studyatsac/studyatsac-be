@@ -2,7 +2,9 @@ const ExamPackageMappingService = require('../../../services/v1/exam_package_map
 
 exports.getListExamPackageMapping = async (req, res) => {
     try {
-        const { page = 1, limit = 10, search, orderBy, order } = req.query;
+        const {
+            page = 1, limit = 10, search, orderBy, order
+        } = req.query;
 
         // Validasi input
         const pageInt = parseInt(page, 10) || 1;
@@ -26,8 +28,9 @@ exports.getListExamPackageMapping = async (req, res) => {
         const data = { rows: result.rows, count: result.count };
 
         return res.status(result.code).json({
+            status: result.code,
+            message: result.message,
             data: data.rows,
-            message: result.message, // Tambahkan message dari service
             meta: {
                 page: pageInt,
                 limit: limitInt,
