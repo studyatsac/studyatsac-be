@@ -3,12 +3,12 @@ const Language = require('../../../languages');
 
 exports.getDetailExamPackageCategory = async (req, res) => {
     try {
-        const { uuid } = req.params;
+        const { id } = req.params;
 
         const lang = Language.getLanguage(req.locale);
 
         const result = await ExamPackageCategoryService.getDetailExamPackageCategory({
-            uuid
+            id
         }, { lang });
 
         if (!result.status) {

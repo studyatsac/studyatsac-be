@@ -1,4 +1,4 @@
-const Models = require('../../models/mysql')
+const Models = require('../../models/mysql');
 
 exports.findAllExamPackageWithCategory = function (where, opts = {}, trx = null) {
     const {
@@ -11,7 +11,7 @@ exports.findAllExamPackageWithCategory = function (where, opts = {}, trx = null)
     const includeExamPackage = {
         model: Models.ExamPackage,
         as: 'exam_package',
-        required: true,
+        required: true
     };
     const includeMasterCategory = {
         model: Models.MasterCategory,
@@ -47,6 +47,10 @@ exports.findAllExamPackageWithCategory = function (where, opts = {}, trx = null)
     return Models.ExamPackageCategory.findAndCountAll({ where: whereClause, ...opts, transaction: trx });
 };
 
+exports.findAndCountAll = function (where, opts = {}, trx = null) {
+    return Models.ExamPackageCategory.findAndCountAll({ where, ...opts, transaction: trx });
+};
+
 exports.findOne = function (where, opts = {}, trx = null) {
     const include = opts.include || [];
     include.push({
@@ -60,7 +64,6 @@ exports.findOne = function (where, opts = {}, trx = null) {
         required: false
     });
     opts.include = include;
-
     return Models.ExamPackageCategory.findOne({ where, ...opts, transaction: trx });
 };
 

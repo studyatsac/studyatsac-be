@@ -113,13 +113,12 @@ exports.findAllWithExamAndPackage = function (where, opts = {}, trx = null) {
 
     return Models.ExamPackageMapping.findAndCountAll({
         where: mainWhereClause,
-        include: include,
+        include,
         ...opts,
         distinct: true,
         transaction: trx
     });
 };
-
 
 exports.findAllSimple = function () {
     return Models.ExamPackageMapping.findAndCountAll({
@@ -142,6 +141,22 @@ exports.findOneWithExamAndPackage = function (where, opts = {}, trx = null) {
 };
 exports.findAndCountAll = function (where, opts = {}, trx = null) {
     return Models.ExamPackageMapping.findAndCountAll({ where, ...opts, transaction: trx });
+};
+
+exports.findOne = function (where, opts = {}, trx = null) {
+    const include = opts.include || [];
+    include.push({
+        model: Models.ExamPackage,
+        as: 'exam_package',
+        required: false
+    });
+    include.push({
+        model: Models.Exam,
+        as: 'exam',
+        required: false
+    });
+    opts.include = include;
+    return Models.ExamPackageMapping.findOne({ where, ...opts, transaction: trx });
 };
 
 exports.create = function (payload, trx = null) {
