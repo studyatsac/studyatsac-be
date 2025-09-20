@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const ExamPackageRepository = require('../../repositories/mysql/exam_package');
 const Response = require('../../utils/response');
 const ExamPackageMappingRepository = require('../../repositories/mysql/exam_package_mapping');
+const Models = require('../../models/mysql');
 const Helpers = require('../../utils/helpers');
 const ExamRepository = require('../../repositories/mysql/exam');
 
@@ -55,12 +56,12 @@ const getExamMappingList = async (input, opts = {}) => {
         offset: Helpers.setOffset(input.page, input.limit),
         include: [
             {
-                model: ExamRepository.model,
+                model: Models.Exam,
                 as: 'exam',
                 attributes: ['id', 'title', 'number_of_question', 'duration', 'description', 'category_id', 'grade_rules', 'additional_information']
             },
             {
-                model: ExamPackageRepository.model,
+                model: Models.ExamPackage,
                 as: 'exam_package',
                 attributes: ['id', 'uuid', 'title', 'description', 'additional_information', 'price', 'image_url', 'is_private']
             }
@@ -70,9 +71,22 @@ const getExamMappingList = async (input, opts = {}) => {
     const result = await ExamPackageMappingRepository.findAllWithExamAndPackage(whereClause, optionsClause);
 
     if (!result || !result.rows.length) {
-        // Jika data tidak ditemukan, kirimkan pesan not found dengan status 404
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_MAPPING.NOT_FOUND);
     }
+
+    result.rows = result.rows.map((item) => ({
+        uuid: item.uuid,
+        exam: {
+            id: item.exam.id,
+            uuid: item.exam.uuid,
+            title: item.exam.title
+        },
+        exam_package: {
+            id: item.exam_package.id,
+            uuid: item.exam_package.uuid,
+            title: item.exam_package.title
+        }
+    }));
 
     // Jika data berhasil ditemukan, kirimkan data dan pesan sukses dengan status 200
     return Response.formatServiceReturn(true, 200, { result }, 'Success retrieved exam package mapping');
@@ -81,7 +95,7 @@ const getExamMappingList = async (input, opts = {}) => {
 const getExamPackageMappingDetail = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const packageMapping = await ExamPackageMappingRepository.findOne({ uuid: input.uuid });
+    const packageMapping = await ExamPackageMappingRepository.findOne({ id: input.id });
     if (!packageMapping) {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_NOT_FOUND);
     }
@@ -92,7 +106,7 @@ const getExamPackageMappingDetail = async (input, opts = {}) => {
 const updateExamPackageMapping = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const mapping = await ExamPackageMappingRepository.findOne({ uuid: input.uuid });
+    const mapping = await ExamPackageMappingRepository.findOne({ id: input.id });
     if (!mapping) {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_MAPPING.NOT_FOUND);
     }
@@ -112,28 +126,20 @@ const updateExamPackageMapping = async (input, opts = {}) => {
         examId: input.examId
     };
 
-    const updated = await ExamPackageMappingRepository.update(payload, { uuid: input.uuid });
+    const updated = await ExamPackageMappingRepository.update(payload, { id: input.id });
 
     if (!updated || updated[0] === 0) {
         return Response.formatServiceReturn(false, 500, null, language.EXAM_PACKAGE_MAPPING.UPDATE_FAILED);
     }
 
-    const updatedMapping = await ExamPackageMappingRepository.findOne({ uuid: input.uuid });
+    const updatedMapping = await ExamPackageMappingRepository.findOne({ id: input.id });
     return Response.formatServiceReturn(true, 200, updatedMapping, language.EXAM_PACKAGE_MAPPING.UPDATE_SUCCESS);
 };
 
 const deleteExamPackageMapping = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const examPackage = await ExamPackageRepository.findOne({ id: input.examPackageId });
-    if (!examPackage) {
-        return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_NOT_FOUND);
-    }
-
-    const deletedCount = await ExamPackageMappingRepository.delete({
-        examPackageId: input.examPackageId,
-        examIds: input.examIds // Pass examIds directly to the repository
-    });
+    const deletedCount = await ExamPackageMappingRepository.delete({ id: input.id });
 
     if (deletedCount === 0) {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_MAPPING.NOT_FOUND);

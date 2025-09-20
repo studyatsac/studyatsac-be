@@ -1,35 +1,51 @@
-const ExamPackageMappingService = require('../../../services/v1/exam_package_mapping');
+const { Op } = require('sequelize');
+const ExamPackageMappingRepository = require('../../../repositories/mysql/exam_package_mapping');
+const Models = require('../../../models/mysql');
+const LogUtils = require('../../../utils/logger');
 
 exports.getListExamPackageMapping = async (req, res) => {
     try {
-        const {
-            page = 1, limit = 10, search, orderBy, order
-        } = req.query;
-
-        // Validasi input
+        const { page = 1, limit = 10, search } = req.query;
         const pageInt = parseInt(page, 10) || 1;
         const limitInt = parseInt(limit, 10) || 10;
+        const offset = (pageInt - 1) * limitInt;
 
-        const result = await ExamPackageMappingService.getExamMappingList({
-            page: pageInt,
-            limit: limitInt,
-            search,
-            orderBy: orderBy || 'created_at',
-            order: order || 'desc'
-        });
+        // Ambil orderBy dan order langsung dari req.query tanpa validasi
+        const orderBy = req.query.orderBy || 'created_at';
+        const order = req.query.order || 'desc';
 
-        // Tangani respons berdasarkan properti `success`
-        // Jika `success` false, kembalikan pesan error
-        if (!result.success) {
-            return res.status(result.code).json({ message: result.message });
+        // Buat where clause untuk search
+        const whereClause = {};
+        if (search) {
+            whereClause[Op.or] = [
+                { '$Exam.title$': { [Op.like]: `%${search}%` } },
+                { '$ExamPackage.title$': { [Op.like]: `%${search}%` } }
+            ];
         }
 
-        // Jika `success` true, kembalikan data
-        const data = { rows: result.data.rows, count: result.data.count };
+        const optionsClause = {
+            where: whereClause,
+            order: [[orderBy, order]],
+            limit: limitInt,
+            offset,
+            include: [
+                {
+                    model: Models.Exam,
+                    as: 'exam',
+                    attributes: ['id', 'title', 'number_of_question', 'duration', 'description', 'category_id', 'grade_rules', 'additional_information']
+                },
+                {
+                    model: Models.ExamPackage,
+                    as: 'exam_package',
+                    attributes: ['id', 'uuid', 'title', 'description', 'additional_information', 'price', 'image_url', 'is_private']
+                }
+            ]
+        };
+
+        const examPackageMapping = await ExamPackageMappingRepository.findAndCountAll(whereClause, optionsClause);
+        const data = { rows: examPackageMapping.rows, count: examPackageMapping.count };
 
         return res.status(200).json({
-            status: result.code,
-            message: result.message,
             data: data.rows,
             meta: {
                 page: pageInt,
@@ -39,7 +55,11 @@ exports.getListExamPackageMapping = async (req, res) => {
             }
         });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        LogUtils.logError({
+            function_name: 'admin_getListExamPackageCategory',
+            message: err.message
+        });
+        return res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
     }
 };
 

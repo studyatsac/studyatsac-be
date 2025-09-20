@@ -9,7 +9,7 @@ exports.updateExamPackageCategory = async (req, res) => {
         const lang = Language.getLanguage(req.locale);
 
         const result = await ExamPackageCategoryService.updateExamPackageCategory({
-            uuid: id,
+            id,
             examPackageId,
             masterCategoryId
         }, { lang });

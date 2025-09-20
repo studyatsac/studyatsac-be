@@ -41,30 +41,31 @@ const getListExamPackageCategory = async (input, opts = {}) => {
     if (!result || !result.rows.length) {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_CATEGORY.NOT_FOUND);
     }
+
+    result.rows = result.rows.map((item) => ({
+        uuid: item.uuid,
+        exam_package: {
+            id: item.exam_package.id,
+            uuid: item.exam_package.uuid,
+            title: item.exam_package.title
+        },
+        master_category: {
+            id: item.master_category.id,
+            uuid: item.master_category.uuid,
+            title: item.master_category.title
+        }
+    }));
     return Response.formatServiceReturn(true, 200, { result }, 'Success retrieved exam-package category');
 };
 
 const getDetailExamPackageCategory = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const result = await ExamPackageCategoryRepository.findOne({ uuid: input.uuid }, { include: true });
-
+    const result = await ExamPackageCategoryRepository.findOne({ id: input.id });
     if (!result) {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_CATEGORY.NOT_FOUND);
     }
-
-    const formattedData = {
-        uuid: result.uuid,
-        exam_package: {
-            uuid: result.exam_package.uuid,
-            title: result.exam_package.title
-        },
-        master_category: {
-            uuid: result.master_category.uuid,
-            title: result.master_category.title
-        }
-    };
-    return Response.formatServiceReturn(true, 200, formattedData, language.EXAM_PACKAGE_CATEGORY.SUCCESS_GET_DETAIL);
+    return Response.formatServiceReturn(true, 200, result, language.EXAM_PACKAGE_CATEGORY.SUCCESS_GET_DETAIL);
 };
 
 const createExamPackageCategory = async (input, opts = {}) => {
@@ -104,7 +105,7 @@ const createExamPackageCategory = async (input, opts = {}) => {
 const updateExamPackageCategory = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const mapping = await ExamPackageCategoryRepository.findOne({ uuid: input.uuid });
+    const mapping = await ExamPackageCategoryRepository.findOne({ id: input.id });
 
     if (!mapping) {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_CATEGORY.NOT_FOUND);
@@ -139,20 +140,20 @@ const updateExamPackageCategory = async (input, opts = {}) => {
     if (input.examPackageId) payload.examPackageId = input.examPackageId;
     if (input.masterCategoryId) payload.masterCategoryId = input.masterCategoryId;
 
-    const updated = await ExamPackageCategoryRepository.update(payload, { uuid: input.uuid });
+    const updated = await ExamPackageCategoryRepository.update(payload, { id: input.id });
 
     if (!updated || updated[0] === 0) {
         return Response.formatServiceReturn(false, 500, null, language.EXAM_PACKAGE_CATEGORY.UPDATE_FAILED);
     }
 
-    const updatedMapping = await ExamPackageCategoryRepository.findOne({ uuid: input.uuid });
+    const updatedMapping = await ExamPackageCategoryRepository.findOne({ id: input.id });
     return Response.formatServiceReturn(true, 200, updatedMapping, language.EXAM_PACKAGE_CATEGORY.UPDATE_SUCCESS);
 };
 
 const deleteExamPackageCategory = async (input, opts = {}) => {
     const language = opts.lang;
 
-    const deletedCount = await ExamPackageCategoryRepository.delete({ uuid: input.uuid });
+    const deletedCount = await ExamPackageCategoryRepository.delete({ id: input.id });
 
     if (deletedCount === 0) {
         return Response.formatServiceReturn(false, 404, null, language.EXAM_PACKAGE_CATEGORY.NOT_FOUND);

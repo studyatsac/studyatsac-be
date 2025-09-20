@@ -12,7 +12,7 @@ exports.updateExamPackageMapping = async (req, res) => {
         const lang = Language.getLanguage(req.locale);
 
         const result = await ExamPackageMappingService.updateExamPackageMapping({
-            uuid: id,
+            id,
             examPackageId,
             examId
         }, { lang });
