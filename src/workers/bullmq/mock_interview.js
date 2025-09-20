@@ -733,9 +733,10 @@ async function processMockInterviewProcessJob(job) {
             }
 
             targetAnswer.answer = payload.answer;
-            targetAnswer.interviewSectionQuestionId = payload.interviewSectionQuestionId;
-            targetAnswer.question = payload.question;
-            targetAnswer.questionNumber = payload.questionNumber;
+            targetAnswer.interviewSectionQuestionId = payload.interviewSectionQuestionId
+                || targetAnswer.interviewSectionQuestionId;
+            targetAnswer.question = payload.question || targetAnswer.question;
+            targetAnswer.questionNumber = payload.questionNumber || targetAnswer.questionNumber;
             targetAnswer.status = payload.status;
             targetInterviewSection.interviewSectionAnswers[targetAnswerIndex] = targetAnswer;
         }
