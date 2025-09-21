@@ -9,9 +9,12 @@ const getAllRoles = async () => {
 };
 
 const getListRoles = async (input, opts = {}) => {
+    const orderBy = input.orderBy || 'id';
+    const order = input.order || 'asc';
 
     const whereClause = {};
     const optionsClause = {
+        order: [[orderBy, order]],
         limit: input.limit,
         offset: Helpers.setOffset(input.page, input.limit),
         include: [
