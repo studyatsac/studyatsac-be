@@ -9,8 +9,8 @@ const getAllRoles = async () => {
 };
 
 const getListRoles = async (input, opts = {}) => {
-    const orderBy = input.orderBy || 'id';
-    const order = input.order || 'asc';
+    const orderBy = input.orderBy;
+    const order = input.order;
 
     const whereClause = {};
     const optionsClause = {
