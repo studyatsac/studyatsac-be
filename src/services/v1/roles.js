@@ -1,18 +1,25 @@
 const RolesRepository = require('../../repositories/mysql/roles');
 const Helpers = require('../../utils/helpers');
 const Response = require('../../utils/response');
+const Models = require('../../models/mysql');
 
 const getAllRoles = async () => {
     const roles = await RolesRepository.findAll();
-    return roles.map(role => role.toJSON ? role.toJSON() : role);
+    return roles.map((role) => (role.toJSON ? role.toJSON() : role));
 };
 
 const getListRoles = async (input, opts = {}) => {
+
     const whereClause = {};
     const optionsClause = {
-        order: [['name', 'asc']],
         limit: input.limit,
-        offset: Helpers.setOffset(input.page, input.limit)
+        offset: Helpers.setOffset(input.page, input.limit),
+        include: [
+            {
+                model: Models.User,
+                attributes: ['id', 'full_name', 'email', 'institution_name', 'faculty', 'nip']
+            }
+        ]
     };
 
     // Menggunakan repository findAndCountAll untuk mengambil data dan total
