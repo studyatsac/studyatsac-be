@@ -45,6 +45,7 @@ async function processMockInterviewControlPauseJob(job, token) {
     let isPauseUpdated = false;
     let stopJobTime;
     let lastTimeUpdate;
+    let transitionCheckerTime;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -82,6 +83,17 @@ async function processMockInterviewControlPauseJob(job, token) {
             );
             if (lastTimeUpdate) {
                 await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(
+                    userInterview.userId,
+                    userInterview.uuid
+                );
+            }
+
+            transitionCheckerTime = await MockInterviewCacheUtils.getMockInterviewProcessTransitionChecker(
+                userInterview.userId,
+                userInterview.uuid
+            );
+            if (transitionCheckerTime) {
+                await MockInterviewCacheUtils.deleteMockInterviewProcessTransitionChecker(
                     userInterview.userId,
                     userInterview.uuid
                 );
@@ -126,6 +138,13 @@ async function processMockInterviewControlPauseJob(job, token) {
                 userInterview.userId,
                 userInterview.uuid,
                 lastTimeUpdate
+            );
+        }
+        if (transitionCheckerTime) {
+            await MockInterviewCacheUtils.setMockInterviewProcessTransitionChecker(
+                userInterview.userId,
+                userInterview.uuid,
+                transitionCheckerTime
             );
         }
         if (isPauseUpdated) {
@@ -198,6 +217,7 @@ async function processMockInterviewControlStopJob(job, token) {
     let pauseJobTime;
     let isStopUpdated = false;
     let lastTimeUpdate;
+    let transitionCheckerTime;
     try {
         await Models.sequelize.transaction(async (trx) => {
             const result = await UserInterviewRepository.update(
@@ -217,6 +237,17 @@ async function processMockInterviewControlStopJob(job, token) {
             );
             if (lastTimeUpdate) {
                 await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(
+                    userInterview.userId,
+                    userInterview.uuid
+                );
+            }
+
+            transitionCheckerTime = await MockInterviewCacheUtils.getMockInterviewProcessTransitionChecker(
+                userInterview.userId,
+                userInterview.uuid
+            );
+            if (transitionCheckerTime) {
+                await MockInterviewCacheUtils.deleteMockInterviewProcessTransitionChecker(
                     userInterview.userId,
                     userInterview.uuid
                 );
@@ -261,6 +292,13 @@ async function processMockInterviewControlStopJob(job, token) {
                 userInterview.userId,
                 userInterview.uuid,
                 lastTimeUpdate
+            );
+        }
+        if (transitionCheckerTime) {
+            await MockInterviewCacheUtils.setMockInterviewProcessTransitionChecker(
+                userInterview.userId,
+                userInterview.uuid,
+                transitionCheckerTime
             );
         }
         if (pauseJobTime) {

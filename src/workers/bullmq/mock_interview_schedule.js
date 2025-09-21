@@ -7,6 +7,7 @@ const MockInterviewConstants = require('../../constants/mock_interview');
 const Queues = require('../../queues/bullmq');
 const MockInterviewCacheUtils = require('../../utils/mock_interview_cache');
 const Models = require('../../models/mysql');
+const InterviewSectionRepository = require('../../repositories/mysql/interview_section');
 
 async function processMockInterviewScheduleTimerJob(job) {
     const jobData = job.data;
@@ -55,6 +56,7 @@ async function processMockInterviewScheduleTimerJob(job) {
                 await Queues.MockInterviewSchedule.removeJobScheduler(timerJobId);
                 await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerJobId(userId, userInterviewUuid);
                 await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(userId, userInterviewUuid);
+                await MockInterviewCacheUtils.deleteMockInterviewProcessTransitionChecker(userId, userInterviewUuid);
             }
 
             return;
@@ -70,9 +72,11 @@ async function processMockInterviewScheduleTimerJob(job) {
         const lastUpdate = await MockInterviewCacheUtils.getMockInterviewScheduleTimerLastUpdate(userId, userInterviewUuid);
         let elapsedTimeInSeconds = MockInterviewConstants.TIMER_INTERVAL_IN_SECONDS;
         if (lastUpdate) elapsedTimeInSeconds = Math.max(Math.round((Date.now() - lastUpdate) / 1000), elapsedTimeInSeconds);
+        let targetDuration;
         if (targetInterviewSection) {
+            targetDuration = targetInterviewSection.duration + elapsedTimeInSeconds;
             await UserInterviewSectionRepository.update(
-                { duration: targetInterviewSection.duration + elapsedTimeInSeconds },
+                { duration: targetDuration },
                 { id: targetInterviewSection.id, status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS }
             );
             await MockInterviewCacheUtils.setMockInterviewScheduleTimerLastUpdate(userId, userInterviewUuid);
@@ -169,15 +173,51 @@ async function processMockInterviewScheduleTimerJob(job) {
                 userInterview.uuid,
                 pauseJob.id
             );
+
+            if (pauseJob) return;
         } else {
             const pauseJob = await getPauseJob();
-            if (!pauseJob) return;
+            if (pauseJob) {
+                await pauseJob.updateData({});
+                await MockInterviewCacheUtils.deleteMockInterviewControlPauseJobId(
+                    userInterview.userId,
+                    userInterview.uuid
+                );
+            }
+        }
 
-            await pauseJob.updateData({});
-            await MockInterviewCacheUtils.deleteMockInterviewControlPauseJobId(
-                userInterview.userId,
-                userInterview.uuid
-            );
+        if (targetInterviewSection?.interviewSectionId && targetDuration) {
+            const checkerTime = await MockInterviewCacheUtils.getMockInterviewProcessTransitionChecker(userId, userInterviewUuid);
+
+            if (checkerTime) {
+                // eslint-disable-next-line max-depth
+                if (Date.now() >= checkerTime) {
+                    const processJob = await Queues.MockInterview.add(
+                        MockInterviewConstants.JOB_NAME.PROCESS,
+                        { userInterviewUuid, userId },
+                        { delay: MockInterviewConstants.PROCESS_TIME_IN_MILLISECONDS }
+                    );
+
+                    await MockInterviewCacheUtils.setMockInterviewProcessJobId(userId, userInterviewUuid, processJob.id);
+                    await MockInterviewCacheUtils.deleteMockInterviewProcessTransitionChecker(userId, userInterviewUuid);
+                }
+            }
+
+            try {
+                const interviewSection = await InterviewSectionRepository.findOne({
+                    id: targetInterviewSection.interviewSectionId
+                }, { attributes: ['id', 'duration'] });
+                // eslint-disable-next-line max-depth
+                if (!interviewSection?.duration) return;
+
+                // eslint-disable-next-line max-depth
+                if (targetDuration >= interviewSection.duration) {
+                    // eslint-disable-next-line max-depth
+                    if (!checkerTime) await MockInterviewCacheUtils.setMockInterviewProcessTransitionChecker(userId, userInterviewUuid);
+                } else if (checkerTime) await MockInterviewCacheUtils.deleteMockInterviewProcessTransitionChecker(userId, userInterviewUuid);
+            } catch {
+                // Do nothing
+            }
         }
     } catch (error) {
         LogUtils.logError({ functionName: 'processMockInterviewScheduleTimerJob', message: error.message });
