@@ -388,6 +388,11 @@ module.exports = Object.freeze({
     },
     ROLE_USER: {
         ASSIGN_SUCCESS: 'Success assign role to user',
-        ALREADY_ASSIGNED: 'Role already assigned',
+        ALREADY_ASSIGNED: 'Role already assigned'
+    },
+    CERTIFICATE: {
+        USER_EXAM_NOT_FOUND: 'User Exam Not Found',
+        CREATE_SUCCESS: 'Success to create certificate',
+        FAILED_CREATE: 'Failed to create certificate'
     }
 });

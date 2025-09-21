@@ -1053,6 +1053,13 @@ router.post(
     [tokenMiddleware, superUserMiddleware],
     require('../methods/v1/role-user/asssign_role_to_user').assignRoleToUser
 );
+
+//certificate
+router.post(
+    '/certificate',
+    [tokenMiddleware],
+    require('../methods/v1/certificate/create').createCertificate
+)
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *

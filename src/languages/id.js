@@ -390,5 +390,10 @@ module.exports = Object.freeze({
         UPDATE_FAILED: 'Gagal memperbarui Role',
         UPDATE_SUCCESS: 'Sukses memperbarui Role',
         DELETE_SUCCESS: 'Sukses menghapus Role'
+    },
+    CERTIFICATE: {
+        USER_EXAM_NOT_FOUND: 'Latihan user tidak ditemukan',
+        CREATE_SUCCESS: 'Sukses membuat sertifikat',
+        FAILED_CREATE: 'Gagal membuat sertifikat'
     }
 });
