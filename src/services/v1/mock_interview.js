@@ -561,10 +561,17 @@ const continueMockInterview = async (input, opts = {}) => {
             include: {
                 model: Models.UserInterviewSection,
                 as: 'interviewSections',
-                include: {
-                    model: Models.UserInterviewSectionAnswer,
-                    as: 'interviewSectionAnswers'
-                }
+                include: [
+                    {
+                        model: Models.InterviewSection,
+                        as: 'interviewSection',
+                        attributes: ['id', 'duration']
+                    },
+                    {
+                        model: Models.UserInterviewSectionAnswer,
+                        as: 'interviewSectionAnswers'
+                    }
+                ]
             }
         }
     );
@@ -572,39 +579,47 @@ const continueMockInterview = async (input, opts = {}) => {
         return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW.NOT_FOUND);
     }
 
-    let targetInterviewSection = userInterview.interviewSections.find(
-        (item) => item.status === UserInterviewConstants.SECTION_STATUS.PAUSED
-    );
-    if (!targetInterviewSection) {
+    let targetInterviewSection;
+    const setTargetInterviewSection = async (exceptedId) => {
+        const getExceptionChecker = (item) => !exceptedId || item.id !== exceptedId;
         targetInterviewSection = userInterview.interviewSections.find(
-            (item) => item.status === UserInterviewConstants.SECTION_STATUS.PENDING
+            (item) => getExceptionChecker(item) && item.status === UserInterviewConstants.SECTION_STATUS.PAUSED
         );
-    }
-    if (!targetInterviewSection) {
-        if (userInterview.status === UserInterviewConstants.STATUS.NOT_STARTED) {
-            return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_STARTED);
+        if (!targetInterviewSection) {
+            targetInterviewSection = userInterview.interviewSections.find(
+                (item) => getExceptionChecker(item) && item.status === UserInterviewConstants.SECTION_STATUS.PENDING
+            );
         }
-        if (userInterview.status === UserInterviewConstants.STATUS.PENDING) {
-            return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.PENDING);
-        }
-        if (userInterview.status !== UserInterviewConstants.STATUS.PAUSED) {
-            return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_PAUSED);
-        }
-    }
-
-    if (!targetInterviewSection) {
-        const completedInterviewSections = userInterview.interviewSections.filter(
-            (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
-        );
-        const startedInterviewSections = userInterview.interviewSections.filter(
-            (item) => item.status !== UserInterviewConstants.SECTION_STATUS.NOT_STARTED
-        );
-        if (completedInterviewSections?.length === startedInterviewSections?.length) {
-            return stopMockInterview(input, opts);
+        if (!targetInterviewSection) {
+            if (userInterview.status === UserInterviewConstants.STATUS.NOT_STARTED) {
+                return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_STARTED);
+            }
+            if (userInterview.status === UserInterviewConstants.STATUS.PENDING) {
+                return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.PENDING);
+            }
+            if (userInterview.status !== UserInterviewConstants.STATUS.PAUSED) {
+                return Response.formatServiceReturn(false, 404, null, language.MOCK_INTERVIEW.NOT_PAUSED);
+            }
         }
 
-        return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
-    }
+        if (!targetInterviewSection) {
+            const completedInterviewSections = userInterview.interviewSections.filter(
+                (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
+            );
+            const startedInterviewSections = userInterview.interviewSections.filter(
+                (item) => item.status !== UserInterviewConstants.SECTION_STATUS.NOT_STARTED
+            );
+            if (completedInterviewSections?.length === startedInterviewSections?.length) {
+                return stopMockInterview(input, opts);
+            }
+
+            return Response.formatServiceReturn(false, 404, null, language.USER_INTERVIEW_SECTION.NOT_FOUND);
+        }
+
+        return null;
+    };
+    let targetInterviewSectionSettingResult = await setTargetInterviewSection();
+    if (targetInterviewSectionSettingResult) return targetInterviewSectionSettingResult;
 
     if (!AiServiceSocket.isAiServiceSocketConnected()) {
         return Response.formatServiceReturn(false, 500, null, language.AI_SERVICE.NOT_CONNECTED);
@@ -613,6 +628,17 @@ const continueMockInterview = async (input, opts = {}) => {
     const completedInterviewSections = userInterview.interviewSections.filter(
         (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
     );
+
+    let shouldCompleteInterviewSectionId;
+    if (
+        targetInterviewSection.duration
+        && targetInterviewSection.interviewSection?.duration
+        && targetInterviewSection.duration >= targetInterviewSection.interviewSection.duration
+    ) {
+        shouldCompleteInterviewSectionId = targetInterviewSection.id;
+        targetInterviewSectionSettingResult = await setTargetInterviewSection(targetInterviewSection.id);
+        if (targetInterviewSectionSettingResult) return targetInterviewSectionSettingResult;
+    }
 
     let initJob;
     let timerJobId;
@@ -629,6 +655,20 @@ const continueMockInterview = async (input, opts = {}) => {
             );
             if ((Array.isArray(result) && !result[0]) || !result) {
                 throw new MockInterviewError(language.USER_INTERVIEW.UPDATE_FAILED);
+            }
+
+            if (shouldCompleteInterviewSectionId) {
+                result = await UserInterviewSectionRepository.update(
+                    {
+                        status: UserInterviewConstants.SECTION_STATUS.COMPLETED,
+                        resumedAt: Moment().format()
+                    },
+                    { id: shouldCompleteInterviewSectionId },
+                    trx
+                );
+                if ((Array.isArray(result) && !result[0]) || !result) {
+                    throw new MockInterviewError(language.USER_INTERVIEW_SECTION.UPDATE_FAILED);
+                }
             }
 
             result = await UserInterviewSectionRepository.update(
