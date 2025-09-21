@@ -22,6 +22,7 @@ const MOCK_INTERVIEW_SPEECH_TEXTS_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_spe
 const MOCK_INTERVIEW_SPEECH_COUNTER_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_speech_counter`;
 const MOCK_INTERVIEW_PROCESS_TARGET_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_process_target`;
 const MOCK_INTERVIEW_PROCESS_INTERRUPT_FLAG_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_process_interrupt_flag`;
+const MOCK_INTERVIEW_PROCESS_TRANSITION_CHECKER_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_process_transition_checker`;
 const MOCK_INTERVIEW_PROCESS_HISTORY_PREFIX_KEY = `${MOCK_INTERVIEW_PREFIX_KEY}_process_history`;
 
 const setMockInterviewSessionId = async (userId, userInterviewUuid, sessionId) => {
@@ -317,6 +318,25 @@ const setMockInterviewProcessHistory = async (userId, userInterviewUuid, history
     await Cache.setCache(key, JSON.stringify(history), MAX_TTL_MILLISECONDS);
 };
 
+const getMockInterviewProcessTransitionChecker = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_PROCESS_TRANSITION_CHECKER_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    const checker = await Cache.getCache(key);
+    return checker && (Number(JSON.parse(checker)) || 0);
+};
+
+const setMockInterviewProcessTransitionChecker = async (userId, userInterviewUuid, checker) => {
+    const key = `${MOCK_INTERVIEW_PROCESS_TRANSITION_CHECKER_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    let targetChecker = checker;
+    if (!targetChecker) targetChecker = Date.now() + MockInterviewConstants.TRANSITION_CHECKER_DELAY_IN_MILLISECONDS;
+
+    await Cache.setCache(key, JSON.stringify(targetChecker), MAX_TTL_MILLISECONDS);
+};
+
+const deleteMockInterviewProcessTransitionChecker = async (userId, userInterviewUuid) => {
+    const key = `${MOCK_INTERVIEW_PROCESS_TRANSITION_CHECKER_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
+    await Cache.deleteCache(key);
+};
+
 const getMockInterviewProcessHistory = async (userId, userInterviewUuid) => {
     const key = `${MOCK_INTERVIEW_PROCESS_HISTORY_PREFIX_KEY}-${userId}-${userInterviewUuid}`;
     const history = await Cache.getCache(key);
@@ -377,6 +397,9 @@ exports.setMockInterviewProcessInterruptFlag = setMockInterviewProcessInterruptF
 exports.getMockInterviewProcessInterruptFlag = getMockInterviewProcessInterruptFlag;
 exports.deleteMockInterviewProcessInterruptFlag = deleteMockInterviewProcessInterruptFlag;
 exports.setMockInterviewProcessHistory = setMockInterviewProcessHistory;
+exports.getMockInterviewProcessTransitionChecker = getMockInterviewProcessTransitionChecker;
+exports.setMockInterviewProcessTransitionChecker = setMockInterviewProcessTransitionChecker;
+exports.deleteMockInterviewProcessTransitionChecker = deleteMockInterviewProcessTransitionChecker;
 exports.getMockInterviewProcessHistory = getMockInterviewProcessHistory;
 exports.deleteMockInterviewProcessHistory = deleteMockInterviewProcessHistory;
 

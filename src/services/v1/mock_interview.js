@@ -214,6 +214,7 @@ const pauseMockInterview = async (input, opts = {}) => {
     let timerJobId;
     let isTimerUpdated = false;
     let lastTimeUpdate;
+    let transitionCheckerTime;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -247,6 +248,17 @@ const pauseMockInterview = async (input, opts = {}) => {
             );
             if (lastTimeUpdate) {
                 await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(
+                    userInterview.userId,
+                    userInterview.uuid
+                );
+            }
+
+            transitionCheckerTime = await MockInterviewCacheUtils.getMockInterviewProcessTransitionChecker(
+                userInterview.userId,
+                userInterview.uuid
+            );
+            if (transitionCheckerTime) {
+                await MockInterviewCacheUtils.deleteMockInterviewProcessTransitionChecker(
                     userInterview.userId,
                     userInterview.uuid
                 );
@@ -296,6 +308,13 @@ const pauseMockInterview = async (input, opts = {}) => {
                 userInterview.userId,
                 userInterview.uuid,
                 lastTimeUpdate
+            );
+        }
+        if (transitionCheckerTime) {
+            await MockInterviewCacheUtils.setMockInterviewProcessTransitionChecker(
+                userInterview.userId,
+                userInterview.uuid,
+                transitionCheckerTime
             );
         }
         if (pauseJobTime) {
@@ -384,6 +403,7 @@ const stopMockInterview = async (input, opts = {}) => {
     let timerJobId;
     let isTimerUpdated = false;
     let lastTimeUpdate;
+    let transitionCheckerTime;
     try {
         await Models.sequelize.transaction(async (trx) => {
             let result = await UserInterviewRepository.update(
@@ -417,6 +437,17 @@ const stopMockInterview = async (input, opts = {}) => {
             );
             if (lastTimeUpdate) {
                 await MockInterviewCacheUtils.deleteMockInterviewScheduleTimerLastUpdate(
+                    userInterview.userId,
+                    userInterview.uuid
+                );
+            }
+
+            transitionCheckerTime = await MockInterviewCacheUtils.getMockInterviewProcessTransitionChecker(
+                userInterview.userId,
+                userInterview.uuid
+            );
+            if (transitionCheckerTime) {
+                await MockInterviewCacheUtils.deleteMockInterviewProcessTransitionChecker(
                     userInterview.userId,
                     userInterview.uuid
                 );
@@ -466,6 +497,13 @@ const stopMockInterview = async (input, opts = {}) => {
                 userInterview.userId,
                 userInterview.uuid,
                 lastTimeUpdate
+            );
+        }
+        if (transitionCheckerTime) {
+            await MockInterviewCacheUtils.setMockInterviewProcessTransitionChecker(
+                userInterview.userId,
+                userInterview.uuid,
+                transitionCheckerTime
             );
         }
         if (pauseJobTime) {
@@ -841,6 +879,11 @@ const recordMockInterviewText = async (input, data) => {
             );
 
             await MockInterviewCacheUtils.deleteMockInterviewProcessInterruptFlag(input.userId, input.uuid);
+        }
+
+        const checkerTime = await MockInterviewCacheUtils.getMockInterviewProcessTransitionChecker(input.userId, input.uuid);
+        if (checkerTime) {
+            await MockInterviewCacheUtils.setMockInterviewProcessTransitionChecker(input.userId, input.uuid);
         }
     }
 

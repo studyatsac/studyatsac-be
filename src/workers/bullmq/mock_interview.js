@@ -775,6 +775,11 @@ async function processMockInterviewProcessJob(job) {
                 trx
             );
             if (newTargetInterviewSection) {
+                await MockInterviewCacheUtils.deleteMockInterviewProcessTransitionChecker(
+                    userId,
+                    userInterviewUuid
+                );
+
                 result = await UserInterviewSectionRepository.update(
                     {
                         status: UserInterviewConstants.SECTION_STATUS.IN_PROGRESS,
