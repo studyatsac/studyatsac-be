@@ -8,7 +8,7 @@ exports.findAndCountAll = function (where, opts = {}, trx = null) {
     return Models.Role.findAndCountAll({ where, ...opts, transaction: trx });
 };
 
-exports.findOne = function (where, opts = {},trx = null) {
+exports.findOne = function (where, opts = {}, trx = null) {
     return Models.Role.findOne({ where, ...opts, transaction: trx });
 };
 
@@ -17,7 +17,7 @@ exports.create = function (data, opts = {}, trx = null) {
 };
 
 exports.update = function (payload, where, trx = null) {
-    return Models.Role.update(payload, {where, transaction: trx });
+    return Models.Role.update(payload, { where, transaction: trx });
 };
 
 exports.delete = function (where, trx = null) {
