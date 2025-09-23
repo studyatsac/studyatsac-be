@@ -7,11 +7,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         user_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
         exam_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false
         },
         certificate_code: {

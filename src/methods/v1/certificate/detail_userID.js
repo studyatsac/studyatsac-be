@@ -1,18 +1,17 @@
-const certificateService = require('../../../services/v1/certificate');
+const { getAllCertificatesByUserId } = require('../../../services/v1/certificate');
 const Language = require('../../../languages');
 
-exports.createCertificate = async (req, res) => {
+exports.getAllCertificatesByUserId = async (req, res) => {
     try {
-        const { user_exam_id, type } = req.body;
+        const { userid } = req.params;
 
-        // Asumsi: Kamu memiliki helper untuk mendapatkan bahasa
         const lang = Language.getLanguage(req.locale);
 
-        if (!user_exam_id || !type) {
-            return res.status(400).json({ message: 'User Exam ID and type are required.' });
+        if (!userid) {
+            return res.status(400).json({ message: 'User ID is required.' });
         }
 
-        const result = await certificateService.createCertificate({ user_exam_id, type }, { lang });
+        const result = await getAllCertificatesByUserId(userid, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });

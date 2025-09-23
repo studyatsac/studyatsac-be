@@ -1054,12 +1054,43 @@ router.post(
     require('../methods/v1/role-user/asssign_role_to_user').assignRoleToUser
 );
 
-//certificate
+// certificate
 router.post(
     '/certificate',
     [tokenMiddleware],
     require('../methods/v1/certificate/create').createCertificate
-)
+);
+
+router.get(
+    '/certificate/:userid',
+    [tokenMiddleware],
+    require('../methods/v1/certificate/detail_userID').getAllCertificatesByUserId
+);
+
+router.get(
+    '/certificate/user/:certificate_id',
+    [tokenMiddleware],
+    require('../methods/v1/certificate/detail').getDetailCertificateById
+);
+
+router.get(
+    '/admin/certificate/list',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/certificate/admin_list').getListCertificates
+);
+
+router.get(
+    '/admin/certificate/:certificate_id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/certificate/detail').getDetailCertificateById
+);
+
+router.delete(
+    '/admin/certificate/delete/:certificate_id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/certificate/admin_delete').deleteCertificate
+);
+
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
