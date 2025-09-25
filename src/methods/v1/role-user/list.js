@@ -11,7 +11,7 @@ exports.getListUsersWithRoles = async (req, res) => {
 
         // Respons JSON dengan data pengguna dan perannya
         return res.status(200).json({
-            message: 'Successfully retrieved user list with roles.',
+            message: result.message,
             data: result.rows,
             meta: {
                 page: parseInt(page),

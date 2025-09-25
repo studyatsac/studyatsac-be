@@ -388,6 +388,19 @@ module.exports = Object.freeze({
     },
     ROLE_USER: {
         ASSIGN_SUCCESS: 'Success assign role to user',
-        ALREADY_ASSIGNED: 'Role already assigned',
+        ALREADY_ASSIGNED: 'Role already assigned'
+    },
+    CERTIFICATE: {
+        ALREADY_EXISTS: 'Certificate already exists',
+        USER_EXAM_NOT_FOUND: 'User Exam Not Found',
+        CERTIFICATE_NOT_FOUND: 'Certificate Not Found for this user',
+        CREATE_SUCCESS: 'Success to create certificate',
+        FAILED_CREATE: 'Failed to create certificate',
+        SUCCESS_GET_DETAIL: 'Certificates retrieved successfully',
+        FAILED_GET_DETAIL: 'Failed to get certificates',
+        SUCCESS_LIST: 'Success get list of certificates',
+        FAILED_LIST: 'Failed to get list of certificates',
+        DELETE_SUCCESS: 'Success to deleted certificate',
+        DELETE_FAILED: 'Failed to delete certificate'
     }
 });

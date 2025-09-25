@@ -51,5 +51,13 @@ module.exports = (sequelize, DataTypes) => {
 
     const Exam = sequelize.define('Exam', attributes, options);
 
+    Exam.associate = (models) => {
+        // Sebuah Exam bisa punya banyak Certificate
+        Exam.hasMany(models.Certificate, {
+            foreignKey: 'exam_id',
+            as: 'certificates'
+        });
+    };
+
     return Exam;
 };
