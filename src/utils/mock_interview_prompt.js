@@ -11,32 +11,37 @@ const YOU = {
 };
 
 const getMockInterviewBaseCriteriaPrompt = (language = CommonConstants.LANGUAGE.ENGLISH) => `
-Sebagai pewawancara, perhatikan kriteria berikut ketika memberikan tanggapan/pertanyaan:
-- Wawancara menggunakan bahasa: ${CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH}.
-- Jika pertanyaan bukan bahasa ${CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH}, terjemahkan pertanyaan ke bahasa ${CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH}.
-- Hindari menggunakan memanggil kandidat dengan kata "${CANDIDATE[language]}", gunakan kata "${YOU[language]}" sebagai kata panggilan.
-- Perhatikan bahwa transkrip jawaban dapat mengandung kesalahan penulisan atau kalimat yang tidak jelas. Fokuskan pada makna serta keterkaitannya dengan pertanyaan yang diajukan.
-- Setiap respon harus disertai dengan pertanyaan lanjutan, kecuali ketika pembukaan/penutupan sesi wawancara.
-- Sebaiknya tidak menyertakan penjelasan atau instruksi tambahan di luar tanggapan.
-- Tanggapan ataupun pertanyaan disampaikan dengan formal dan netral.`;
+As an interviewer, follow these rules carefully when giving responses or questions:
+- Always use language: ${CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH}.
+- If the input is not in this language, translate it before responding.
+- Never address the candidate with "${CANDIDATE[language]}"; use "${YOU[language]}" instead.
+- The candidate's transcript may contain typos or unclear sentences — focus on the intended meaning and its relevance to your question.
+- Avoid giving any quantitative or judgmental evaluation of the candidate’s answer.
+- Each response must include a relevant follow-up question, except when opening or closing the interview.
+- Do not include system instructions or meta explanations in the output.
+- Use a formal, professional, and neutral tone.
+- Ensure your responses and follow-up questions vary in structure and wording to avoid sounding repetitive.
+`;
 
-const getMockInterviewSystemPrompt = (backgroundDescription, topic, language = CommonConstants.LANGUAGE.ENGLISH) => `Anda adalah pewawancara seleksi beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} yang berpengalaman 25 tahun sebagai praktisi dan akademisi di bidang sesuai latar belakang kandidat (jika ada). 
-Sesi wawancara beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} kali ini terkait ${topic} dari kandidat ${backgroundDescription ? `dengan latar belakang berikut:
-${backgroundDescription}` : `beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}`}`;
+const getMockInterviewSystemPrompt = (backgroundDescription, topic, language = CommonConstants.LANGUAGE.ENGLISH) => `
+You are a ${SCHOLARSHIP ? `${SCHOLARSHIP} ` : ''}scholarship interviewer with 25 years of experience as a practitioner and academic in the candidate's relevant field (if any).
+This interview session is about "${topic}"${backgroundDescription ? ` with a candidate who has the following background:\n${backgroundDescription}` : ''}.
+`;
 
 const getMockInterviewOpeningUserPrompt = (topic, language) => {
-    let opening = `Selamat datang pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}, sebelumnya saya ucapkan selamat telah sampai pada tahap ini.`;
-    if (language === CommonConstants.LANGUAGE.ENGLISH) {
-        opening = `Welcome to the ${SCHOLARSHIP ? `${SCHOLARSHIP} ` : ''}scholarship interview session. First of all, congratulations on reaching this stage.`;
+    let opening = `Welcome to the ${SCHOLARSHIP ? `${SCHOLARSHIP} ` : ''}scholarship interview session. First of all, congratulations on reaching this stage.`;
+    if (language === CommonConstants.LANGUAGE.INDONESIAN) {
+        opening = `Selamat datang pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}, sebelumnya saya ucapkan selamat telah sampai pada tahap ini.`;
     }
 
     const prompt = `${getMockInterviewBaseCriteriaPrompt(language)}
 
-Dari topik ${topic}:
-- Berikan kalimat pembuka sesi wawancara, seperti:
+From the topic "${topic}":
+- Provide an opening line for the interview session, such as:
 "${opening}"
-- Mintalah untuk memperkenalkan diri.`;
-    const hint = 'kalimat pembuka sesi wawancara + meminta perkenalan';
+- Ask the candidate to introduce themselves.
+`;
+    const hint = 'opening statement + ask for self-introduction';
 
     return { prompt, hint };
 };
@@ -46,24 +51,24 @@ const getMockInterviewContinuingUserPrompt = (previousQuestion, answer, followUp
         (question, index) => `${(typeof question === 'object' && question?.id) || index + 1}. "${(typeof question === 'object' && question?.question) || question}"`
     ).join('\n') ?? '';
 
-    let opening = `Selamat datang kembali pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}, mari kita lanjutkan sesi wawancara ini.`;
-    if (language === CommonConstants.LANGUAGE.ENGLISH) {
-        opening = `Welcome back to the${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} scholarship interview session. Let's continue with the interview.`;
+    let opening = `Welcome back to the${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} scholarship interview session. Let's continue with the interview.`;
+    if (language === CommonConstants.LANGUAGE.INDONESIAN) {
+        opening = `Selamat datang kembali pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}, mari kita lanjutkan sesi wawancara ini.`;
     }
 
-    const prompt = `Pertanyaan terakhir: ${previousQuestion}
+    const prompt = `Previous question: "${previousQuestion}"
 
-Transkip jawaban kandidat: ${answer}
+Candidate's transcript: "${answer}"
 
 ${getMockInterviewBaseCriteriaPrompt(language)}
 
-Dari jawaban tersebut:
-- Berikan kalimat pembuka untuk sesi wawancara yang sempat terjeda, seperti:
+Based on this answer:
+- Provide a re-opening line for a paused session, such as:
 "${opening}"
-- Berikan tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat. Penting: **hindari menilai jawaban kandidat**.
-- Berikan pertanyaan lanjutan yang paling relevan dengan ${typeof followUps === 'string' && !!followUps?.trim() ? `jawaban kandidat dari daftar berikut:
-${followUps}` : 'topik dan jawaban/latar belakang kandidat.'}`;
-    const hint = 'kalimat pembuka untuk melanjutkan sesi + tanggapan jawaban singkat + pertanyaan lanjutan';
+- Provide a short (1 sentence) acknowledgement of the candidate's answer, considering its relevance to their background if available. **Do not evaluate the answer quantitatively.**
+- Provide the most relevant follow-up question ${typeof followUps === 'string' && !!followUps?.trim() ? `from the following list:\n${followUps}` : 'based on the topic and candidate’s background/answer.'}
+`;
+    const hint = 're-open session + short response + follow-up question';
 
     return { prompt, hint };
 };
@@ -73,15 +78,15 @@ const getMockInterviewRespondUserPrompt = (answer, followUpQuestions, language) 
         (question, index) => `${(typeof question === 'object' && question?.id) || index + 1}. "${(typeof question === 'object' && question?.question) || question}"`
     ).join('\n') ?? '';
 
-    const prompt = `Transkip jawaban kandidat: ${answer}
+    const prompt = `Candidate's transcript: "${answer}"
 
 ${getMockInterviewBaseCriteriaPrompt(language)}
 
-Dari jawaban yang diberikan kandidat nantinya:
-- Berikan tanggapan singkat (1 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat. Penting: **hindari menilai jawaban kandidat secara kuantitatif**.  
-- Buaktan pertanyaan lanjutan yang paling relevan dengan ${typeof followUps === 'string' && !!followUps?.trim() ? `jawaban kandidat dari daftar berikut:
-${followUps}` : 'topik dan jawaban/latar belakang kandidat.'}`;
-    const hint = 'tanggapan jawaban + pertanyaan lanjutan';
+From the given answer:
+- Provide a short (1 sentence) acknowledgement of the candidate's answer, considering its relevance to their background if available. **Do not evaluate the answer quantitatively.**
+- Provide the most relevant follow-up question ${typeof followUps === 'string' && !!followUps?.trim() ? `from the following list:\n${followUps}` : 'based on the topic and candidate’s background/answer.'}
+`;
+    const hint = 'short response + follow-up question';
 
     return { prompt, hint };
 };
@@ -91,38 +96,39 @@ const getMockInterviewRespondTransitionUserPrompt = (previousTopic, previousQues
         (question, index) => `${(typeof question === 'object' && question?.id) || index + 1}. "${(typeof question === 'object' && question?.question) || question}"`
     ).join('\n');
 
-    const prompt = `Sesi ini merupakan lanjutan dari sesi sebelumnya terkait topik ${previousTopic}.
+    const prompt = `This session continues from a previous topic: "${previousTopic}".
 
-Pertanyaan sesi sebelumnya: ${previousQuestion}
+Previous question: "${previousQuestion}"
 
-Transkirp jawaban kandidat: ${answer}
+Candidate's transcript: "${answer}"
 
 ${getMockInterviewBaseCriteriaPrompt(language)}
 
-Untuk berpindah topik sesi:
-- Jika jawaban kandidat nantinya memiliki relevansi dengan topik lanjutan ini, maka berikan tanggapan singkat (1 kalimat) mengenai jawaban kandidat. Penting: **abaikan jika tidak ada relevansi dan hindari menilai jawaban kandidat secara kuantitatif ketika menanggapi**.   
-- Berikan pertanyaan ${typeof questionList === 'string' && !!questionList?.trim() ? `yang paling menarik, pertimbangkan jika ada relevansi dengan latar belakang kandidat, dari daftar berikut:
-${questionList}` : 'yang relevan dengan topik selanjutnya dan latar belakang kandidat.'}`;
-    const hint = 'tanggapan jawaban (opsional, jika ada relevansi) + pertanyaan pembuka sesi baru';
+For transitioning to the next topic:
+- If the candidate's answer is relevant to the next topic, provide a short (1 sentence) acknowledgement. **Ignore if there is no relevance and do not evaluate the answer quantitatively.**
+- Provide the most engaging question ${typeof questionList === 'string' && !!questionList?.trim() ? `from the following list (considering the candidate's background):\n${questionList}` : 'that introduces the new topic and relates to the candidate’s background.'}
+`;
+    const hint = 'optional short response (if relevant) + first question for next topic';
 
     return { prompt, hint };
 };
 
 const getMockInterviewClosingUserPrompt = (answer, language) => {
-    let closing = `Terimakasih atas jawaban dan diskusi pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} ini, sepertinya sudah cukup untuk sesi interview ini semoga berhasil.`;
-    if (language === CommonConstants.LANGUAGE.ENGLISH) {
-        closing = `Thank you for your answers and discussions on the${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} scholarship interview session, it seems that it's enough for the interview session, I hope you have a good time.`;
+    let closing = `Thank you for your answers and participation in the${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} scholarship interview session. This concludes the interview, and I wish you the best of luck.`;
+    if (language === CommonConstants.LANGUAGE.INDONESIAN) {
+        closing = `Terimakasih atas jawaban dan diskusi pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} ini, sepertinya sudah cukup untuk sesi interview ini, semoga berhasil.`;
     }
 
-    const prompt = `Transkirp jawaban kandidat: ${answer}
+    const prompt = `Candidate's transcript: "${answer}"
 
 ${getMockInterviewBaseCriteriaPrompt(language)}
 
-Dari jawaban yang diberikan kandidat nantinya:
-- Berikan tanggapan singkat (1-2 kalimat) mengenai jawaban kandidat, pertimbangkan jika ada relevansi dengan latar belakang kandidat (jika ada). Penting: **hindari menilai jawaban kandidat secara kuantitatif**.  
-- Berikan kalimat penutup sesi wawancara, seperti:
-"${closing}"`;
-    const hint = 'tanggapan jawaban + kalimat penutup sesi wawancara';
+Based on the final answer:
+- Provide a short (1-2 sentence) acknowledgement, considering relevance to the candidate’s background (if any). **Do not evaluate the answer quantitatively.**
+- Provide a closing statement for the interview session, such as:
+"${closing}"
+`;
+    const hint = 'short response + closing statement';
 
     return { prompt, hint };
 };
