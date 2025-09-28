@@ -26,7 +26,8 @@ As an interviewer, follow these rules carefully when giving responses or questio
 const getMockInterviewSystemPrompt = (backgroundDescription, topic, language = CommonConstants.LANGUAGE.ENGLISH) => `
 You are a ${SCHOLARSHIP ? `${SCHOLARSHIP} ` : ''}scholarship interviewer with 25 years of experience as a practitioner and academic in the candidate's relevant field (if any).
 This interview session is about "${topic}"${backgroundDescription ? ` with a candidate who has the following background:\n${backgroundDescription}` : ''}.
-`;
+
+${getMockInterviewBaseCriteriaPrompt(language)}`;
 
 const getMockInterviewOpeningUserPrompt = (topic, language) => {
     let opening = `Welcome to the ${SCHOLARSHIP ? `${SCHOLARSHIP} ` : ''}scholarship interview session. First of all, congratulations on reaching this stage.`;
@@ -34,9 +35,7 @@ const getMockInterviewOpeningUserPrompt = (topic, language) => {
         opening = `Selamat datang pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}, sebelumnya saya ucapkan selamat telah sampai pada tahap ini.`;
     }
 
-    const prompt = `${getMockInterviewBaseCriteriaPrompt(language)}
-
-From the topic "${topic}":
+    const prompt = `From the topic "${topic}":
 - Provide an opening line for the interview session, such as:
 "${opening}"
 - Ask the candidate to introduce themselves.
@@ -60,8 +59,6 @@ const getMockInterviewContinuingUserPrompt = (previousQuestion, answer, followUp
 
 Candidate's transcript: "${answer}"
 
-${getMockInterviewBaseCriteriaPrompt(language)}
-
 Based on this answer:
 - Provide a re-opening line for a paused session, such as:
 "${opening}"
@@ -79,8 +76,6 @@ const getMockInterviewRespondUserPrompt = (answer, followUpQuestions, language) 
     ).join('\n') ?? '';
 
     const prompt = `Candidate's transcript: "${answer}"
-
-${getMockInterviewBaseCriteriaPrompt(language)}
 
 From the given answer:
 - Provide a short (1 sentence) acknowledgement of the candidate's answer, considering its relevance to their background if available. **Do not evaluate the answer quantitatively.**
@@ -102,8 +97,6 @@ Previous question: "${previousQuestion}"
 
 Candidate's transcript: "${answer}"
 
-${getMockInterviewBaseCriteriaPrompt(language)}
-
 For transitioning to the next topic:
 - If the candidate's answer is relevant to the next topic, provide a short (1 sentence) acknowledgement. **Ignore if there is no relevance and do not evaluate the answer quantitatively.**
 - Provide the most engaging question ${typeof questionList === 'string' && !!questionList?.trim() ? `from the following list (considering the candidate's background):\n${questionList}` : 'that introduces the new topic and relates to the candidate’s background.'}
@@ -120,8 +113,6 @@ const getMockInterviewClosingUserPrompt = (answer, language) => {
     }
 
     const prompt = `Candidate's transcript: "${answer}"
-
-${getMockInterviewBaseCriteriaPrompt(language)}
 
 Based on the final answer:
 - Provide a short (1-2 sentence) acknowledgement, considering relevance to the candidate’s background (if any). **Do not evaluate the answer quantitatively.**
