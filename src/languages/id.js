@@ -403,5 +403,18 @@ module.exports = Object.freeze({
         FAILED_LIST: 'Gagal mendapatkan list sertifikat',
         DELETE_SUCCESS: 'Sukses menghapus sertifikat',
         DELETE_FAILED: 'Gagal menghapus sertifikat'
+    },
+    SELECTION_TIMELINE: {
+        NOT_FOUND: 'Timeline Seleksi tidak ditemukan.',
+        SUCCESS_LIST: 'Berhasil mendapatkan daftar timeline seleksi.',
+        FAILED_LIST: 'Gagal mendapatkan daftar timeline seleksi.',
+        SUCCESS_GET_DETAIL: 'Berhasil mendapatkan detail timeline seleksi.',
+        FAILED_GET_DETAIL: 'Gagal mendapatkan detail timeline seleksi.',
+        CREATE_FAILED: 'Gagal membuat timeline seleksi.',
+        CREATE_SUCCESS: 'Berhasil membuat timeline seleksi.',
+        UPDATE_FAILED: 'Gagal memperbarui timeline seleksi.',
+        UPDATE_SUCCESS: 'Berhasil memperbarui timeline seleksi.',
+        DELETE_FAILED: 'Gagal menghapus timeline seleksi.',
+        DELETE_SUCCESS: 'Berhasil menghapus timeline seleksi.'
     }
 });
