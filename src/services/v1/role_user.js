@@ -1,8 +1,8 @@
-const Helpers = require('../utils/helpers');
-const RolesUserRepository = require('../repositories/mysql/role_users');
-const Response = require('../utils/response');
-const UsersRepository = require('../repositories/mysql/user');
-const RolesRepository = require('../repositories/mysql/roles');
+const Helpers = require('../../utils/helpers');
+const RolesUserRepository = require('../../repositories/mysql/role_users');
+const Response = require('../../utils/response');
+const UsersRepository = require('../../repositories/mysql/user');
+const RolesRepository = require('../../repositories/mysql/roles');
 
 // const getListUsersWithRoles = async (input) => {
 //     const users = await UsersRepository.findAndCountAll(

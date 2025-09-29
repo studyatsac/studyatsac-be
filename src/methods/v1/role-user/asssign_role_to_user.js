@@ -1,5 +1,5 @@
 const Language = require('../../../languages');
-const RolesUserService = require('../../../services/role_user');
+const RolesUserService = require('../../../services/v1/role_user');
 
 exports.assignRoleToUser = async (req, res) => {
     try {
