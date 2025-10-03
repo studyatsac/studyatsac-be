@@ -390,5 +390,31 @@ module.exports = Object.freeze({
         UPDATE_FAILED: 'Gagal memperbarui Role',
         UPDATE_SUCCESS: 'Sukses memperbarui Role',
         DELETE_SUCCESS: 'Sukses menghapus Role'
+    },
+    CERTIFICATE: {
+        ALREADY_EXISTS: 'Sertifikat sudah pernah dibuat',
+        USER_EXAM_NOT_FOUND: 'Latihan user tidak ditemukan',
+        CERTIFICATE_NOT_FOUND: 'Sertifikat tidak ditemukan',
+        CREATE_SUCCESS: 'Sukses membuat sertifikat',
+        FAILED_CREATE: 'Gagal membuat sertifikat',
+        SUCCESS_GET_DETAIL: 'Sukses mendapatkan detail sertifikat',
+        FAILED_GET_DETAIL: 'Gagal mendapatkan detail sertifikat',
+        SUCCESS_LIST: 'Sukses mendapatkan list sertifikat',
+        FAILED_LIST: 'Gagal mendapatkan list sertifikat',
+        DELETE_SUCCESS: 'Sukses menghapus sertifikat',
+        DELETE_FAILED: 'Gagal menghapus sertifikat'
+    },
+    SELECTION_TIMELINE: {
+        NOT_FOUND: 'Timeline Seleksi tidak ditemukan.',
+        SUCCESS_LIST: 'Berhasil mendapatkan daftar timeline seleksi.',
+        FAILED_LIST: 'Gagal mendapatkan daftar timeline seleksi.',
+        SUCCESS_GET_DETAIL: 'Berhasil mendapatkan detail timeline seleksi.',
+        FAILED_GET_DETAIL: 'Gagal mendapatkan detail timeline seleksi.',
+        CREATE_FAILED: 'Gagal membuat timeline seleksi.',
+        CREATE_SUCCESS: 'Berhasil membuat timeline seleksi.',
+        UPDATE_FAILED: 'Gagal memperbarui timeline seleksi.',
+        UPDATE_SUCCESS: 'Berhasil memperbarui timeline seleksi.',
+        DELETE_FAILED: 'Gagal menghapus timeline seleksi.',
+        DELETE_SUCCESS: 'Berhasil menghapus timeline seleksi.'
     }
 });

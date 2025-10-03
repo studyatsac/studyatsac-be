@@ -1,15 +1,17 @@
+const { getAllCertificatesByUserId } = require('../../../services/v1/certificate');
 const Language = require('../../../languages');
-const RolesUserService = require('../../../services/v1/role_user');
 
-exports.assignRoleToUser = async (req, res) => {
+exports.getAllCertificatesByUserId = async (req, res) => {
     try {
-        const { userUuid, roleUuid } = req.body;
+        const { userid } = req.params;
+
         const lang = Language.getLanguage(req.locale);
 
-        const result = await RolesUserService.assignRoleToUser({
-            userUuid,
-            roleUuid
-        }, { lang });
+        if (!userid) {
+            return res.status(400).json({ message: 'User ID is required.' });
+        }
+
+        const result = await getAllCertificatesByUserId(userid, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({ message: result.message });
@@ -24,3 +26,5 @@ exports.assignRoleToUser = async (req, res) => {
         return res.status(500).json({ message: err.message });
     }
 };
+
+module.exports = exports;

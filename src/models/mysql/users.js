@@ -76,6 +76,10 @@ module.exports = (sequelize, DataTypes) => {
             sourceKey: 'id',
             foreignKey: 'user_id'
         });
+        User.hasMany(models.Certificate, {
+            foreignKey: 'user_id',
+            as: 'certificates' // Alias untuk relasi
+        });
     };
 
     return User;

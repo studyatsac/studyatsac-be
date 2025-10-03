@@ -1,4 +1,4 @@
-const RolesUserService = require('../../../services/role_user');
+const RolesUserService = require('../../../services/v1/role_user');
 
 exports.getDetailUser = async (req, res) => {
     try {

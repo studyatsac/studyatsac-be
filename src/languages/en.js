@@ -388,6 +388,32 @@ module.exports = Object.freeze({
     },
     ROLE_USER: {
         ASSIGN_SUCCESS: 'Success assign role to user',
-        ALREADY_ASSIGNED: 'Role already assigned',
+        ALREADY_ASSIGNED: 'Role already assigned'
+    },
+    CERTIFICATE: {
+        ALREADY_EXISTS: 'Certificate already exists',
+        USER_EXAM_NOT_FOUND: 'User Exam Not Found',
+        CERTIFICATE_NOT_FOUND: 'Certificate Not Found for this user',
+        CREATE_SUCCESS: 'Success to create certificate',
+        FAILED_CREATE: 'Failed to create certificate',
+        SUCCESS_GET_DETAIL: 'Certificates retrieved successfully',
+        FAILED_GET_DETAIL: 'Failed to get certificates',
+        SUCCESS_LIST: 'Success get list of certificates',
+        FAILED_LIST: 'Failed to get list of certificates',
+        DELETE_SUCCESS: 'Success to deleted certificate',
+        DELETE_FAILED: 'Failed to delete certificate'
+    },
+    SELECTION_TIMELINE: {
+        NOT_FOUND: 'Selection Timeline not found.',
+        SUCCESS_LIST: 'Success get list selection timeline',
+        FAILED_LIST: 'Failed get list selection timeline',
+        SUCCESS_GET_DETAIL: 'Success get detail selection timeline',
+        FAILED_GET_DETAIL: 'Failed to get detail selection timeline',
+        CREATE_FAILED: 'Failed to create selection timeline',
+        CREATE_SUCCESS: 'Success to create selection timeline',
+        UPDATE_FAILED: 'Failed to update selection timeline',
+        UPDATE_SUCCESS: 'Success to update selection timeline',
+        DELETE_FAILED: 'Failed to delete selection timeline',
+        DELETE_SUCCESS: 'Success to deleted selection timeline'
     }
 });

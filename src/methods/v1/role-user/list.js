@@ -1,4 +1,4 @@
-const RolesUserService = require('../../../services/role_user');
+const RolesUserService = require('../../../services/v1/role_user');
 
 exports.getListUsersWithRoles = async (req, res) => {
     try {
@@ -11,7 +11,7 @@ exports.getListUsersWithRoles = async (req, res) => {
 
         // Respons JSON dengan data pengguna dan perannya
         return res.status(200).json({
-            message: 'Successfully retrieved user list with roles.',
+            message: result.message,
             data: result.rows,
             meta: {
                 page: parseInt(page),
