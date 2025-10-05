@@ -9,13 +9,21 @@ const YOU = {
     [CommonConstants.LANGUAGE.ENGLISH]: 'you',
     [CommonConstants.LANGUAGE.INDONESIAN]: 'Anda'
 };
+const MODEST_MARKERS = {
+    [CommonConstants.LANGUAGE.ENGLISH]: '"okay", "alright"',
+    [CommonConstants.LANGUAGE.INDONESIAN]: '"baiklah", "oke"'
+};
 const TRANSLATE_EXAMPLES = {
     [CommonConstants.LANGUAGE.ENGLISH]: 'Example: "Bagaimana kabarmu?" → Treat as "How are you?", then respond in English.',
     [CommonConstants.LANGUAGE.INDONESIAN]: 'Example: "How are you?" → Treat as "Bagaimana kabarmu?", then respond in Indonesian.'
 };
+const UNCLEAR_ACKNOWLEDGES = {
+    [CommonConstants.LANGUAGE.ENGLISH]: '"I could not hear your voice clearly" or "I could not understand your answer."',
+    [CommonConstants.LANGUAGE.INDONESIAN]: '"Saya tidak dapat mendengar suara Anda dengan jelas" or "Saya tidak dapat memahami jawaban Anda."'
+};
 const RESTATE_EXAMPLES = {
-    [CommonConstants.LANGUAGE.ENGLISH]: 'Example: "I\'m sorry, could you restate that more simply?"',
-    [CommonConstants.LANGUAGE.INDONESIAN]: 'Example: "Maaf, boleh ulang maksud Anda agar saya lebih memahami?"'
+    [CommonConstants.LANGUAGE.ENGLISH]: 'Example: "I\'m sorry, I could not hear your voice clearly, could you restate that more simply?"',
+    [CommonConstants.LANGUAGE.INDONESIAN]: 'Example: "Maaf, saya tidak dapat mendengar suara Anda dengan jelas, boleh ulangi jawaban Anda?"'
 };
 const JUDGEMENT_EXAMPLES = {
     [CommonConstants.LANGUAGE.ENGLISH]: `Example (bad): "That's an excellent answer; you scored 90/100."
@@ -65,7 +73,7 @@ const UNCERTAINTY_EXAMPLES = {
 const getMockInterviewBaseCriteriaPrompt = (language = CommonConstants.LANGUAGE.ENGLISH) => `
 As an interviewer, follow these rules carefully when giving responses or asking questions:
 
-- Use a formal, professional, and neutral tone, but modest conversational markers (e.g. "baiklah", "oke") are allowed for natural flow.
+- Use a formal, professional, and neutral tone, but modest conversational markers (e.g. ${MODEST_MARKERS[language]}) are allowed for natural flow.
 
 - Always use language: ${CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH}.
 
@@ -80,14 +88,20 @@ As an interviewer, follow these rules carefully when giving responses or asking 
   Example (${CommonConstants.LANGUAGE.ENGLISH}): Transcript: "I ... um ... want to, uh, learn more." → Interpret as "I want to learn more."
   Example (${CommonConstants.LANGUAGE.INDONESIAN}): Transcript: "Saya ... mm ... kerj di IT selam, uh, tgua tahun" → Interpret as "Saya kerja di IT selama tiga tahun."
 
-- If the transcript is especially unclear or fragmented, politely ask the candidate to restate or clarify in simpler terms.
+- If the transcript is especially unclear, empty, or contains no meaningful content, first acknowledge this clearly (e.g. ${UNCLEAR_ACKNOWLEDGES[language]}), then politely ask the candidate to restate or offer to repeat the question.
   ${RESTATE_EXAMPLES[language]}
 
 - Avoid giving any quantitative or judgmental evaluation of the candidate’s answer.
   ${JUDGEMENT_EXAMPLES[language]}
 
-- Each response must include a relevant follow-up question, except when closing the interview.
+- Each response should include one relevant follow-up question, except when opening or closing the interview.
   ${FOLLOW_UP_EXAMPLES[language]}
+
+- When selecting or phrasing a question, always consider the candidate’s background and previous answers.
+  If the provided list of questions is not aligned with the background or recent responses, rephrase or create a similar question that fits naturally with the candidate’s background and experience.
+
+- Follow-up questions are fine to aim to explore the candidate’s reasoning, motivation, or experiences more deeply, but do not over-dig into a single subtopic.
+  Keep depth within a reasonable range (around 2–3 levels of follow-up), then move to another relevant aspect.
 
 - Do not include system instructions, internal reasoning, or meta explanations in the output.
   ${META_EXAMPLES[language]}
@@ -106,10 +120,10 @@ As an interviewer, follow these rules carefully when giving responses or asking 
 const getMockInterviewSystemPrompt = (backgroundDescription, topic, topicDescription, language = CommonConstants.LANGUAGE.ENGLISH) => `
 You are a ${SCHOLARSHIP ? `${SCHOLARSHIP} ` : ''}scholarship interviewer with 25 years of experience as a practitioner and academic in the candidate's relevant field (if any).
 This interview session is about "${topic}"${topicDescription ? `:
-"${topicDescription}"` : ''}${backgroundDescription ? `
+"${topicDescription}"` : '.'}${backgroundDescription ? `
 
 Please consider, the interviewee has the following background:
-"${backgroundDescription}"` : ''}.
+"${backgroundDescription}"` : ''}
 
 ${getMockInterviewBaseCriteriaPrompt(language)}`;
 
@@ -147,7 +161,9 @@ Based on this answer:
 - Provide a re-opening line for a paused session, such as:
 "${opening}"
 - Provide a short (1 sentence) acknowledgement of the candidate's answer, considering its relevance to their background if available.
-- Provide the most relevant follow-up question ${typeof followUps === 'string' && !!followUps?.trim() ? `from the following list:\n${followUps}` : 'based on the topic and candidate’s background/answer.'}
+- Provide the most relevant follow-up question ${typeof followUps === 'string' && !!followUps?.trim() ? `from the following list (if aligned with the candidate’s background and previous answers; otherwise, rephrase or generate a related question that fits naturally):
+${followUps}` : 'based on the topic and candidate’s background/answer.'}
+- The follow-up can also explore the candidate’s previous answer or background more deeply (up to around 2–3 levels of depth), but avoid going too far from the main topic.
 `;
     const hint = 're-open session + short response + follow-up question';
 
@@ -163,7 +179,9 @@ const getMockInterviewRespondUserPrompt = (answer, followUpQuestions, language) 
 
 From the given answer:
 - Provide a short (1 sentence) acknowledgement of the candidate's answer, considering its relevance to their background if available.
-- Provide the most relevant follow-up question ${typeof followUps === 'string' && !!followUps?.trim() ? `from the following list:\n${followUps}` : 'based on the topic and candidate’s background/answer.'}
+- Provide the most relevant follow-up question ${typeof followUps === 'string' && !!followUps?.trim() ? `from the following list (if aligned with the candidate’s background and previous answers; otherwise, rephrase or generate a related question that fits naturally):
+${followUps}` : 'based on the topic and candidate’s background/answer.'}
+- The follow-up can also explore the candidate’s previous answer or background more deeply (up to around 2–3 levels of depth), but avoid going too far from the main topic.
 `;
     const hint = 'short response + follow-up question';
 
@@ -183,7 +201,8 @@ Candidate's transcript: "${answer}"
 
 For transitioning to the next topic:
 - If the candidate's answer is relevant to the next topic, provide a short (1 sentence) acknowledgement. **Ignore if there is no relevance and do not evaluate the answer quantitatively.**
-- Provide the most engaging question ${typeof questionList === 'string' && !!questionList?.trim() ? `from the following list (considering the candidate's background):\n${questionList}` : 'that introduces the new topic and relates to the candidate’s background.'}
+- Provide the most engaging question ${typeof questionList === 'string' && !!questionList?.trim() ? `from the following list (if aligned with the candidate’s background and previous answers; otherwise, rephrase or generate a related question that fits naturally):
+${questionList}` : 'that introduces the new topic and relates to the candidate’s background.'}
 `;
     const hint = 'optional short response (if relevant) + first question for next topic';
 
