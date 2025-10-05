@@ -139,6 +139,7 @@ const getMockInterviewOpeningUserPrompt = (topic, language) => {
 "${opening}"
 - Ask the candidate to introduce themselves.
 `;
+
     const hint = 'opening statement + ask for self-introduction';
 
     return { prompt, hint };
@@ -151,22 +152,22 @@ const getMockInterviewContinuingUserPrompt = (previousQuestion, answer, followUp
 
     let opening = `Welcome back to the${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''} scholarship interview session. Let's continue with the interview.`;
     if (language === CommonConstants.LANGUAGE.INDONESIAN) {
-        opening = `Selamat datang kembali pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}, mari kita lanjutkan sesi wawancara ini.`;
+        opening = `Selamat datang kembali pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}. Mari kita lanjutkan sesi wawancara ini.`;
     }
 
     const prompt = `Previous question: "${previousQuestion}"
-
 Candidate's transcript: "${answer}"
 
-Based on this answer:
-- Provide a re-opening line for a paused session, such as:
-"${opening}"
-- Provide a short (1 sentence) acknowledgement of the candidate's answer, considering its relevance to their background if available.
-- Provide the most relevant follow-up question ${typeof followUps === 'string' && !!followUps?.trim() ? `from the following list (if aligned with the candidate’s background and previous answers; otherwise, rephrase or generate a related question that fits naturally):
-${followUps}` : 'based on the topic and candidate’s background/answer.'}
-- The follow-up can also explore the candidate’s previous answer or background more deeply (up to around 2–3 levels of depth), but avoid going too far from the main topic.
+Based on the answer:
+- Provide a re-opening line (e.g. "${opening}")
+- Provide a short (1-sentence) acknowledgement, with relevance to background if available.
+- Provide **one** relevant follow-up question. If you have a list:
+    * Use from the list **only if aligned and in correct language** (else rephrase/translate or generate a fitting question)
+    ${followUps ? `List:\n${followUps}` : '(no list provided)'}
+- You may explore the candidate’s answer or background more deeply (up to 2–3 follow-up levels), but avoid going too far off the main topic.
 `;
-    const hint = 're-open session + short response + follow-up question';
+
+    const hint = 'reopen + short ack + follow-up';
 
     return { prompt, hint };
 };
@@ -178,13 +179,17 @@ const getMockInterviewRespondUserPrompt = (answer, followUpQuestions, language) 
 
     const prompt = `Candidate's transcript: "${answer}"
 
-From the given answer:
-- Provide a short (1 sentence) acknowledgement of the candidate's answer, considering its relevance to their background if available.
-- Provide the most relevant follow-up question ${typeof followUps === 'string' && !!followUps?.trim() ? `from the following list (if aligned with the candidate’s background and previous answers; otherwise, rephrase or generate a related question that fits naturally):
-${followUps}` : 'based on the topic and candidate’s background/answer.'}
-- The follow-up can also explore the candidate’s previous answer or background more deeply (up to around 2–3 levels of depth), but avoid going too far from the main topic.
+**If the candidate’s answer is empty, meaningless, or garbled**, respond with the ${UNCLEAR_ACKNOWLEDGES[language]} path and request restatement.
+
+Based on the answer:
+- Provide a short (1-sentence) acknowledgement, with relevance to background if available.
+- Provide **one** relevant follow-up question. If you have a list:
+    * Use from the list **only if aligned and in correct language** (else rephrase/translate or generate a fitting question)
+    ${followUps ? `List:\n${followUps}` : '(no list provided)'}
+- You may explore the candidate’s answer or background more deeply (up to 2–3 follow-up levels), but avoid going too far off the main topic.
 `;
-    const hint = 'short response + follow-up question';
+
+    const hint = 'ack + follow-up';
 
     return { prompt, hint };
 };
@@ -194,18 +199,19 @@ const getMockInterviewRespondTransitionUserPrompt = (previousTopic, previousQues
         (question, index) => `${(typeof question === 'object' && question?.id) || index + 1}. "${(typeof question === 'object' && question?.question) || question}"`
     ).join('\n');
 
-    const prompt = `This session continues from a previous topic: "${previousTopic}".
-
+    const prompt = `This session continues from previous topic: "${previousTopic}"
 Previous question: "${previousQuestion}"
-
 Candidate's transcript: "${answer}"
 
-For transitioning to the next topic:
-- If the candidate's answer is relevant to the next topic, provide a short (1 sentence) acknowledgement. **Ignore if there is no relevance and do not evaluate the answer quantitatively.**
-- Provide the most engaging question ${typeof questionList === 'string' && !!questionList?.trim() ? `from the following list (if aligned with the candidate’s background and previous answers; otherwise, rephrase or generate a related question that fits naturally):
-${questionList}` : 'that introduces the new topic and relates to the candidate’s background.'}
+Based on that:
+- If the candidate’s answer has relevance to the next topic, provide a short acknowledgment (no quantitative judgment).
+- Provide a question that bridges to the next topic. If you have a list:
+    * Use from the list **only if aligned and in correct language** (else rephrase/translate or generate a fitting question)
+    ${questionList ? `List:\n${questionList}` : '(no list provided)'}
+- Prefer a question that smoothly links from earlier answer/background.
 `;
-    const hint = 'optional short response (if relevant) + first question for next topic';
+
+    const hint = 'transition + new question';
 
     return { prompt, hint };
 };
@@ -219,10 +225,11 @@ const getMockInterviewClosingUserPrompt = (answer, language) => {
     const prompt = `Candidate's transcript: "${answer}"
 
 Based on the final answer:
-- Provide a short (1-2 sentence) acknowledgement, considering relevance to the candidate’s background (if any).
+- Provide a short (1-2 sentences) acknowledgement, with relevance to background if available.
 - Provide a closing statement for the interview session, such as:
 "${closing}"
 `;
+
     const hint = 'short response + closing statement';
 
     return { prompt, hint };
