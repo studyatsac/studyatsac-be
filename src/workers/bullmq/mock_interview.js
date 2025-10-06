@@ -832,6 +832,8 @@ async function processMockInterviewProcessJob(job) {
         await MockInterviewCacheUtils.deleteMockInterviewProcessJobId(userId, userInterviewUuid);
     });
 
+    await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(userId, userInterviewUuid);
+
     if (!shouldEmitControl) return;
 
     const clientSid = await MockInterviewCacheUtils.getMockInterviewSid(userId, userInterviewUuid);
