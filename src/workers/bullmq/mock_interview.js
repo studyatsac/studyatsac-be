@@ -830,9 +830,8 @@ async function processMockInterviewProcessJob(job) {
 
         await MockInterviewCacheUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
         await MockInterviewCacheUtils.deleteMockInterviewProcessJobId(userId, userInterviewUuid);
+        await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(userId, userInterviewUuid);
     });
-
-    await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(userId, userInterviewUuid);
 
     if (!shouldEmitControl) return;
 
