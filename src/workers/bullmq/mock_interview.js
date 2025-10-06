@@ -221,6 +221,7 @@ async function processMockInterviewOpen(
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
+        targetInterviewSection?.interviewSection?.description,
         language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewOpeningUserPrompt(
@@ -293,6 +294,7 @@ async function processMockInterviewContinue(
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
+        targetInterviewSection?.interviewSection?.description,
         language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewContinuingUserPrompt(
@@ -384,6 +386,7 @@ async function processMockInterviewRespond(
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
+        targetInterviewSection?.interviewSection?.description,
         language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondUserPrompt(
@@ -473,6 +476,7 @@ async function processMockInterviewRespondTransition(
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
+        targetInterviewSection?.interviewSection?.description,
         language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondTransitionUserPrompt(
@@ -569,6 +573,7 @@ async function processMockInterviewClose(
     const systemPrompt = MockInterviewPromptUtils.getMockInterviewSystemPrompt(
         userInterview.backgroundDescription,
         targetInterviewSection?.interviewSection?.title,
+        targetInterviewSection?.interviewSection?.description,
         language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewClosingUserPrompt(
@@ -825,6 +830,7 @@ async function processMockInterviewProcessJob(job) {
 
         await MockInterviewCacheUtils.deleteMockInterviewSpeechTexts(userId, userInterviewUuid);
         await MockInterviewCacheUtils.deleteMockInterviewProcessJobId(userId, userInterviewUuid);
+        await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(userId, userInterviewUuid);
     });
 
     if (!shouldEmitControl) return;

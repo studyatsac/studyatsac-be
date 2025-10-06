@@ -1065,27 +1065,23 @@ const recordMockInterviewSpeech = async (input, data) => {
     if (processTarget?.questionNumber !== data?.questionNumber) return;
 
     let isFullySpoken = false;
-    if (processTarget.question === data.targetText) {
-        isFullySpoken = true;
+    if (processTarget?.userInterviewSectionAnswerId != null) {
+        isFullySpoken = processTarget.question === data.targetText;
+        const isQuestionIncluded = processTarget.question.includes(data.currentText);
 
-        if (processTarget.userInterviewSectionAnswerId != null) {
-            await Models.sequelize.transaction(async (trx) => {
-                await UserInterviewSectionAnswerRepository.update({
-                    status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKED,
-                    askedAt: Moment().format()
-                }, { id: processTarget.userInterviewSectionAnswerId }, trx);
-
-                await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(input.userId, input.uuid);
-            });
-        } else await MockInterviewCacheUtils.deleteMockInterviewProcessTarget(input.userId, input.uuid);
-
-        return;
-    }
-
-    if (processTarget.question.includes(data.currentText) && processTarget.userInterviewSectionAnswerId != null) {
-        await UserInterviewSectionAnswerRepository.update({
-            status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKING
-        }, { id: processTarget.userInterviewSectionAnswerId });
+        if (isFullySpoken || isQuestionIncluded) {
+            await UserInterviewSectionAnswerRepository.update(isFullySpoken ? {
+                status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKED,
+                askedAt: Moment().format()
+            } : {
+                status: UserInterviewConstants.SECTION_ANSWER_STATUS.ASKING
+            }, { id: processTarget.userInterviewSectionAnswerId });
+        }
+    } else {
+        await MockInterviewCacheUtils.setMockInterviewProcessTarget(input.userId, input.uuid, {
+            ...processTarget,
+            question: data?.targetText || ''
+        });
     }
 
     if (data.tag !== MockInterviewConstants.PROCESS_EVENT_TAG.CLOSING) return;
@@ -1094,16 +1090,25 @@ const recordMockInterviewSpeech = async (input, data) => {
         input.userId,
         input.uuid
     );
-    if (stopJobTime && isFullySpoken) {
-        await MockInterviewCacheUtils.setMockInterviewControlStopJobTime(
-            input.userId,
-            input.uuid,
-            Date.now() + (MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS / 2)
-        );
+    if (isFullySpoken) {
+        if (
+            !stopJobTime
+            || (stopJobTime - Date.now()) > (MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS / 3)
+        ) {
+            await MockInterviewCacheUtils.setMockInterviewControlStopJobTime(
+                input.userId,
+                input.uuid,
+                Date.now() + (MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS / 3)
+            );
+        }
+
         return;
     }
 
-    if ((stopJobTime - Date.now()) >= MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS) return;
+    if (
+        stopJobTime
+        && (stopJobTime - Date.now()) >= (MockInterviewConstants.STOP_DELAY_TIME_IN_MILLISECONDS / 2)
+    ) return;
 
     await MockInterviewCacheUtils.generateMockInterviewControlStopJobTime(input.userId, input.uuid);
 };
