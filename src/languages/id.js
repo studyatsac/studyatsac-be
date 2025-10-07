@@ -416,5 +416,20 @@ module.exports = Object.freeze({
         UPDATE_SUCCESS: 'Berhasil memperbarui timeline seleksi.',
         DELETE_FAILED: 'Gagal menghapus timeline seleksi.',
         DELETE_SUCCESS: 'Berhasil menghapus timeline seleksi.'
+    },
+    PROMO: {
+        NOT_FOUND: 'Promo tidak ditemukan',
+        SUCCESS_LIST: 'Sukses mendapat daftar promo',
+        FAILED_LIST: 'Gagal mendapat daftar promo',
+        SUCCESS_GET_DETAIL: 'Sukses mendapat detail promo',
+        FAILED_GET_DETAIL: 'Gagal mendapat detail promo',
+        CREATE_FAILED: 'Gagal membuat promo',
+        CREATE_SUCCESS: 'Sukses membuat promo',
+        UPDATE_FAILED: 'Gagal memperbarui promo',
+        UPDATE_SUCCESS: 'Sukses memperbarui promo',
+        DELETE_FAILED: 'Gagal menghapus promo',
+        DELETE_SUCCESS: 'Sukses menghapus promo',
+        UPLOAD_FAILED: 'Gagal upload gambar poster ',
+        GET_URL_FAILED: 'Gagal mendapatan tautan gambar'
     }
 });

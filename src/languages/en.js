@@ -415,5 +415,20 @@ module.exports = Object.freeze({
         UPDATE_SUCCESS: 'Success to update selection timeline',
         DELETE_FAILED: 'Failed to delete selection timeline',
         DELETE_SUCCESS: 'Success to deleted selection timeline'
+    },
+    PROMO: {
+        NOT_FOUND: 'Promo Not Found',
+        SUCCESS_LIST: 'Success get list of promo',
+        FAILED_LIST: 'Failed to get list of promo',
+        SUCCESS_GET_DETAIL: 'Success get detail promo',
+        FAILED_GET_DETAIL: 'Failed to get detail promo',
+        CREATE_FAILED: 'Failed to create promo',
+        CREATE_SUCCESS: 'Success to create promo',
+        UPDATE_FAILED: 'Failed to update promo',
+        UPDATE_SUCCESS: 'Success to update promo',
+        DELETE_FAILED: 'Failed to delete promo',
+        DELETE_SUCCESS: 'Success to deleted promo',
+        UPLOAD_FAILED: 'Failed upload poster image',
+        GET_URL_FAILED: 'Failed get image url'
     }
 });

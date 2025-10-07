@@ -1123,6 +1123,38 @@ router.delete(
     require('../methods/v1/selection-timeline/admin_delete').deleteSelectionTimeline
 );
 
+// promo
+
+router.get(
+    '/admin/promos',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/promotion/admin_list').getListPromos
+);
+
+router.get(
+    '/admin/promos/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/promotion/admin_detail').getDetailPromo
+);
+
+router.post(
+    '/admin/promos/create',
+    [tokenMiddleware, adminOnlyMiddleware, upload.single('poster')],
+    require('../methods/v1/promotion/admin_create').createPromo
+);
+
+router.put(
+    '/admin/promos/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware, upload.single('poster')],
+    require('../methods/v1/promotion/admin_update').updatePromo
+);
+
+router.delete(
+    '/admin/promos/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/promotion/admin_delete').deletePromo
+);
+
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
