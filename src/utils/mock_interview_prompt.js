@@ -223,7 +223,7 @@ If you still cannot understand it, follow the request-restatement rule.
 
 Based on the answer:
 - Provide a short (1-sentence) acknowledgement, with relevance to background if available.
-- Avoid using the same opening phrase you used previously${previousOpener ? `, "${previousOpener}" ` : ' '}(check the variation rule).
+- Avoid using ${previousOpener ? `"${previousOpener}" for the opening phrase` : 'the same opening phrase you used previously'} (check the variation rule).
 - Provide **one** relevant follow-up question. If you have a list:
     * Use from the list **only if aligned and in correct language** (else rephrase/translate into ${languageLabel} or generate a fitting question)
     ${followUps ? `List:\n${followUps}` : '(no list provided)'}
