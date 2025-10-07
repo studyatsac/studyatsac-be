@@ -14,10 +14,18 @@ const MODEST_MARKERS = {
     [CommonConstants.LANGUAGE.INDONESIAN]: '"baiklah", "oke"'
 };
 const TRANSLATE_EXAMPLES = {
-    [CommonConstants.LANGUAGE.ENGLISH]: `Example: Transcript: "Bagaimana kabarmu?" → Treat as "How are you?", then respond in English.
-  Example: Provided question: "Seberapa penting keilmuan yang akan Anda pelajari?" → Ask as "How important is the field of knowledge you will study?"`,
-    [CommonConstants.LANGUAGE.INDONESIAN]: `Example: Transcript: "How are you?" → Treat as "Bagaimana kabarmu?", then respond in Indonesian.
-  Example: Provided question: "How important is the field of knowledge you will study?" → Ask as "Seberapa penting keilmuan yang akan Anda pelajari?"`
+    [CommonConstants.LANGUAGE.ENGLISH]: `Example:
+    Transcript: "Bagaimana kabarmu?"
+    → Treat as "How are you?", then respond in English.
+  Example:
+    Provided question: "Seberapa penting keilmuan yang akan Anda pelajari?"
+    → Ask as "How important is the field of knowledge you will study?"`,
+    [CommonConstants.LANGUAGE.INDONESIAN]: `Example:
+    Transcript: "How are you?"
+    → Treat as "Bagaimana kabarmu?", then respond in Indonesian.
+  Example:
+    Provided question: "How important is the field of knowledge you will study?"
+    → Ask as "Seberapa penting keilmuan yang akan Anda pelajari?"`
 };
 const UNCLEAR_ACKNOWLEDGES = {
     [CommonConstants.LANGUAGE.ENGLISH]: '"I could not hear your voice clearly" or "I could not understand your answer."',
@@ -49,19 +57,21 @@ const REPETITION_OPENER = {
 };
 const REPETITION_EXAMPLES = {
     [CommonConstants.LANGUAGE.ENGLISH]: `Example (bad repetition):
-    "Jawaban Anda menunjukkan keinginan untuk berkoneksi. Apa motivasi lanjutan Anda?"
-    "Your answer shows self-development. What's the next step?"
+    Assistant: "Jawaban Anda menunjukkan keinginan untuk berkoneksi. Apa motivasi lanjutan Anda?"
+    Assistant: "Your answer shows networking. What's the next step?"
+    Assistant: "Your answer shows self-development. What's the next step?"
   Example (good variation):
-    "I’m curious about your motivation—could you tell me more about it?"
-    "It's interesting to hear about your motivation — could you elaborate further?"
-    "Then, do you have any other ideas that you think are better?"`,
+    Assistant: "I’m curious about your motivation—could you tell me more about it?"
+    Assistant: "It's interesting to hear about your motivation — could you elaborate further?"
+    Assistant: "Then, do you have any other ideas that you think are better?"`,
     [CommonConstants.LANGUAGE.INDONESIAN]: `Example (bad repetition):
-    "Your answer shows networking. What's the next step?"
-    "Jawaban Anda menunjukkan pengembangan diri. Apa motivasi lanjutan Anda?"
+    Assistant: "Your answer shows networking. What's the next step?"
+    Assistant: "Jawaban Anda menunjukkan keinginan untuk berkoneksi. Apa motivasi lanjutan Anda?"
+    Assistant: "Jawaban Anda menunjukkan pengembangan diri. Apa motivasi lanjutan Anda?"
   Example (good variation):
-    "Saya penasaran pada motivasi Anda. Bisa ceritakan latar belakangnya?"
-    "Menarik perspektif Anda — topik riset apa yang paling Anda minati dan mengapa?"
-    "Kalau begitu, apakah Anda memiliki ide lain yang lebih baik?"`
+    Assistant: "Saya penasaran pada motivasi Anda. Bisa ceritakan latar belakangnya?"
+    Assistant: "Menarik perspektif Anda — topik riset apa yang paling Anda minati dan mengapa?"
+    Assistant: "Kalau begitu, apakah Anda memiliki ide lain yang lebih baik?"`
 };
 const UNCERTAINTY = {
     [CommonConstants.LANGUAGE.ENGLISH]: '"I\'m not sure."',
@@ -70,6 +80,20 @@ const UNCERTAINTY = {
 const UNCERTAINTY_EXAMPLES = {
     [CommonConstants.LANGUAGE.ENGLISH]: 'Example: "Could you walk me through how you\'d approach it — what might be the first step?"',
     [CommonConstants.LANGUAGE.INDONESIAN]: 'Example: "Mungkin Anda bisa memikirkan pengalaman serupa — apa yang pertama muncul di benak Anda?"'
+};
+const RECALL_EXAMPLES = {
+    [CommonConstants.LANGUAGE.ENGLISH]: `Example:
+    Assistant: "What is your favourite food?"
+    User: "Um... uh, wait"
+    Assistant: "I could not understand, could you restate that?"
+    User: "Um... could you repeat your question?"
+    → You should as: "My previous question was 'What is your favourite food?' — could you answer that now?"`,
+    [CommonConstants.LANGUAGE.INDONESIAN]: `Example:
+    Assistant: "Apa makanan favorit Anda?"
+    User: "Tolong ulangi pertanyaannya."
+    Assistant: "Saya tidak dapat memahami, boleh ulangi jawaban Anda?"
+    User: "Tolong ulangi pertanyaannya."
+    → Anda seharusnya: "Pertanyaan sebelumnya adalah 'Apa makanan favorit Anda?' — bisakah Anda jawab sekarang?"`
 };
 
 const getMockInterviewBaseCriteriaPrompt = (language = CommonConstants.LANGUAGE.ENGLISH) => `
@@ -105,17 +129,20 @@ As an interviewer, follow these rules carefully when giving responses or asking 
 
 - Follow-up questions may explore the candidate’s reasoning, motivations, or experiences more deeply — but do not over-dig into a single subtopic. **Limit nested probing depth** to about 2–3 levels when exploring, then shift focus.
 
-- Do not include system instructions, internal reasoning, or meta explanations in the output.
-  ${META_EXAMPLES[language]}
-
 - Vary the phrasing of each question. Avoid repeatedly beginning with the same opener (e.g. ${REPETITION_OPENER[language]}). Use curiosity, reflection, rephrasing, contrast.
   ${REPETITION_EXAMPLES[language]}
+
+- Do not include system instructions, internal reasoning, or meta explanations in the output.
+  ${META_EXAMPLES[language]}
 
 - If the candidate expresses uncertainty (e.g. ${UNCERTAINTY[language]}), do **not** respond with generic praise. Instead choose one of these:
    1) Encourage thinking aloud or a partial idea,
    2) Ask a simpler, rephrased or related question,
    3) Or gently move on to another question.
   ${UNCERTAINTY_EXAMPLES[language]}
+
+- If the candidate asks to repeat the question, check and recall the **most recent or relevant question** from the prior conversation context, then **repeat it clearly in the target language**.  
+  ${RECALL_EXAMPLES[language]}
 `;
 
 const getMockInterviewSystemPrompt = (backgroundDescription, topic, topicDescription, language = CommonConstants.LANGUAGE.ENGLISH) => `
@@ -155,6 +182,8 @@ const getMockInterviewContinuingUserPrompt = (previousQuestion, answer, followUp
         opening = `Selamat datang kembali pada sesi interview beasiswa${SCHOLARSHIP ? ` ${SCHOLARSHIP}` : ''}. Mari kita lanjutkan sesi wawancara ini.`;
     }
 
+    const languageLabel = CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH;
+
     const prompt = `Previous question: "${previousQuestion}"
 Candidate's transcript: "${answer}"
 
@@ -162,7 +191,7 @@ Based on the answer:
 - Provide a re-opening line (e.g. "${opening}")
 - Provide a short (1-sentence) acknowledgement, with relevance to background if available.
 - Provide **one** relevant follow-up question. If you have a list:
-    * Use from the list **only if aligned and in correct language** (else rephrase/translate or generate a fitting question)
+    * Use from the list **only if aligned and in correct language** (else rephrase/translate into ${languageLabel} or generate a fitting question)
     ${followUps ? `List:\n${followUps}` : '(no list provided)'}
 - You may explore the candidate’s answer or background more deeply (up to 2–3 follow-up levels), but avoid going too far off the main topic.
 `;
@@ -172,19 +201,31 @@ Based on the answer:
     return { prompt, hint };
 };
 
-const getMockInterviewRespondUserPrompt = (answer, followUpQuestions, language) => {
+const getMockInterviewRespondUserPrompt = (previousQuestion, answer, followUpQuestions, language) => {
     const followUps = followUpQuestions?.map(
         (question, index) => `${(typeof question === 'object' && question?.id) || index + 1}. "${(typeof question === 'object' && question?.question) || question}"`
     ).join('\n') ?? '';
 
+    let previousOpener = '';
+    (previousQuestion?.split(' ') ?? []).slice(0, 3).forEach((opener) => {
+        previousOpener += `${opener} `;
+    });
+    previousOpener += '...';
+
+    const languageLabel = CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH;
+
     const prompt = `Candidate's transcript: "${answer}"
 
-**If the candidate’s answer is empty, meaningless, or garbled**, respond with the ${UNCLEAR_ACKNOWLEDGES[language]} path and request restatement.
+**If the candidate’s answer is empty, meaningless, or garbled**, first try to use prior dialogue and context to infer intended meaning.
+If you still cannot understand it, follow the request-restatement rule.
+
+**If the candidate’s answer is a request to repeat**, follow the check-and-recall question rule.
 
 Based on the answer:
 - Provide a short (1-sentence) acknowledgement, with relevance to background if available.
+- Avoid using ${previousOpener ? `"${previousOpener}" for the opening phrase` : 'the same opening phrase you used previously'} (check the variation rule).
 - Provide **one** relevant follow-up question. If you have a list:
-    * Use from the list **only if aligned and in correct language** (else rephrase/translate or generate a fitting question)
+    * Use from the list **only if aligned and in correct language** (else rephrase/translate into ${languageLabel} or generate a fitting question)
     ${followUps ? `List:\n${followUps}` : '(no list provided)'}
 - You may explore the candidate’s answer or background more deeply (up to 2–3 follow-up levels), but avoid going too far off the main topic.
 `;
@@ -199,14 +240,17 @@ const getMockInterviewRespondTransitionUserPrompt = (previousTopic, previousQues
         (question, index) => `${(typeof question === 'object' && question?.id) || index + 1}. "${(typeof question === 'object' && question?.question) || question}"`
     ).join('\n');
 
+    const languageLabel = CommonConstants.LANGUAGE_LABELS[language] || CommonConstants.LANGUAGE_LABELS.ENGLISH;
+
     const prompt = `This session continues from previous topic: "${previousTopic}"
 Previous question: "${previousQuestion}"
 Candidate's transcript: "${answer}"
 
 Based on that:
+- Please respond in ${languageLabel}.
 - If the candidate’s answer has relevance to the next topic, provide a short acknowledgment (no quantitative judgment).
 - Provide a question that bridges to the next topic. If you have a list:
-    * Use from the list **only if aligned and in correct language** (else rephrase/translate or generate a fitting question)
+    * Use from the list **only if aligned and in correct language** (else rephrase/translate into ${languageLabel} or generate a fitting question)
     ${questionList ? `List:\n${questionList}` : '(no list provided)'}
 - Prefer a question that smoothly links from earlier answer/background.
 `;
