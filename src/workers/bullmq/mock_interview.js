@@ -390,6 +390,7 @@ async function processMockInterviewRespond(
         language
     );
     const { prompt, hint } = MockInterviewPromptUtils.getMockInterviewRespondUserPrompt(
+        lastAnswer?.question ?? '',
         lastAnswer?.answer ?? '',
         getNotAskedInterviewSectionQuestions(
             targetInterviewSection?.interviewSectionAnswers ?? [],
