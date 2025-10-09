@@ -430,5 +430,18 @@ module.exports = Object.freeze({
         DELETE_SUCCESS: 'Success to deleted promo',
         UPLOAD_FAILED: 'Failed upload poster image',
         GET_URL_FAILED: 'Failed get image url'
+    },
+    SCHOLARSHIP: {
+        NOT_FOUND: 'Scholarship Not Found',
+        CREATE_SUCCESS: 'Succes to created scholarship',
+        CREATE_FAILED: 'Failed to create scholarship',
+        UPDATE_SUCCESS: 'Success to update scholarship',
+        UPDATE_FAILED: 'Failed to update scholarship',
+        SUCCESS_LIST: 'Success to get list of scholarships',
+        FAILED_LIST: 'Failed to get list of scholarships',
+        SUCCESS_GET_DETAIL: 'Success to get detail scholarship',
+        FAILED_GET_DETAIL: 'Failed to get detail detail',
+        DELETE_SUCCESS: 'Success to delete scholarship',
+        DELETE_FAILED: 'Failed to delete scholarship'
     }
 });
