@@ -1155,6 +1155,43 @@ router.delete(
     require('../methods/v1/promotion/admin_delete').deletePromo
 );
 
+// scholarship
+router.get(
+    '/admin/scholarship',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/scholarship/admin_list').getScholarshipListAdmin
+);
+
+router.post(
+    '/admin/scholarship/create',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/scholarship/admin_create').createScholarship
+);
+
+router.put(
+    '/admin/scholarship/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/scholarship/admin_update').updateScholarship
+);
+
+router.delete(
+    '/admin/scholarship/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/scholarship/admin_delete').deleteScholarship
+);
+
+router.get(
+    '/scholarship/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/scholarship/detail').getScholarshipDetail
+);
+
+router.get(
+    '/scholarship',
+    [tokenMiddleware],
+    require('../methods/v1/scholarship/list').getScholarshipListPublic
+);
+
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
