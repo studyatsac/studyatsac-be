@@ -604,10 +604,10 @@ const continueMockInterview = async (input, opts = {}) => {
 
         if (!targetInterviewSection) {
             const completedInterviewSections = userInterview.interviewSections.filter(
-                (item) => item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
+                (item) => getExceptionChecker(item) && item.status === UserInterviewConstants.SECTION_STATUS.COMPLETED
             );
             const startedInterviewSections = userInterview.interviewSections.filter(
-                (item) => item.status !== UserInterviewConstants.SECTION_STATUS.NOT_STARTED
+                (item) => getExceptionChecker(item) && item.status !== UserInterviewConstants.SECTION_STATUS.NOT_STARTED
             );
             if (completedInterviewSections?.length === startedInterviewSections?.length) {
                 return stopMockInterview(input, opts);
