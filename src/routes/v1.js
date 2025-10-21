@@ -1094,8 +1094,8 @@ router.delete(
 // selection-timeline
 router.get(
     '/admin/selection-timeline',
-    [tokenMiddleware, adminOnlyMiddleware],
-    require('../methods/v1/selection-timeline/admin_list').getListSelectionTimeline
+    [tokenMiddleware],
+    require('../methods/v1/selection-timeline/user_list').getListSelectionTimeline
 );
 
 router.get(
