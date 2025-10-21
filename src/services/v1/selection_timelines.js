@@ -59,10 +59,11 @@ const createSelectionTimeline = async (input, opts = {}) => {
     const language = opts.lang || {}; // (Peningkatan #2) Pastikan language tidak null
 
     try {
-        const { eventName, eventDate, eventLink, eventColor, eventOrder, description } = input;
+        const { eventName, eventCategory, eventDate, eventLink, eventColor, eventOrder, description } = input;
 
         const createData = {
             eventName,
+            eventCategory,
             eventDate,
             eventLink,
             eventColor,
@@ -107,6 +108,7 @@ const updateSelectionTimeline = async (input, opts = {}) => {
 
         const updateData = {
             eventName: input.eventName,
+            eventCategory: input.eventCategory,
             eventDate: input.eventDate,
             eventLink: input.eventLink,
             eventColor: input.eventColor,
