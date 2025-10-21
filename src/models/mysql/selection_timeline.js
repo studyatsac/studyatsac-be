@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE(),
             allowNull: false
         },
+        eventLink: {
+            type: DataTypes.STRING(),
+            allowNull: true
+        },
         eventColor: {
             type: DataTypes.STRING(20),
             allowNull: true

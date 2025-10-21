@@ -59,14 +59,15 @@ const createSelectionTimeline = async (input, opts = {}) => {
     const language = opts.lang || {}; // (Peningkatan #2) Pastikan language tidak null
 
     try {
-        const { eventName, eventDate, eventColor, eventOrder, description } = input;
+        const { eventName, eventDate, eventLink, eventColor, eventOrder, description } = input;
 
         const createData = {
             eventName,
             eventDate,
+            eventLink,
             eventColor,
             eventOrder,
-            description,
+            description
         };
 
         console.log('Data yang dikirim ke Repository:', createData);
@@ -107,6 +108,7 @@ const updateSelectionTimeline = async (input, opts = {}) => {
         const updateData = {
             eventName: input.eventName,
             eventDate: input.eventDate,
+            eventLink: input.eventLink,
             eventColor: input.eventColor,
             eventOrder: input.eventOrder,
             description: input.description
@@ -154,7 +156,7 @@ const deleteSelectionTimeline = async (input, opts = {}) => {
         console.error('Error in deleteSelectionTimeline service:', error);
         return Response.formatServiceReturn(false, 500, null, language.SELECTION_TIMELINE.DELETE_FAILED);
     }
-}
+};
 
 module.exports = {
     getListSelectionTimeline,
