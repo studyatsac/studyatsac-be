@@ -1093,7 +1093,7 @@ router.delete(
 
 // selection-timeline
 router.get(
-    '/admin/selection-timeline/',
+    '/admin/selection-timeline',
     [tokenMiddleware],
     require('../methods/v1/selection-timeline/user_list').getListSelectionTimeline
 );
