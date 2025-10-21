@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(),
             allowNull: false
         },
+        eventCategory: {
+            type: DataTypes.STRING(),
+            allowNull: true
+        },
         eventDate: {
             type: DataTypes.DATE(),
             allowNull: false
