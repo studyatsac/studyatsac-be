@@ -3,7 +3,7 @@ const PlacementTestRepository = require('../../../repositories/mysql/placement-t
 
 exports.postPlacementTest = async (req, res) => {
     try {
-        const userId = req.session?.user.id;
+        const userId = req.session.id;
 
         if (!userId) {
             return res.status(401).json({
