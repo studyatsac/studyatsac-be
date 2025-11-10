@@ -3,7 +3,14 @@ const PlacementTestRepository = require('../../../repositories/mysql/placement-t
 
 exports.postPlacementTest = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.session?.user.id;
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized: user not found in token'
+            });
+        }
         const { score, test_name } = req.body;
 
         if (!test_name) {
