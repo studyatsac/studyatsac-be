@@ -3,7 +3,7 @@ const Models = require('../../../models/mysql');
 
 exports.getMyPlacementTest = async (req, res) => {
     try {
-        const userId = req.session?.user.id; // user yang login
+        const userId = req.session.id; // user yang login
 
         const score = await PlacementTestRepository.findOne({
             where: { user_id: userId },
