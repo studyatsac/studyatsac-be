@@ -1,19 +1,20 @@
 const { Op } = require('sequelize');
-const IeltsScoreRepository = require('../../../repositories/mysql/ielts_score');
+const PlacementTestRepository = require('../../../repositories/mysql/placement-test');
 const Models = require('../../../models/mysql');
 
-exports.getListIeltsScore = async (req, res) => {
+exports.getListPlacementTest = async (req, res) => {
     try {
         const { page = 1, limit = 10, search } = req.query;
+
         const pageInt = parseInt(page, 10) || 1;
         const limitInt = parseInt(limit, 10) || 10;
         const offset = (pageInt - 1) * limitInt;
 
-        // Ambil orderBy dan order langsung dari req.query tanpa validasi
+        // Sorting: orderBy & order
         const orderBy = req.query.orderBy || 'created_at';
         const order = req.query.order || 'desc';
 
-        // Buat where clause untuk search
+        // Where clause (search)
         const where_clause = {};
         if (search) {
             where_clause[Op.or] = [
@@ -27,12 +28,16 @@ exports.getListIeltsScore = async (req, res) => {
             order: [[orderBy, order]],
             limit: limitInt,
             offset,
-            include: [{
-                model: Models.User,
-                attributes: ['id', 'full_name', 'email', 'institution_name', 'faculty', 'nip']
-            }]
+            include: [
+                {
+                    model: Models.User,
+                    attributes: ['id', 'full_name', 'email', 'institution_name', 'faculty', 'nip']
+                }
+            ]
         };
-        const scores = await IeltsScoreRepository.findAndCountAll(where_clause, options_clause);
+
+        const scores = await PlacementTestRepository.findAndCountAll(where_clause, options_clause);
+
         return res.status(200).json({
             data: scores.rows,
             meta: {
