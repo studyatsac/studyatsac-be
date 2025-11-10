@@ -1192,6 +1192,25 @@ router.get(
     require('../methods/v1/scholarship/list').getScholarshipListPublic
 );
 
+// placement test
+router.get(
+    '/admin/placement-tests',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/placement-test/admin_list').getListPlacementTest
+);
+
+router.get(
+    '/placement-tests/my-score',
+    [tokenMiddleware],
+    require('../methods/v1/placement-test/get_placement_score').getMyPlacementTest
+);
+
+router.post(
+    '/placement-test',
+    [tokenMiddleware],
+    require('../methods/v1/placement-test/create_placement_test').postPlacementTest
+);
+
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
