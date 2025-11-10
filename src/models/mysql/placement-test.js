@@ -51,8 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     PlacementTest.associate = (models) => {
         // PlacementTest milik User
         PlacementTest.belongsTo(models.User, {
-            foreignKey: 'user_id',
-            as: 'user'
+            foreignKey: 'user_id'
         });
     };
 
