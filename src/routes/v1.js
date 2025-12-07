@@ -1217,6 +1217,37 @@ router.post(
     require('../methods/v1/placement-test/create_placement_test').postPlacementTest
 );
 
+// lead submissions
+router.post(
+    '/lead-submissions',
+    [],
+    require('../methods/v1/lead-submissions/create').createLeadSubmission
+);
+
+router.get(
+    '/admin/lead-submissions',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/lead-submissions/admin_get').getLeadSubmissions
+);
+
+router.get(
+    '/admin/lead-submissions/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/lead-submissions/admin_get').getLeadSubmissionById
+);
+
+router.put(
+    '/admin/lead-submissions/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/lead-submissions/admin_update').updateLeadSubmission
+);
+
+router.delete(
+    '/admin/lead-submissions/:id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/lead-submissions/admin_delete').deleteLeadSubmission
+);
+
 /**
  * TODO bikin api untuk cron set end_date exam yang packagenya kadaluarsa, ini bisa jadi bikin ngegantung, gak bisa start exam
  *
