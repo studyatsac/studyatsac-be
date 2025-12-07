@@ -1133,7 +1133,7 @@ router.get(
 
 router.get(
     '/promos',
-    [tokenMiddleware],
+    [],
     require('../methods/v1/promotion/admin_list').getListPromos
 );
 
