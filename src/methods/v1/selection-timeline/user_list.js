@@ -8,7 +8,7 @@ exports.getListSelectionTimeline = async (req, res) => {
         const { query } = req;
         // Gunakan nilai default 1 dan 10 jika tidak ada, dan pastikan di-parse sebagai integer.
         const page = parseInt(query.page) || 1;
-        const limit = parseInt(query.limit) || 10;
+        const limit = parseInt(query.limit) || 999999999;
 
         // Buat objek input untuk service
         const input = {
