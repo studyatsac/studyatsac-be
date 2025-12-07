@@ -1132,6 +1132,12 @@ router.get(
 );
 
 router.get(
+    '/promos',
+    [tokenMiddleware],
+    require('../methods/v1/promotion/admin_list').getListPromos
+);
+
+router.get(
     '/admin/promos/:uuid',
     [tokenMiddleware, adminOnlyMiddleware],
     require('../methods/v1/promotion/admin_detail').getDetailPromo
