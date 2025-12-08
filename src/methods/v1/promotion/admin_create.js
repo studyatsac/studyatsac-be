@@ -6,7 +6,14 @@ exports.createPromo = async (req, res) => {
     const lang = Language.getLanguage(req.locale);
 
     try {
-        // 1. Ambil Data dari Body Request (req.body)
+        // 1. Validasi file upload (poster wajib ada)
+        if (!req.file) {
+            return res.status(400).json({
+                message: lang.PROMO?.FILE_REQUIRED || 'Poster file is required'
+            });
+        }
+
+        // 2. Ambil Data dari Body Request (req.body)
         const {
             promo_name,
             link_promo,
@@ -14,31 +21,31 @@ exports.createPromo = async (req, res) => {
             end_date
         } = req.body;
 
-        // 2. Panggil Service untuk Membuat Data
-        // Meneruskan data y    ang relevan dari body ke service
+        // 3. Panggil Service untuk Upload File dan Membuat Data
+        // File akan diupload ke Supabase dan linknya akan disimpan otomatis
         const result = await PromoService.createPromo({
             promo_name,
             link_promo,
             start_date,
             end_date,
-            file: req.file
-        }, { lang }); // Opsi `{ lang }` juga diteruskan
+            file: req.file // File akan diproses di service untuk upload
+        }, { lang });
 
-        // 3. Tangani Kegagalan dari Service (jika status-nya false)
+        // 4. Tangani Kegagalan dari Service (jika status-nya false)
         if (!result.status) {
             // Menggunakan kode status dan pesan yang dikembalikan oleh service
             return res.status(result.code).json({ message: result.message });
         }
 
-        // 4. Kirim Respons Sukses
-        // Service akan mengembalikan kode 201 (Created) jika berhasil
+        // 5. Kirim Respons Sukses
+        // Data akan berisi poster_link yang sudah diupload
         return res.status(result.code).json({
             code: result.code,
             message: result.message,
-            data: result.data // Mengembalikan data promo yang baru dibuat
+            data: result.data // Mengembalikan data promo dengan poster_link
         });
     } catch (err) {
-        // 5. Tangani Error Tak Terduga (Internal Server Error)
+        // 6. Tangani Error Tak Terduga (Internal Server Error)
         console.error('Error in createPromo controller:', err);
 
         // Menggunakan pesan bahasa untuk error 500
