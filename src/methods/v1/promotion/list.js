@@ -7,33 +7,27 @@ exports.getListPromos = async (req, res) => {
         // 1. Inisialisasi Bahasa
         lang = Language.getLanguage(req.locale);
 
-        // 2. Ambil parameter pagination dari query string
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        // 2. Panggil Service untuk Mendapatkan Semua Data
+        // Kita panggil service yang sesuai, misalnya `getAllPromos`
+        // Tidak ada input dari query (seperti page/limit) yang perlu dikirim.
+        const result = await PromoService.getAllActivePromos({}, { lang });
 
-        // 3. Panggil Service dengan pagination
-        const result = await PromoService.getAllActivePromosWithPagination({ page, limit }, { lang });
-
-        // 4. Tangani Kegagalan dari Service (misalnya, tidak ada data)
+        // 3. Tangani Kegagalan dari Service (misalnya, tidak ada data)
         if (!result.status) {
+            // Menggunakan kode status dari service (misalnya 404)
             return res.status(result.code).json({ message: result.message });
         }
 
-        // 5. Kirim Respons Sukses dengan pagination
+        // 4. Kirim Respons Sukses
+        // Karena tidak ada paginasi, kita langsung kirim array data.
         return res.status(200)
             .json({
                 code: result.code,
                 messages: result.message,
-                data: result.data.rows,
-                pagination: {
-                    total: result.data.count,
-                    page,
-                    limit,
-                    totalPages: Math.ceil(result.data.count / limit)
-                }
+                data: result.data // Langsung mengembalikan array promo
             });
     } catch (err) {
-        // 6. Tangani Error Internal Server (500)
+        // 5. Tangani Error Internal Server (500)
         console.error('Error in getListPromos controller:', err);
 
         const errorMessage = (lang && lang.INTERNAL_SERVER_ERROR)

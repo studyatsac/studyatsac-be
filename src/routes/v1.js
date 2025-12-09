@@ -1134,7 +1134,7 @@ router.get(
 router.get(
     '/promos',
     [],
-    require('../methods/v1/promotion/admin_list').getListPromos
+    require('../methods/v1/promotion/list').getListPromos
 );
 
 router.get(
