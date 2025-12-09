@@ -1,6 +1,7 @@
 const PromoRepository = require('../../repositories/mysql/promotion');
 const Response = require('../../utils/response');
 const supabase = require('../../utils/supabase');
+const Helpers = require('../../utils/helpers');
 
 const getAllActivePromos = async (input, opts = {}) => {
     const language = opts.lang;
@@ -25,6 +26,36 @@ const getAllActivePromos = async (input, opts = {}) => {
     } catch (error) {
         // Penanganan jika terjadi error di server.
         console.error('Error in getAllActivePromos service:', error);
+        return Response.formatServiceReturn(false, 500, null, language.PROMO.FAILED_LIST);
+    }
+};
+
+const getAllActivePromosWithPagination = async (input, opts = {}) => {
+    const language = opts.lang;
+
+    try {
+        const { page, limit } = input;
+
+        // Opsi untuk mengurutkan data dan pagination
+        const optionsClause = {
+            limit,
+            offset: Helpers.setOffset(page, limit),
+            order: [['created_at', 'desc']]
+        };
+
+        // Memanggil repository untuk mencari semua promo yang aktif dengan pagination.
+        const { rows, count } = await PromoRepository.findAndCountAllActivePromos(optionsClause);
+
+        // Jika tidak ada promo aktif yang ditemukan.
+        if (count === 0) {
+            return Response.formatServiceReturn(false, 404, null, language.PROMO.NOT_FOUND);
+        }
+
+        const data = { rows, count };
+        return Response.formatServiceReturn(true, 200, data, language.PROMO.SUCCESS_LIST);
+    } catch (error) {
+        // Penanganan jika terjadi error di server.
+        console.error('Error in getAllActivePromosWithPagination service:', error);
         return Response.formatServiceReturn(false, 500, null, language.PROMO.FAILED_LIST);
     }
 };
@@ -230,6 +261,7 @@ const deletePromo = async (input, opts = {}) => {
 
 module.exports = {
     getAllActivePromos,
+    getAllActivePromosWithPagination,
     getDetailPromo,
     createPromo,
     updatePromo,
