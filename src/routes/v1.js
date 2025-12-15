@@ -1085,6 +1085,12 @@ router.get(
     require('../methods/v1/certificate/detail').getDetailCertificateById
 );
 
+router.put(
+    '/admin/certificate/:certificate_id',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/certificate/admin_update').updateCertificate
+);
+
 router.delete(
     '/admin/certificate/delete/:certificate_id',
     [tokenMiddleware, adminOnlyMiddleware],

@@ -1,31 +1,66 @@
-const { getListCertificates } = require('../../../services/v1/certificate');
+const { Op } = require('sequelize');
+const CertificateRepository = require('../../../repositories/mysql/certificate');
+const logger = require('../../../utils/logger');
 
+/**
+ * Get list of all certificates with pagination and search (Admin only)
+ * GET /admin/certificate/list
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with paginated certificates
+ */
 exports.getListCertificates = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
+        // Get pagination parameters
+        const {
+            page = 1, limit = 10, search, order = 'desc', orderBy = 'created_at'
+        } = req.query;
+        const pageInt = parseInt(page, 10) || 1;
+        const limitInt = parseInt(limit, 10) || 10;
+        const offset = (pageInt - 1) * limitInt;
 
-        const result = await getListCertificates({
-            page: parseInt(page),
-            limit: parseInt(limit)
-        });
-
-        if (!result.status) {
-            return res.status(result.code).json({ message: result.message });
+        // Build where clause for search
+        const whereClause = {};
+        if (search) {
+            whereClause[Op.or] = [
+                { certificate_name: { [Op.like]: `%${search}%` } },
+                { certificate_number: { [Op.like]: `%${search}%` } },
+                { certificate_type: { [Op.like]: `%${search}%` } },
+                { '$user.full_name$': { [Op.like]: `%${search}%` } },
+                { '$user.email$': { [Op.like]: `%${search}%` } }
+            ];
         }
 
-        return res.status(result.code).json({
-            code: result.code,
-            message: result.message,
-            data: result.data.rows,
+        // Query certificates with pagination
+        const { rows, count } = await CertificateRepository.findAllAndCount(
+            whereClause,
+            {
+                offset,
+                limit: limitInt,
+                order: [[orderBy, order.toUpperCase()]],
+                distinct: true
+            }
+        );
+
+        logger.info(`Retrieved ${rows.length} certificates (page ${pageInt}, total: ${count})`);
+
+        return res.status(200).json({
+            status: 'success',
+            data: rows,
             meta: {
-                page: parseInt(page),
-                limit: parseInt(limit),
-                total_data: result.data.count,
-                total_page: Math.ceil(result.data.count / limit)
+                page: pageInt,
+                limit: limitInt,
+                total_data: count,
+                total_page: Math.ceil(count / limitInt)
             }
         });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        logger.error('Error fetching certificates list:', err);
+        return res.status(500).json({
+            status: 'error',
+            message: err.message || 'Internal server error'
+        });
     }
 };
 
