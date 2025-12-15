@@ -1,25 +1,43 @@
-const { deleteCertificate } = require('../../../services/v1/certificate');
+const CertificateRepository = require('../../../repositories/mysql/certificate');
+const logger = require('../../../utils/logger');
 
+/**
+ * Delete certificate by certificate ID (Admin only)
+ * DELETE /admin/certificate/delete/:certificate_id
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with success message
+ */
 exports.deleteCertificate = async (req, res) => {
     try {
         const { certificate_id } = req.params;
 
-        if (!certificate_id) {
-            return res.status(400).json({ message: 'Certificate ID is required.' });
+        // Check if certificate exists
+        const certificate = await CertificateRepository.findOneById(certificate_id);
+        if (!certificate) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Certificate not found'
+            });
         }
 
-        const result = await deleteCertificate(certificate_id);
+        // Delete certificate (soft delete)
+        await CertificateRepository.delete({ certificate_id });
 
-        if (!result.status) {
-            return res.status(result.code).json({ message: result.message });
-        }
+        logger.info(`Certificate deleted: ${certificate_id}`);
 
-        return res.status(result.code).json({
-            code: result.code,
-            message: result.message,
-            data: null
+        return res.status(200).json({
+            status: 'success',
+            message: 'Certificate deleted successfully'
         });
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        logger.error('Error deleting certificate:', err);
+        return res.status(500).json({
+            status: 'error',
+            message: err.message || 'Internal server error'
+        });
     }
 };
+
+module.exports = exports;
