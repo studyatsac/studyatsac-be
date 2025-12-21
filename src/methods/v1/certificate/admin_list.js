@@ -39,7 +39,8 @@ exports.getListCertificates = async (req, res) => {
                 offset,
                 limit: limitInt,
                 order: [[orderBy, order.toUpperCase()]],
-                distinct: true
+                distinct: true,
+                subQuery: false // Required when using $association.field$ in where clause
             }
         );
 
