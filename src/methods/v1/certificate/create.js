@@ -30,8 +30,9 @@ exports.createCertificate = async (req, res) => {
         }
 
         // Normalize field names (convert snake_case to camelCase if present)
+        // Also ensure userId is converted to integer if it comes as a string
         const normalized = {
-            userId: value.userId || value.user_id,
+            userId: parseInt(value.userId || value.user_id, 10),
             certificateName: value.certificateName || value.certificate_name,
             certificateType: value.certificateType || value.certificate_type,
             certificateNumber: value.certificateNumber || value.certificate_number,
