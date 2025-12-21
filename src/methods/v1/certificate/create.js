@@ -29,8 +29,26 @@ exports.createCertificate = async (req, res) => {
             });
         }
 
+        // Normalize field names (convert snake_case to camelCase if present)
+        const normalized = {
+            userId: value.userId || value.user_id,
+            certificateName: value.certificateName || value.certificate_name,
+            certificateType: value.certificateType || value.certificate_type,
+            certificateNumber: value.certificateNumber || value.certificate_number,
+            issuedDate: value.issuedDate || value.issued_date,
+            testDate: value.testDate || value.test_date,
+            validUntil: value.validUntil || value.valid_until,
+            listeningScore: value.listeningScore !== undefined ? value.listeningScore : value.listening_score,
+            structureScore: value.structureScore !== undefined ? value.structureScore : value.structure_score,
+            readingScore: value.readingScore !== undefined ? value.readingScore : value.reading_score,
+            overallScore: value.overallScore !== undefined ? value.overallScore : value.overall_score,
+            directorName: value.directorName || value.director_name,
+            certificateUrl: value.certificateUrl || value.certificate_url,
+            description: value.description
+        };
+
         // Check if user exists
-        const user = await UserRepository.findOne({ id: value.userId });
+        const user = await UserRepository.findOne({ id: normalized.userId });
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -41,20 +59,20 @@ exports.createCertificate = async (req, res) => {
         // Prepare certificate data
         const certificateData = {
             certificateId: uuidv4(),
-            userId: value.userId,
-            certificateName: value.certificateName,
-            certificateType: value.certificateType || null,
-            certificateNumber: value.certificateNumber || null,
-            issuedDate: value.issuedDate,
-            testDate: value.testDate || null,
-            validUntil: value.validUntil || null,
-            listeningScore: value.listeningScore || null,
-            structureScore: value.structureScore || null,
-            readingScore: value.readingScore || null,
-            overallScore: value.overallScore || null,
-            directorName: value.directorName || 'Riko Susiloputro',
-            certificateUrl: value.certificateUrl || null,
-            description: value.description || null
+            userId: normalized.userId,
+            certificateName: normalized.certificateName,
+            certificateType: normalized.certificateType || null,
+            certificateNumber: normalized.certificateNumber || null,
+            issuedDate: normalized.issuedDate,
+            testDate: normalized.testDate || null,
+            validUntil: normalized.validUntil || null,
+            listeningScore: normalized.listeningScore || null,
+            structureScore: normalized.structureScore || null,
+            readingScore: normalized.readingScore || null,
+            overallScore: normalized.overallScore || null,
+            directorName: normalized.directorName || 'Riko Susiloputro',
+            certificateUrl: normalized.certificateUrl || null,
+            description: normalized.description || null
         };
 
         // Create certificate
