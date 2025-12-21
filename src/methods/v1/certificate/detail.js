@@ -42,14 +42,14 @@ exports.getDetailCertificateById = async (req, res) => {
             }
         }
 
-        logger.info(`Retrieved certificate: ${certificate_id}`);
+        logger.logDebug(`Retrieved certificate: ${certificate_id}`);
 
         return res.status(200).json({
             status: 'success',
             data: certificate
         });
     } catch (err) {
-        logger.error('Error fetching certificate detail:', err);
+        logger.logError('Error fetching certificate detail:', err);
         return res.status(500).json({
             status: 'error',
             message: err.message || 'Internal server error'

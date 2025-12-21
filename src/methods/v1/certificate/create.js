@@ -22,7 +22,7 @@ exports.createCertificate = async (req, res) => {
         const { error, value } = schema.validate(req.body);
 
         if (error) {
-            logger.error('Certificate validation error:', error);
+            logger.logError('Certificate validation error:', error);
             return res.status(400).json({
                 status: 'error',
                 message: error.message
@@ -63,7 +63,7 @@ exports.createCertificate = async (req, res) => {
         // Fetch the created certificate with user info
         const createdCertificate = await CertificateRepository.findOneById(certificate.certificateId);
 
-        logger.info(`Certificate created: ${certificate.certificateId} for user: ${value.userId}`);
+        logger.logDebug(`Certificate created: ${certificate.certificateId} for user: ${value.userId}`);
 
         return res.status(201).json({
             status: 'success',
@@ -71,7 +71,7 @@ exports.createCertificate = async (req, res) => {
             data: createdCertificate
         });
     } catch (err) {
-        logger.error('Error creating certificate:', err);
+        logger.logError('Error creating certificate:', err);
         return res.status(500).json({
             status: 'error',
             message: err.message || 'Internal server error'

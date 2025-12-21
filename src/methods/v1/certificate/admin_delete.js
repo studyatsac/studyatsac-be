@@ -25,14 +25,14 @@ exports.deleteCertificate = async (req, res) => {
         // Delete certificate (soft delete)
         await CertificateRepository.delete({ certificate_id });
 
-        logger.info(`Certificate deleted: ${certificate_id}`);
+        logger.logDebug(`Certificate deleted: ${certificate_id}`);
 
         return res.status(200).json({
             status: 'success',
             message: 'Certificate deleted successfully'
         });
     } catch (err) {
-        logger.error('Error deleting certificate:', err);
+        logger.logError('Error deleting certificate:', err);
         return res.status(500).json({
             status: 'error',
             message: err.message || 'Internal server error'
