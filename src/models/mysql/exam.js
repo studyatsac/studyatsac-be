@@ -52,11 +52,8 @@ module.exports = (sequelize, DataTypes) => {
     const Exam = sequelize.define('Exam', attributes, options);
 
     Exam.associate = (models) => {
-        // Sebuah Exam bisa punya banyak Certificate
-        Exam.hasMany(models.Certificate, {
-            foreignKey: 'exam_id',
-            as: 'certificates'
-        });
+        // Association removed: Certificate table does not have exam_id column
+        // If you need to link Exams to Certificates in the future, add exam_id column to certificates table first
     };
 
     return Exam;
