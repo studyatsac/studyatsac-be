@@ -2,8 +2,6 @@ const Joi = require('joi');
 
 module.exports = function (lang) {
     return Joi.object({
-        userId: Joi.number().integer().positive().required()
-            .error(new Error('User ID is required and must be a positive integer')),
         certificateName: Joi.string().max(255).required()
             .error(new Error('Certificate name is required and must not exceed 255 characters')),
         certificateType: Joi.string().max(100).optional().allow('', null)
