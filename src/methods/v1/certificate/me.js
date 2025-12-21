@@ -70,7 +70,7 @@ exports.getMyCertificates = async (req, res) => {
             };
         }
 
-        logger.info(`Retrieved ${certificates.length}/${totalCertificates} certificates for authenticated user: ${userId}${paginationMeta ? ` (page ${page})` : ''}`);
+        logger.logDebug(`Retrieved ${certificates.length}/${totalCertificates} certificates for authenticated user: ${userId}${paginationMeta ? ` (page ${page})` : ''}`);
 
         // Build response
         const response = {
@@ -85,7 +85,7 @@ exports.getMyCertificates = async (req, res) => {
 
         return res.status(200).json(response);
     } catch (err) {
-        logger.error('Error fetching user certificates:', err);
+        logger.logError('Error fetching user certificates:', err);
         return res.status(500).json({
             status: 'error',
             message: err.message || 'Internal server error'

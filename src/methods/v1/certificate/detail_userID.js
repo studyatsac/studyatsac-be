@@ -34,14 +34,14 @@ exports.getAllCertificatesByUserId = async (req, res) => {
         // Get all certificates for the user
         const certificates = await CertificateRepository.findAllByUserID(parseInt(userid, 10));
 
-        logger.info(`Retrieved ${certificates.length} certificates for user: ${userid}`);
+        logger.logDebug(`Retrieved ${certificates.length} certificates for user: ${userid}`);
 
         return res.status(200).json({
             status: 'success',
             data: certificates
         });
     } catch (err) {
-        logger.error('Error fetching certificates by user ID:', err);
+        logger.logError('Error fetching certificates by user ID:', err);
         return res.status(500).json({
             status: 'error',
             message: err.message || 'Internal server error'

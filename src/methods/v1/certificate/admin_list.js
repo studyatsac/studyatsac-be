@@ -44,7 +44,7 @@ exports.getListCertificates = async (req, res) => {
             }
         );
 
-        logger.info(`Retrieved ${rows.length} certificates (page ${pageInt}, total: ${count})`);
+        logger.logDebug(`Retrieved ${rows.length} certificates (page ${pageInt}, total: ${count})`);
 
         return res.status(200).json({
             status: 'success',
@@ -57,7 +57,7 @@ exports.getListCertificates = async (req, res) => {
             }
         });
     } catch (err) {
-        logger.error('Error fetching certificates list:', err);
+        logger.logError('Error fetching certificates list:', err);
         return res.status(500).json({
             status: 'error',
             message: err.message || 'Internal server error'

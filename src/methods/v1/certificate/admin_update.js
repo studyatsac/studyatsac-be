@@ -31,7 +31,7 @@ exports.updateCertificate = async (req, res) => {
         const { error, value } = schema.validate(req.body);
 
         if (error) {
-            logger.error('Certificate update validation error:', error);
+            logger.logError('Certificate update validation error:', error);
             return res.status(400).json({
                 status: 'error',
                 message: error.message
@@ -75,7 +75,7 @@ exports.updateCertificate = async (req, res) => {
         // Fetch updated certificate
         const updatedCertificate = await CertificateRepository.findOneById(certificate_id);
 
-        logger.info(`Certificate updated: ${certificate_id}`);
+        logger.logDebug(`Certificate updated: ${certificate_id}`);
 
         return res.status(200).json({
             status: 'success',
@@ -83,7 +83,7 @@ exports.updateCertificate = async (req, res) => {
             data: updatedCertificate
         });
     } catch (err) {
-        logger.error('Error updating certificate:', err);
+        logger.logError('Error updating certificate:', err);
         return res.status(500).json({
             status: 'error',
             message: err.message || 'Internal server error'
