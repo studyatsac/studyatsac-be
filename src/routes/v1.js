@@ -1061,6 +1061,13 @@ router.post(
     require('../methods/v1/certificate/create').createCertificate
 );
 
+// Get current user's certificates (NEW ENDPOINT)
+router.get(
+    '/certificate/me',
+    [tokenMiddleware],
+    require('../methods/v1/certificate/me').getMyCertificates
+);
+
 router.get(
     '/certificate/:userid',
     [tokenMiddleware],
