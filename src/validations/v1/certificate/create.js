@@ -2,7 +2,10 @@ const Joi = require('joi');
 
 module.exports = function (lang) {
     return Joi.object({
-        certificate_name: Joi.string().max(255)
+        user_id: Joi.number().integer().positive().required()
+            .error(new Error('User ID is required and must be a positive integer')),
+
+        certificate_name: Joi.string().max(255).required()
             .error(new Error('Certificate name is required and must not exceed 255 characters')),
 
         certificate_type: Joi.string().max(100).optional().allow('', null)
@@ -11,20 +14,24 @@ module.exports = function (lang) {
         certificate_number: Joi.string().max(100).optional().allow('', null)
             .error(new Error('Certificate number must not exceed 100 characters')),
 
-        issued_date: Joi.date()
+        issued_date: Joi.date().required()
             .error(new Error('Issued date is required and must be a valid date')),
 
         test_date: Joi.date().optional().allow('', null)
             .error(new Error('Test date must be a valid date')),
+
         valid_until: Joi.date().optional().allow('', null)
             .error(new Error('Valid until must be a valid date')),
 
         listening_score: Joi.number().integer().min(0).optional().allow(null)
             .error(new Error('Listening score must be a non-negative integer')),
+
         structure_score: Joi.number().integer().min(0).optional().allow(null)
             .error(new Error('Structure score must be a non-negative integer')),
+
         reading_score: Joi.number().integer().min(0).optional().allow(null)
             .error(new Error('Reading score must be a non-negative integer')),
+
         overall_score: Joi.number().integer().min(0).optional().allow(null)
             .error(new Error('Overall score must be a non-negative integer')),
 
@@ -36,9 +43,5 @@ module.exports = function (lang) {
 
         description: Joi.string().optional().allow('', null)
             .error(new Error('Description must be a valid string'))
-    })
-        .oxor('userId', 'user_id')
-        .oxor('certificateName', 'certificate_name')
-        .oxor('issuedDate', 'issued_date')
-        .options({ convert: true });
+    }).options({ convert: true }); // Enable automatic type conversion
 };
