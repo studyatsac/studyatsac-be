@@ -1,10 +1,12 @@
 const CertificateRepository = require('../../../repositories/mysql/certificate');
 const logger = require('../../../utils/logger');
+const CertificateTransformer = require('../../../transformers/v1/certificate/list');
 
 /**
- * Get all certificates for the currently authenticated user
- * GET /certificate/me
- * GET /certificate/me?page=1&limit=10
+ * Get all certificates for the authenticated user
+ * Supports optional pagination via query parameters
+ *
+ * @route GET /certificate/me?page=1&limit=10
  *
  * This endpoint retrieves certificates directly from the authenticated user's session,
  * eliminating the need to expose user IDs in the frontend.
@@ -72,10 +74,13 @@ exports.getMyCertificates = async (req, res) => {
 
         logger.logDebug(`Retrieved ${certificates.length}/${totalCertificates} certificates for authenticated user: ${userId}${paginationMeta ? ` (page ${page})` : ''}`);
 
+        // Transform certificates to snake_case format
+        const transformedCertificates = CertificateTransformer.collection(certificates);
+
         // Build response
         const response = {
             status: 'success',
-            data: certificates
+            data: transformedCertificates
         };
 
         // Add pagination metadata if pagination was used

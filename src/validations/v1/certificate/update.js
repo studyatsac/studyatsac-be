@@ -4,8 +4,8 @@ module.exports = function (lang) {
     return Joi.object({
         userId: Joi.number().integer().positive().optional()
             .error(new Error('User ID must be a positive integer')),
-        certificateName: Joi.string().max(255).optional()
-            .error(new Error('Certificate name must not exceed 255 characters')),
+        examId: Joi.number().integer().positive().optional()
+            .error(new Error('Exam ID must be a positive integer')),
         certificateType: Joi.string().max(100).optional().allow('', null)
             .error(new Error('Certificate type must not exceed 100 characters')),
         certificateNumber: Joi.string().max(100).optional().allow('', null)

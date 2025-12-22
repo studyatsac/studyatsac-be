@@ -18,10 +18,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             field: 'user_id'
         },
-        certificateName: {
-            type: DataTypes.STRING(255),
+        examId: {
+            type: DataTypes.INTEGER().UNSIGNED,
             allowNull: false,
-            field: 'certificate_name'
+            field: 'exam_id'
         },
         certificateType: {
             type: DataTypes.STRING(100),
@@ -100,6 +100,12 @@ module.exports = (sequelize, DataTypes) => {
         Certificate.belongsTo(models.User, {
             foreignKey: 'user_id',
             as: 'user'
+        });
+
+        // A Certificate belongs to an Exam
+        Certificate.belongsTo(models.Exam, {
+            foreignKey: 'exam_id',
+            as: 'exam'
         });
     };
 

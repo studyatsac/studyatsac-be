@@ -24,6 +24,11 @@ exports.findAllByUserID = function (userId, trx = null) {
                 model: Models.User,
                 as: 'user',
                 attributes: ['id', 'uuid', 'full_name', 'email', 'photo_url', 'institution_name']
+            },
+            {
+                model: Models.Exam,
+                as: 'exam',
+                attributes: ['id', 'uuid', 'title', 'category_id', 'additional_information']
             }
         ],
         order: [['created_at', 'DESC']],
@@ -45,6 +50,11 @@ exports.findOneById = function (certificateId, trx = null) {
                 model: Models.User,
                 as: 'user',
                 attributes: ['id', 'uuid', 'full_name', 'email', 'photo_url', 'institution_name']
+            },
+            {
+                model: Models.Exam,
+                as: 'exam',
+                attributes: ['id', 'uuid', 'title', 'category_id', 'additional_information']
             }
         ],
         transaction: trx
@@ -61,12 +71,17 @@ exports.findOneById = function (certificateId, trx = null) {
 exports.findAllAndCount = function (where, opts = {}, trx = null) {
     const queryOpts = { where, ...opts, transaction: trx };
 
-    // Always include user information for admin list
+    // Always include user and exam information for admin list
     queryOpts.include = queryOpts.include || [];
     queryOpts.include.push({
         model: Models.User,
         as: 'user',
         attributes: ['id', 'uuid', 'full_name', 'email', 'photo_url', 'institution_name']
+    });
+    queryOpts.include.push({
+        model: Models.Exam,
+        as: 'exam',
+        attributes: ['id', 'uuid', 'title', 'category_id', 'additional_information']
     });
 
     return Models.Certificate.findAndCountAll(queryOpts);
@@ -103,13 +118,18 @@ exports.delete = function (where, trx = null) {
 exports.findOne = function (where, opts = {}, trx = null) {
     const queryOpts = { where, ...opts, transaction: trx };
 
-    // Include user information if not explicitly disabled
+    // Include user and exam information if not explicitly disabled
     if (!opts.excludeUser) {
         queryOpts.include = queryOpts.include || [];
         queryOpts.include.push({
             model: Models.User,
             as: 'user',
             attributes: ['id', 'uuid', 'full_name', 'email', 'photo_url', 'institution_name']
+        });
+        queryOpts.include.push({
+            model: Models.Exam,
+            as: 'exam',
+            attributes: ['id', 'uuid', 'title', 'category_id', 'additional_information']
         });
     }
 

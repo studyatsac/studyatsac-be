@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const CertificateRepository = require('../../../repositories/mysql/certificate');
 const UserRepository = require('../../../repositories/mysql/user');
+const ExamRepository = require('../../../repositories/mysql/exam');
 const validateSchema = require('../../../validations/v1/certificate/create');
 const Languages = require('../../../languages');
 const logger = require('../../../utils/logger');
@@ -30,10 +31,10 @@ exports.createCertificate = async (req, res) => {
         }
 
         // Normalize field names (convert snake_case to camelCase if present)
-        // Also ensure userId is converted to integer if it comes as a string
+        // Also ensure userId and examId are converted to integers
         const normalized = {
             userId: parseInt(value.userId || value.user_id, 10),
-            certificateName: value.certificateName || value.certificate_name,
+            examId: parseInt(value.examId || value.exam_id, 10),
             certificateType: value.certificateType || value.certificate_type,
             certificateNumber: value.certificateNumber || value.certificate_number,
             issuedDate: value.issuedDate || value.issued_date,
@@ -57,12 +58,26 @@ exports.createCertificate = async (req, res) => {
             });
         }
 
+        // Check if exam exists
+        const exam = await ExamRepository.findOne({ id: normalized.examId });
+        if (!exam) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Exam not found'
+            });
+        }
+
+        // Auto-populate certificate_type from exam if not provided
+        // This requires the exam's additional_information to contain exam_type or similar field
+        // For now, we'll just use what's provided or null
+        const certificateType = normalized.certificateType || null;
+
         // Prepare certificate data
         const certificateData = {
             certificateId: uuidv4(),
             userId: normalized.userId,
-            certificateName: normalized.certificateName,
-            certificateType: normalized.certificateType || null,
+            examId: normalized.examId,
+            certificateType,
             certificateNumber: normalized.certificateNumber || null,
             issuedDate: normalized.issuedDate,
             testDate: normalized.testDate || null,
