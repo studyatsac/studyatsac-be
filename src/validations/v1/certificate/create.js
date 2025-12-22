@@ -5,8 +5,8 @@ module.exports = function (lang) {
         user_id: Joi.number().integer().positive().required()
             .error(new Error('User ID is required and must be a positive integer')),
 
-        certificate_name: Joi.string().max(255).required()
-            .error(new Error('Certificate name is required and must not exceed 255 characters')),
+        exam_id: Joi.number().integer().positive().required()
+            .error(new Error('Exam ID is required and must be a positive integer')),
 
         certificate_type: Joi.string().max(100).optional().allow('', null)
             .error(new Error('Certificate type must not exceed 100 characters')),

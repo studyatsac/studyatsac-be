@@ -1,0 +1,173 @@
+Backend Prompt: Replace Certificate Name with Exam ID
+Context
+The frontend certificate form has been updated to use exam_id instead of certificate_name to link certificates directly to exams. The backend needs to be updated accordingly.
+
+Required Changes
+1. Database Schema Migration
+Update certificates table:
+
+Remove column: certificate_name (VARCHAR)
+Add column: exam_id (INTEGER, FOREIGN KEY to exams.id)
+Add foreign key constraint: FOREIGN KEY (exam_id) REFERENCES exams(id)
+Make exam_id NOT NULL
+Migration SQL:
+
+-- Add exam_id column
+ALTER TABLE certificates 
+ADD COLUMN exam_id INT;
+-- Update existing data (optional - map existing certificates to exams based on name/type)
+-- This step depends on your data - you may need custom logic
+-- Add foreign key constraint
+ALTER TABLE certificates 
+ADD CONSTRAINT fk_certificates_exam 
+FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE CASCADE;
+-- Make exam_id NOT NULL after data migration
+ALTER TABLE certificates 
+MODIFY exam_id INT NOT NULL;
+-- Remove old certificate_name column
+ALTER TABLE certificates 
+DROP COLUMN certificate_name;
+2. Backend Model Updates
+Update Certificate model (Sequelize/TypeORM/Prisma):
+
+Before:
+
+{
+  user_id: DataTypes.INTEGER,
+  certificate_name: DataTypes.STRING,
+  certificate_type: DataTypes.STRING,
+  // ...
+}
+After:
+
+{
+  user_id: DataTypes.INTEGER,
+  exam_id: DataTypes.INTEGER,  // NEW
+  certificate_type: DataTypes.STRING,
+  // ...
+}
+Add association:
+
+Certificate.belongsTo(Exam, { 
+  foreignKey: 'exam_id',
+  as: 'exam'
+});
+3. API Response Updates
+Update all certificate endpoints to include exam data:
+
+GET /certificate/me - User certificates:
+
+// Include exam data in response
+include: [{
+  model: Exam,
+  as: 'exam',
+  attributes: ['id', 'title', 'exam_name', 'exam_type']
+}]
+GET /certificate/user/:id - Certificate detail:
+
+// Same as above - include exam data
+GET /admin/certificate/list - Admin list:
+
+// Include exam data for display
+Expected Response Format (update from camelCase):
+
+{
+  "id": 1,
+  "certificateId": "uuid",
+  "userId": 4105,
+  "examId": 123,  // NEW
+  "exam": {       // NEW - nested exam data
+    "id": 123,
+    "title": "TOEFL ITP Prediction Test",
+    "examName": "TOEFL Test",
+    "examType": "TOEFL ITP PREDICTION"
+  },
+  // Remove: certificateName
+  "certificateType": "TOEFL ITP PREDICTION",
+  "certificateNumber": "11",
+  // ... rest of fields
+}
+4. Validation Updates
+POST /certificate - Create certificate:
+
+// Update validation
+const schema = Joi.object({
+  user_id: Joi.number().required(),
+  exam_id: Joi.number().required(),  // NEW - required
+  // Remove: certificate_name validation
+  certificate_type: Joi.string().optional(),
+  certificate_number: Joi.string().optional(),
+  // ... rest
+});
+PUT /admin/certificate/:id - Update certificate:
+
+// Same validation as create
+5. Business Logic Updates
+When creating certificates:
+
+// Get exam details to auto-populate certificate_type
+const exam = await Exam.findByPk(exam_id);
+if (!exam) {
+  throw new Error('Exam not found');
+}
+// Auto-set certificate_type from exam if not provided
+const certificate_type = req.body.certificate_type || exam.exam_type;
+const certificate = await Certificate.create({
+  user_id,
+  exam_id,
+  certificate_type,
+  // ...
+});
+6. Frontend Display Changes (Already Done)
+✅ Certificate form now uses exam autocomplete
+✅ Fetches exams from /admin/exams
+✅ Display format: "Title - Type"
+✅ Payload sends exam_id instead of certificate_name
+
+7. Migration Considerations
+Data Migration Strategy:
+
+If you have existing certificates, create a mapping between old certificate_name and exam_id
+Run migration script to populate exam_id based on mapping
+Verify all certificates have valid exam_id
+Drop certificate_name column
+Rollback Plan:
+
+-- If needed to rollback
+ALTER TABLE certificates ADD COLUMN certificate_name VARCHAR(255);
+-- Populate from exam.title where exam_id matches
+UPDATE certificates c
+JOIN exams e ON c.exam_id = e.id
+SET c.certificate_name = e.title;
+Testing Checklist
+After backend changes:
+
+ Create new certificate with exam_id - should work
+ View certificate detail - should show exam data
+ List user certificates - should show exam info
+ Edit certificate - should allow changing exam_id
+ Delete certificate - should work without constraints
+ Search/filter certificates by exam
+ Verify foreign key constraint prevents invalid exam_id
+API Endpoints to Update
+✅ POST /certificate - Create (accept exam_id)
+✅ GET /certificate/me - User list (return exam data)
+✅ GET /certificate/user/:id - Detail (return exam data)
+✅ PUT /admin/certificate/:id - Update (accept exam_id)
+✅ GET /admin/certificate/list - Admin list (return exam data)
+✅ GET /admin/certificate/:id - Admin detail (return exam data)
+Summary
+What changed:
+
+❌ Removed: certificate_name field
+✅ Added: exam_id field with FK to exams table
+✅ Added: exam association/include in responses
+✅ Updated: All endpoints to use exam_id
+✅ Updated: Validation schemas
+Why:
+
+Ensures certificates are linked to actual exams in database
+Prevents data inconsistency
+Allows tracking which exam a certificate was issued for
+Enables better reporting and filtering
+Frontend is ready - waiting for backend migration! 🚀

@@ -1,5 +1,6 @@
 const CertificateRepository = require('../../../repositories/mysql/certificate');
 const UserRepository = require('../../../repositories/mysql/user');
+const ExamRepository = require('../../../repositories/mysql/exam');
 const validateSchema = require('../../../validations/v1/certificate/update');
 const Languages = require('../../../languages');
 const logger = require('../../../utils/logger');
@@ -49,10 +50,21 @@ exports.updateCertificate = async (req, res) => {
             }
         }
 
+        // If examId is being changed, verify the new exam exists
+        if (value.examId && value.examId !== existingCertificate.examId) {
+            const exam = await ExamRepository.findOne({ id: value.examId });
+            if (!exam) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: 'Exam not found'
+                });
+            }
+        }
+
         // Prepare update data (only include fields that were provided)
         const updateData = {};
         if (value.userId !== undefined) updateData.userId = value.userId;
-        if (value.certificateName !== undefined) updateData.certificateName = value.certificateName;
+        if (value.examId !== undefined) updateData.examId = value.examId;
         if (value.certificateType !== undefined) updateData.certificateType = value.certificateType;
         if (value.certificateNumber !== undefined) updateData.certificateNumber = value.certificateNumber;
         if (value.issuedDate !== undefined) updateData.issuedDate = value.issuedDate;
