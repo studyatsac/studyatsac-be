@@ -1201,13 +1201,13 @@ router.delete(
 
 router.get(
     '/scholarship/:id',
-    [tokenMiddleware, adminOnlyMiddleware],
+    [],
     require('../methods/v1/scholarship/detail').getScholarshipDetail
 );
 
 router.get(
     '/scholarship',
-    [tokenMiddleware],
+    [],
     require('../methods/v1/scholarship/list').getScholarshipListPublic
 );
 
