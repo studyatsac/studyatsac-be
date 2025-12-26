@@ -8,12 +8,14 @@ exports.getScholarshipCalendarByMonth = async (req, res) => {
 
         const month = req.query.month || null;
         const year = req.query.year || null;
-        const scholarship_id = req.query.scholarship_id ? parseInt(req.query.scholarship_id) : null;
-        const event_type = req.query.event_type || null;
-        const status = req.query.status || null;
+        const scholarship_id = req.query.scholarship_id || null;
+        const level = req.query.level || null;
+        const type = req.query.type || null;
+        const country = req.query.country || null;
+        const status = req.query.status ? parseInt(req.query.status) : null;
 
         const input = {
-            month, year, scholarship_id, event_type, status
+            month, year, scholarship_id, level, type, country, status
         };
 
         const result = await ScholarshipCalendarService.getScholarshipCalendarByMonth(input, { lang });
