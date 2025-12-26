@@ -10,8 +10,11 @@ exports.getScholarshipListPublic = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const month = req.query.month ? parseInt(req.query.month) : null;
+        const search = req.query.search || null;
 
-        const input = { page, limit, month };
+        const input = {
+            page, limit, month, search
+        };
 
         const result = await ScholarshipService.getScholarshipListPublic(input, { lang });
 

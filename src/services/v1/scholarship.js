@@ -45,7 +45,9 @@ const getScholarshipDetail = async (input, opts = {}) => {
 const getScholarshipListPublic = async (input, opts = {}) => {
     const language = opts.lang;
     try {
-        const { page, limit, month } = input;
+        const {
+            page, limit, month, search
+        } = input;
 
         // Filter default: hanya tampilkan beasiswa yang aktif
         const whereClause = { status: 1 };
@@ -58,6 +60,15 @@ const getScholarshipListPublic = async (input, opts = {}) => {
             whereClause.open_date = {
                 [Op.between]: [startDate, endDate]
             };
+        }
+
+        // Logika filter search
+        if (search) {
+            whereClause[Op.or] = [
+                { scholarship_name: { [Op.like]: `%${search}%` } },
+                { university: { [Op.like]: `%${search}%` } },
+                { country: { [Op.like]: `%${search}%` } }
+            ];
         }
 
         const optionsClause = {
