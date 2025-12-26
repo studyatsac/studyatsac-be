@@ -1,7 +1,7 @@
 -- Create "scholarship_calendar" table
 CREATE TABLE `scholarship_calendar` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `scholarship_id` int NOT NULL COMMENT 'Foreign key to scholarships table',
+  `scholarship_id` varchar(36) NOT NULL COMMENT 'Foreign key to scholarships table (uuid)',
   `title` varchar(255) NOT NULL COMMENT 'Event title (e.g., Registration Period, Interview Schedule)',
   `description` text NULL COMMENT 'Detailed description of the event',
   `start_date` datetime NOT NULL COMMENT 'Event start date and time',
@@ -21,5 +21,5 @@ CREATE TABLE `scholarship_calendar` (
   INDEX `idx_status` (`status`),
   INDEX `idx_start_date` (`start_date`),
   INDEX `idx_end_date` (`end_date`),
-  CONSTRAINT `fk_scholarship_calendar_scholarship_id` FOREIGN KEY (`scholarship_id`) REFERENCES `scholarships` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+  CONSTRAINT `fk_scholarship_calendar_scholarship_id` FOREIGN KEY (`scholarship_id`) REFERENCES `scholarships` (`uuid`) ON UPDATE CASCADE ON DELETE CASCADE
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT='Stores scholarship calendar events';

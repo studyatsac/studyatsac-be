@@ -61,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
 
         Scholarships.hasMany(models.ScholarshipCalendar, {
             foreignKey: 'scholarship_id',
-            sourceKey: 'id',
+            sourceKey: 'uuid',
             as: 'calendar_events'
         });
     };
