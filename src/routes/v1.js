@@ -1211,6 +1211,13 @@ router.get(
     require('../methods/v1/scholarship/list').getScholarshipListPublic
 );
 
+// scholarship-calendar (Public endpoint - Calendar view only)
+router.get(
+    '/scholarship-calendar/calendar',
+    [],
+    require('../methods/v1/scholarship-calendar/calendar').getScholarshipCalendarByMonth
+);
+
 // placement test
 router.get(
     '/admin/placement-tests',
