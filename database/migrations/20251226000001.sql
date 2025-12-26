@@ -1,0 +1,25 @@
+-- Create "scholarship_calendar" table
+CREATE TABLE `scholarship_calendar` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `scholarship_id` int NOT NULL COMMENT 'Foreign key to scholarships table',
+  `title` varchar(255) NOT NULL COMMENT 'Event title (e.g., Registration Period, Interview Schedule)',
+  `description` text NULL COMMENT 'Detailed description of the event',
+  `start_date` datetime NOT NULL COMMENT 'Event start date and time',
+  `end_date` datetime NOT NULL COMMENT 'Event end date and time',
+  `registration_deadline` datetime NULL COMMENT 'Registration deadline (optional)',
+  `announcement_date` datetime NULL COMMENT 'Announcement date (optional)',
+  `event_type` enum('registration', 'deadline', 'announcement', 'interview', 'exam', 'other') NOT NULL DEFAULT 'other' COMMENT 'Type of event',
+  `location` varchar(255) NULL COMMENT 'Event location (if offline)',
+  `is_online` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Whether event is online or offline',
+  `url` varchar(500) NULL COMMENT 'Related URL (registration form, meeting link, etc.)',
+  `status` enum('upcoming', 'ongoing', 'completed', 'cancelled') NOT NULL DEFAULT 'upcoming' COMMENT 'Event status',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_scholarship_id` (`scholarship_id`),
+  INDEX `idx_event_type` (`event_type`),
+  INDEX `idx_status` (`status`),
+  INDEX `idx_start_date` (`start_date`),
+  INDEX `idx_end_date` (`end_date`),
+  CONSTRAINT `fk_scholarship_calendar_scholarship_id` FOREIGN KEY (`scholarship_id`) REFERENCES `scholarships` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT='Stores scholarship calendar events';

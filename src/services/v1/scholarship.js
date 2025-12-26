@@ -142,12 +142,12 @@ const updateScholarship = async (input, opts = {}) => {
                 type: input.type,
                 country: input.country,
                 university: input.university,
-                status: input.status,
+                status: input.status
             };
             const detailData = {
                 description: input.description,
                 requirement: input.requirement,
-                benefit: input.benefit,
+                benefit: input.benefit
             };
 
             // 3. Panggil repository untuk update kedua tabel
@@ -193,4 +193,3 @@ module.exports = {
     getScholarshipDetail,
     getScholarshipListPublic
 };
-

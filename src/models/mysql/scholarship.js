@@ -58,6 +58,12 @@ module.exports = (sequelize, DataTypes) => {
             sourceKey: 'uuid', // Menentukan bahwa foreign key merujuk ke 'uuid'
             as: 'details'
         });
+
+        Scholarships.hasMany(models.ScholarshipCalendar, {
+            foreignKey: 'scholarship_id',
+            sourceKey: 'id',
+            as: 'calendar_events'
+        });
     };
 
     return Scholarships;
