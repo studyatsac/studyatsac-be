@@ -7,9 +7,9 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         scholarship_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING(36),
             allowNull: false,
-            comment: 'Foreign key to scholarships table'
+            comment: 'Foreign key to scholarships table (uuid)'
         },
         title: {
             type: DataTypes.STRING(255),
@@ -91,7 +91,7 @@ module.exports = (sequelize, DataTypes) => {
     ScholarshipCalendar.associate = function (models) {
         ScholarshipCalendar.belongsTo(models.Scholarships, {
             foreignKey: 'scholarship_id',
-            targetKey: 'id',
+            targetKey: 'uuid',
             as: 'scholarship'
         });
     };
