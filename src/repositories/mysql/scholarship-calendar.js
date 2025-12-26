@@ -1,72 +1,48 @@
+''`javascript
 const Models = require('../../models/mysql');
-
-exports.create = async function (data, trx = null) {
-    return Models.ScholarshipCalendar.create(data, { transaction: trx });
-};
-
-exports.findOne = function (where, opts = {}, trx = null) {
-    return Models.ScholarshipCalendar.findOne({
-        where,
-        include: [{
-            model: Models.Scholarships,
-            as: 'scholarship',
-            attributes: ['id', 'uuid', 'scholarship_name', 'open_date', 'closed_date', 'level', 'type', 'country', 'university'],
-            include: [{
-                model: Models.ScholarshipDetails,
-                as: 'details',
-                attributes: ['description', 'requirement', 'benefit']
-            }]
-        }],
-        ...opts,
-        transaction: trx
-    });
-};
-
-exports.findAndCountAll = function (where, opts = {}, trx = null) {
-    return Models.ScholarshipCalendar.findAndCountAll({
-        where,
-        include: [{
-            model: Models.Scholarships,
-            as: 'scholarship',
-            attributes: ['id', 'uuid', 'scholarship_name', 'open_date', 'closed_date', 'level', 'type', 'country', 'university']
-        }],
-        ...opts,
-        transaction: trx
-    });
-};
 
 exports.findByMonth = function (month, year, filters = {}, opts = {}, trx = null) {
     const { Op } = require('sequelize');
-
+    
     // Create date range for the specified month
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59);
-
+    
     const whereClause = {
         ...filters,
-        start_date: {
-            [Op.between]: [startOfMonth, endOfMonth]
-        }
+        [Op.or]: [
+            // Beasiswa yang dibuka di bulan ini
+            {
+                open_date: {
+                    [Op.between]: [startOfMonth, endOfMonth]
+                }
+            },
+            // Beasiswa yang ditutup di bulan ini
+            {
+                closed_date: {
+                    [Op.between]: [startOfMonth, endOfMonth]
+                }
+            },
+            // Beasiswa yang sedang berjalan di bulan ini (dibuka sebelumnya, tutup setelahnya)
+            {
+                [Op.and]: [
+                    { open_date: { [Op.lte]: endOfMonth } },
+                    { closed_date: { [Op.gte]: startOfMonth } }
+                ]
+            }
+        ]
     };
-
-    return Models.ScholarshipCalendar.findAll({
+    
+    return Models.Scholarships.findAll({
         where: whereClause,
         include: [{
-            model: Models.Scholarships,
-            as: 'scholarship',
-            attributes: ['id', 'uuid', 'scholarship_name', 'open_date', 'closed_date', 'level', 'type', 'country', 'university']
+            model: Models.ScholarshipDetails,
+            as: 'details'
         }],
         ...opts,
         transaction: trx
     });
 };
 
-exports.update = function (payload, where, trx = null) {
-    return Models.ScholarshipCalendar.update(payload, { where, transaction: trx });
-};
-
-exports.delete = function (where, trx = null) {
-    return Models.ScholarshipCalendar.destroy({ where, transaction: trx });
-};
-
 module.exports = exports;
+```;
