@@ -1,13 +1,12 @@
-''`javascript
 const Models = require('../../models/mysql');
 
 exports.findByMonth = function (month, year, filters = {}, opts = {}, trx = null) {
     const { Op } = require('sequelize');
-    
+
     // Create date range for the specified month
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59);
-    
+
     const whereClause = {
         ...filters,
         [Op.or]: [
@@ -32,7 +31,7 @@ exports.findByMonth = function (month, year, filters = {}, opts = {}, trx = null
             }
         ]
     };
-    
+
     return Models.Scholarships.findAll({
         where: whereClause,
         include: [{
@@ -45,4 +44,3 @@ exports.findByMonth = function (month, year, filters = {}, opts = {}, trx = null
 };
 
 module.exports = exports;
-```;
