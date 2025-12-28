@@ -10,6 +10,8 @@ exports.updateScholarship = async (req, res) => {
             ...req.body
         };
 
+        console.log('Update Scholarship Input:', JSON.stringify(input, null, 2));
+
         const result = await ScholarshipService.updateScholarship(input, { lang });
 
         if (!result.status) {
