@@ -1200,6 +1200,12 @@ router.delete(
 );
 
 router.get(
+    '/scholarship/filter-options',
+    [],
+    require('../methods/v1/scholarship/filter_options').getScholarshipFilterOptions
+);
+
+router.get(
     '/scholarship/:id',
     [],
     require('../methods/v1/scholarship/detail').getScholarshipDetail
@@ -1209,12 +1215,6 @@ router.get(
     '/scholarship',
     [],
     require('../methods/v1/scholarship/list').getScholarshipListPublic
-);
-
-router.get(
-    '/scholarship/filter-options',
-    [],
-    require('../methods/v1/scholarship/filter_options').getScholarshipFilterOptions
 );
 
 // scholarship-calendar (Public endpoint - Calendar view only)
