@@ -1211,6 +1211,12 @@ router.get(
     require('../methods/v1/scholarship/list').getScholarshipListPublic
 );
 
+router.get(
+    '/scholarship/filter-options',
+    [],
+    require('../methods/v1/scholarship/filter_options').getScholarshipFilterOptions
+);
+
 // scholarship-calendar (Public endpoint - Calendar view only)
 router.get(
     '/scholarship-calendar/calendar',
