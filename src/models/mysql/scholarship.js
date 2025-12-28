@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        application_link: {
+            type: DataTypes.STRING(500),
+            allowNull: true
+        },
         status: {
             type: DataTypes.TINYINT,
             allowNull: false,
