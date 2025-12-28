@@ -214,23 +214,35 @@ const deleteScholarship = async (input, opts = {}) => {
 const getScholarshipFilterOptions = async (opts = {}) => {
     const language = opts.lang;
     try {
-        // Ambil distinct values untuk setiap filter
+        // Ambil distinct values menggunakan GROUP BY
         const types = await ScholarshipRepository.findAll(
-            { status: 1 },
-            { attributes: [[sequelize.fn('DISTINCT', sequelize.col('type')), 'type']], raw: true }
+            { status: 1, type: { [Op.ne]: null } },
+            {
+                attributes: ['type'],
+                group: ['type'],
+                raw: true
+            }
         );
 
         const countries = await ScholarshipRepository.findAll(
-            { status: 1 },
-            { attributes: [[sequelize.fn('DISTINCT', sequelize.col('country')), 'country']], raw: true }
+            { status: 1, country: { [Op.ne]: null } },
+            {
+                attributes: ['country'],
+                group: ['country'],
+                raw: true
+            }
         );
 
         const levels = await ScholarshipRepository.findAll(
-            { status: 1 },
-            { attributes: [[sequelize.fn('DISTINCT', sequelize.col('level')), 'level']], raw: true }
+            { status: 1, level: { [Op.ne]: null } },
+            {
+                attributes: ['level'],
+                group: ['level'],
+                raw: true
+            }
         );
 
-        // Filter null values dan extract values saja
+        // Extract dan sort values
         const filterOptions = {
             types: types.map((t) => t.type).filter(Boolean).sort(),
             countries: countries.map((c) => c.country).filter(Boolean).sort(),
