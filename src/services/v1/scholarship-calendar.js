@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const ScholarshipCalendarRepository = require('../../repositories/mysql/scholarship-calendar');
 const Response = require('../../utils/response');
 
@@ -15,10 +16,18 @@ const getScholarshipCalendarByMonth = async (input, opts = {}) => {
 
         const filters = {};
         if (scholarship_id) filters.uuid = scholarship_id;
-        if (level) filters.level = level;
-        if (type) filters.type = type;
-        if (country) filters.country = country;
-        if (status) filters.status = status;
+        if (status !== null && status !== undefined) filters.status = status;
+
+        // Filter dengan array menggunakan Op.in
+        if (type && type.length > 0) {
+            filters.type = { [Op.in]: type };
+        }
+        if (country && country.length > 0) {
+            filters.country = { [Op.in]: country };
+        }
+        if (level && level.length > 0) {
+            filters.level = { [Op.in]: level };
+        }
 
         const scholarships = await ScholarshipCalendarRepository.findByMonth(
             parseInt(month),

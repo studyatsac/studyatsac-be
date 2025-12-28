@@ -31,7 +31,7 @@ const getScholarshipListAdmin = async (input, opts = {}) => {
 const getScholarshipDetail = async (input, opts = {}) => {
     const language = opts.lang;
     try {
-        const scholarship = await ScholarshipRepository.findOne({ uuid: input.uuid, status: 1 }); // Hanya tampilkan yang aktif
+        const scholarship = await ScholarshipRepository.findOne({ uuid: input.uuid }); // Tampilkan baik aktif maupun tidak aktif
         if (!scholarship) {
             return Response.formatServiceReturn(false, 404, null, language.SCHOLARSHIP.NOT_FOUND);
         }
@@ -46,7 +46,7 @@ const getScholarshipListPublic = async (input, opts = {}) => {
     const language = opts.lang;
     try {
         const {
-            page, limit, month, search
+            page, limit, month, search, type, country, level
         } = input;
 
         // Filter default: hanya tampilkan beasiswa yang aktif
@@ -69,6 +69,21 @@ const getScholarshipListPublic = async (input, opts = {}) => {
                 { university: { [Op.like]: `%${search}%` } },
                 { country: { [Op.like]: `%${search}%` } }
             ];
+        }
+
+        // Logika filter type (Fully Funded, Partially Funded, Exchange, Internship)
+        if (type && type.length > 0) {
+            whereClause.type = { [Op.in]: type };
+        }
+
+        // Logika filter country/region (Asia, Eropa, Amerika, Australia dan Oceania)
+        if (country && country.length > 0) {
+            whereClause.country = { [Op.in]: country };
+        }
+
+        // Logika filter level (S1, S2, S3)
+        if (level && level.length > 0) {
+            whereClause.level = { [Op.in]: level };
         }
 
         const optionsClause = {
@@ -196,11 +211,45 @@ const deleteScholarship = async (input, opts = {}) => {
     }
 };
 
+const getScholarshipFilterOptions = async (opts = {}) => {
+    const language = opts.lang;
+    try {
+        // Ambil distinct values untuk setiap filter
+        const types = await ScholarshipRepository.findAll(
+            { status: 1 },
+            { attributes: [[sequelize.fn('DISTINCT', sequelize.col('type')), 'type']], raw: true }
+        );
+
+        const countries = await ScholarshipRepository.findAll(
+            { status: 1 },
+            { attributes: [[sequelize.fn('DISTINCT', sequelize.col('country')), 'country']], raw: true }
+        );
+
+        const levels = await ScholarshipRepository.findAll(
+            { status: 1 },
+            { attributes: [[sequelize.fn('DISTINCT', sequelize.col('level')), 'level']], raw: true }
+        );
+
+        // Filter null values dan extract values saja
+        const filterOptions = {
+            types: types.map((t) => t.type).filter(Boolean).sort(),
+            countries: countries.map((c) => c.country).filter(Boolean).sort(),
+            levels: levels.map((l) => l.level).filter(Boolean).sort()
+        };
+
+        return Response.formatServiceReturn(true, 200, filterOptions, language.SCHOLARSHIP.SUCCESS_GET_FILTER_OPTIONS || 'Filter options retrieved successfully');
+    } catch (error) {
+        console.error('Error in getScholarshipFilterOptions service:', error);
+        return Response.formatServiceReturn(false, 500, null, language.SCHOLARSHIP.FAILED_GET_FILTER_OPTIONS || 'Failed to retrieve filter options');
+    }
+};
+
 module.exports = {
     createScholarship,
     updateScholarship,
     deleteScholarship,
     getScholarshipListAdmin,
     getScholarshipDetail,
-    getScholarshipListPublic
+    getScholarshipListPublic,
+    getScholarshipFilterOptions
 };

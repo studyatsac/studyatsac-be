@@ -12,8 +12,24 @@ exports.getScholarshipListPublic = async (req, res) => {
         const month = req.query.month ? parseInt(req.query.month) : null;
         const search = req.query.search || null;
 
+        // Filter tambahan: type, country, level (dapat berupa array atau string tunggal)
+        let type = null;
+        if (req.query.type) {
+            type = Array.isArray(req.query.type) ? req.query.type : [req.query.type];
+        }
+
+        let country = null;
+        if (req.query.country) {
+            country = Array.isArray(req.query.country) ? req.query.country : [req.query.country];
+        }
+
+        let level = null;
+        if (req.query.level) {
+            level = Array.isArray(req.query.level) ? req.query.level : [req.query.level];
+        }
+
         const input = {
-            page, limit, month, search
+            page, limit, month, search, type, country, level
         };
 
         const result = await ScholarshipService.getScholarshipListPublic(input, { lang });

@@ -9,10 +9,23 @@ exports.getScholarshipCalendarByMonth = async (req, res) => {
         const month = req.query.month || null;
         const year = req.query.year || null;
         const scholarship_id = req.query.scholarship_id || null;
-        const level = req.query.level || null;
-        const type = req.query.type || null;
-        const country = req.query.country || null;
         const status = req.query.status ? parseInt(req.query.status) : null;
+
+        // Filter tambahan: type, country, level (dapat berupa array atau string tunggal)
+        let type = null;
+        if (req.query.type) {
+            type = Array.isArray(req.query.type) ? req.query.type : [req.query.type];
+        }
+
+        let country = null;
+        if (req.query.country) {
+            country = Array.isArray(req.query.country) ? req.query.country : [req.query.country];
+        }
+
+        let level = null;
+        if (req.query.level) {
+            level = Array.isArray(req.query.level) ? req.query.level : [req.query.level];
+        }
 
         const input = {
             month, year, scholarship_id, level, type, country, status
