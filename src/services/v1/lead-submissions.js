@@ -31,7 +31,9 @@ const createLeadSubmission = async (input, opts = {}) => {
 
 const getLeadSubmissions = async (filters, opts = {}) => {
     const language = opts.lang;
-    const { page = 1, limit = 10 } = opts;
+    const {
+        page = 1, limit = 10, order = 'desc', orderBy = 'created_at'
+    } = opts;
 
     try {
         const offset = (page - 1) * limit;
@@ -41,10 +43,24 @@ const getLeadSubmissions = async (filters, opts = {}) => {
         if (filters.source) where.source = filters.source;
         if (filters.whatsapp_number) where.whatsapp_number = filters.whatsapp_number;
 
+        // Handle search parameter
+        let searchCondition = null;
+        if (filters.search) {
+            searchCondition = filters.search;
+        }
+
+        // Determine order direction (ASC or DESC)
+        const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+        // Validate orderBy field to prevent SQL injection
+        const allowedOrderFields = ['id', 'whatsapp_number', 'selected_program', 'source', 'status', 'created_at', 'updated_at'];
+        const orderField = allowedOrderFields.includes(orderBy) ? orderBy : 'created_at';
+
         const result = await LeadSubmissionsRepository.findAndCountAll(where, {
             limit,
             offset,
-            order: [['created_at', 'DESC']]
+            order: [[orderField, orderDirection]],
+            search: searchCondition
         });
 
         const pagination = {

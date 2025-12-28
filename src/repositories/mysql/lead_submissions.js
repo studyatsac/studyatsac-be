@@ -17,7 +17,23 @@ exports.findAll = function (where, opts = {}, trx = null) {
 };
 
 exports.findAndCountAll = function (where = {}, opts = {}, trx = null) {
-    return Models.LeadSubmissions.findAndCountAll({ where, ...opts, transaction: trx });
+    const { search, ...otherOpts } = opts;
+
+    let whereClause = { ...where };
+
+    // If search parameter exists, add OR condition to search across multiple fields
+    if (search) {
+        const { Op } = require('sequelize');
+        whereClause = {
+            ...whereClause,
+            [Op.or]: [
+                { whatsapp_number: { [Op.like]: `%${search}%` } },
+                { selected_program: { [Op.like]: `%${search}%` } }
+            ]
+        };
+    }
+
+    return Models.LeadSubmissions.findAndCountAll({ where: whereClause, ...otherOpts, transaction: trx });
 };
 
 exports.countAll = function (where = {}, trx = null) {
