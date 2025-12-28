@@ -13,17 +13,23 @@ exports.getLeadSubmissions = async (req, res) => {
             limit = 10,
             status,
             source,
-            whatsapp_number
+            whatsapp_number,
+            search,
+            order = 'desc',
+            orderBy = 'created_at'
         } = req.query;
 
         const filters = {};
         if (status) filters.status = status;
         if (source) filters.source = source;
         if (whatsapp_number) filters.whatsapp_number = whatsapp_number;
+        if (search) filters.search = search;
 
         const result = await LeadSubmissionsService.getLeadSubmissions(filters, {
             page: parseInt(page),
             limit: parseInt(limit),
+            order,
+            orderBy,
             lang
         });
 
@@ -33,7 +39,12 @@ exports.getLeadSubmissions = async (req, res) => {
 
         return res.status(200).json({
             data: result.data,
-            pagination: result.pagination,
+            meta: {
+                total_data: result.pagination.total,
+                page: result.pagination.page,
+                limit: result.pagination.limit,
+                total_pages: result.pagination.totalPages
+            },
             message: ''
         });
     } catch (err) {
