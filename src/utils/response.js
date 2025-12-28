@@ -1,5 +1,5 @@
-const formatServiceReturn = (status, code, data = null, message = null) => ({
-    status, code, data, message
+const formatServiceReturn = (status, code, data = null, message = null, pagination = null) => ({
+    status, code, data, message, pagination
 });
 
 exports.formatServiceReturn = formatServiceReturn;
