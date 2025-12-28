@@ -34,6 +34,14 @@ exports.findAndCountAll = function (where, opts = {}, trx = null) {
     });
 };
 
+exports.findAll = function (where, opts = {}, trx = null) {
+    return Models.Scholarships.findAll({
+        where,
+        ...opts,
+        transaction: trx
+    });
+};
+
 exports.update = function (payload, where, trx = null) {
     return Models.Scholarships.update(payload, { where, transaction: trx });
 };
