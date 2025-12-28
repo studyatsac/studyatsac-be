@@ -50,6 +50,10 @@ exports.updateDetails = function (payload, where, trx = null) {
     return Models.ScholarshipDetails.update(payload, { where, transaction: trx });
 };
 
+exports.createDetails = function (detailData, trx = null) {
+    return Models.ScholarshipDetails.create(detailData, { transaction: trx });
+};
+
 exports.delete = function (where, trx = null) {
     return Models.Scholarships.destroy({ where, transaction: trx });
 };

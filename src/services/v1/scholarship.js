@@ -183,11 +183,18 @@ const updateScholarship = async (input, opts = {}) => {
             const scholarshipUpdateResult = await ScholarshipRepository.update(scholarshipData, { uuid }, trx);
             console.log('Scholarship update result:', scholarshipUpdateResult);
 
+            // 4. Upsert details - jika tidak ada, create; jika ada, update
             const detailUpdateResult = await ScholarshipRepository.updateDetails(detailData, { scholarship_id: uuid }, trx);
             console.log('Detail update result:', detailUpdateResult);
-            console.log('Detail update where clause:', { scholarship_id: uuid });
 
-            // 4. Ambil data terbaru untuk dikembalikan
+            // Jika tidak ada row yang di-update (detail belum ada), maka insert
+            if (detailUpdateResult[0] === 0) {
+                console.log('Detail tidak ada, creating new detail...');
+                detailData.scholarship_id = uuid;
+                await ScholarshipRepository.createDetails(detailData, trx);
+            }
+
+            // 5. Ambil data terbaru untuk dikembalikan
             const updatedScholarship = await ScholarshipRepository.findOne({ uuid }, {}, trx);
 
             return Response.formatServiceReturn(true, 200, updatedScholarship, language.SCHOLARSHIP.UPDATE_SUCCESS);
