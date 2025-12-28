@@ -119,6 +119,7 @@ const createScholarship = async (input, opts = {}) => {
                 type: input.type,
                 country: input.country,
                 university: input.university,
+                application_link: input.application_link,
                 status: input.status
             };
 
@@ -168,6 +169,7 @@ const updateScholarship = async (input, opts = {}) => {
                 type: input.type,
                 country: input.country,
                 university: input.university,
+                application_link: input.application_link,
                 status: input.status
             };
             const detailData = {
