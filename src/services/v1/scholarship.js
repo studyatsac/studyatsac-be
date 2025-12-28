@@ -176,6 +176,9 @@ const updateScholarship = async (input, opts = {}) => {
                 benefit: input.benefit
             };
 
+            console.log('scholarshipData:', JSON.stringify(scholarshipData, null, 2));
+            console.log('detailData:', JSON.stringify(detailData, null, 2));
+
             // 3. Panggil repository untuk update kedua tabel
             await ScholarshipRepository.update(scholarshipData, { uuid }, trx);
             await ScholarshipRepository.updateDetails(detailData, { scholarship_id: uuid }, trx);
