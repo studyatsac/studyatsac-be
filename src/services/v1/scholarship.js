@@ -180,8 +180,12 @@ const updateScholarship = async (input, opts = {}) => {
             console.log('detailData:', JSON.stringify(detailData, null, 2));
 
             // 3. Panggil repository untuk update kedua tabel
-            await ScholarshipRepository.update(scholarshipData, { uuid }, trx);
-            await ScholarshipRepository.updateDetails(detailData, { scholarship_id: uuid }, trx);
+            const scholarshipUpdateResult = await ScholarshipRepository.update(scholarshipData, { uuid }, trx);
+            console.log('Scholarship update result:', scholarshipUpdateResult);
+
+            const detailUpdateResult = await ScholarshipRepository.updateDetails(detailData, { scholarship_id: uuid }, trx);
+            console.log('Detail update result:', detailUpdateResult);
+            console.log('Detail update where clause:', { scholarship_id: uuid });
 
             // 4. Ambil data terbaru untuk dikembalikan
             const updatedScholarship = await ScholarshipRepository.findOne({ uuid }, {}, trx);
