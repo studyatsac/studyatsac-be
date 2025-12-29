@@ -37,13 +37,21 @@ exports.getLeadSubmissions = async (req, res) => {
             return res.status(result.code).json({ message: result.message });
         }
 
+        // Ensure pagination exists with default values
+        const pagination = result.pagination || {
+            total: 0,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: 0
+        };
+
         return res.status(200).json({
-            data: result.data,
+            data: result.data || [],
             meta: {
-                total_data: result.pagination.total,
-                page: result.pagination.page,
-                limit: result.pagination.limit,
-                total_pages: result.pagination.totalPages
+                total_data: pagination.total,
+                page: pagination.page,
+                limit: pagination.limit,
+                total_pages: pagination.totalPages
             },
             message: ''
         });

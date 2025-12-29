@@ -73,7 +73,17 @@ const getLeadSubmissions = async (filters, opts = {}) => {
         return Response.formatServiceReturn(true, 200, result.rows, '', pagination);
     } catch (error) {
         console.error('Error in getLeadSubmissions service:', error);
-        return Response.formatServiceReturn(false, 500, null, language.INTERNAL_SERVER_ERROR);
+        console.error('Error stack:', error.stack);
+
+        // Return with empty pagination to prevent undefined errors
+        const emptyPagination = {
+            total: 0,
+            page,
+            limit,
+            totalPages: 0
+        };
+
+        return Response.formatServiceReturn(false, 500, null, language.INTERNAL_SERVER_ERROR, emptyPagination);
     }
 };
 
