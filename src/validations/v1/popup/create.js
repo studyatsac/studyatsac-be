@@ -1,3 +1,4 @@
+```javascript
 const Joi = require('joi');
 
 module.exports = function (lang) {
@@ -8,8 +9,8 @@ module.exports = function (lang) {
         description: Joi.string().optional().allow('', null)
             .error(new Error('Description must be a valid string')),
 
-        image_url: Joi.string().uri().max(500).required()
-            .error(new Error('Image URL is required, must be a valid URL, and not exceed 500 characters')),
+        image_url: Joi.string().max(500).uri().optional().allow('', null)
+            .error(new Error('Image URL must be a valid URL and not exceed 500 characters')),
 
         link_url: Joi.string().uri().max(500).required()
             .error(new Error('Link URL is required, must be a valid URL, and not exceed 500 characters')),

@@ -94,19 +94,60 @@ const getPopupDetail = async (input, opts = {}) => {
 
 /**
  * Create new popup
- * @param {Object} input - Popup data
+ * @param {Object} input - Popup data (may include file)
  * @param {number} userId - User ID creating the popup
  * @param {Object} opts - Options (language)
  * @returns {Promise<Object>}
  */
 const createPopup = async (input, userId, opts = {}) => {
     const language = opts.lang;
+    const supabase = require('../../utils/supabase');
+    const BUCKET_NAME = 'my-uploads';
+
     try {
+        let imageUrl = null;
+
+        // 1. Handle file upload if file is provided
+        if (input.file) {
+            // Create unique filename
+            const uniqueFileName = `${Date.now()}-${input.file.originalname}`;
+            const filePath = `popups/${uniqueFileName}`;
+
+            // A. Upload file to Supabase Storage
+            const { error: uploadError } = await supabase.storage
+                .from(BUCKET_NAME)
+                .upload(filePath, input.file.buffer, {
+                    contentType: input.file.mimetype
+                });
+
+            if (uploadError) {
+                console.error('Supabase Upload Error:', uploadError);
+                return Response.formatServiceReturn(false, 500, null, language?.POPUP?.UPLOAD_FAILED || 'Failed to upload image');
+            }
+
+            // B. Get public URL
+            const { data: publicUrlData } = supabase.storage
+                .from(BUCKET_NAME)
+                .getPublicUrl(filePath);
+
+            if (!publicUrlData || !publicUrlData.publicUrl) {
+                return Response.formatServiceReturn(false, 500, null, language?.POPUP?.GET_URL_FAILED || 'Failed to get image URL');
+            }
+
+            imageUrl = publicUrlData.publicUrl;
+        } else if (input.image_url) {
+            // If no file but image_url is provided (manual URL input)
+            imageUrl = input.image_url;
+        } else {
+            // Neither file nor image_url provided
+            return Response.formatServiceReturn(false, 400, null, 'Either file upload or image_url is required');
+        }
+
         const popupData = {
             uuid: uuidv4(),
             title: input.title,
             description: input.description,
-            image_url: input.image_url,
+            image_url: imageUrl,
             link_url: input.link_url,
             start_date: input.start_date || null,
             end_date: input.end_date || null,
@@ -127,13 +168,16 @@ const createPopup = async (input, userId, opts = {}) => {
 
 /**
  * Update popup by UUID
- * @param {Object} input - Update data including uuid
+ * @param {Object} input - Update data including uuid (may include file)
  * @param {number} userId - User ID updating the popup
  * @param {Object} opts - Options (language)
  * @returns {Promise<Object>}
  */
 const updatePopup = async (input, userId, opts = {}) => {
     const language = opts.lang;
+    const supabase = require('../../utils/supabase');
+    const BUCKET_NAME = 'my-uploads';
+
     try {
         const { uuid } = input;
 
@@ -150,12 +194,66 @@ const updatePopup = async (input, userId, opts = {}) => {
 
         if (input.title !== undefined) updateData.title = input.title;
         if (input.description !== undefined) updateData.description = input.description;
-        if (input.image_url !== undefined) updateData.image_url = input.image_url;
         if (input.link_url !== undefined) updateData.link_url = input.link_url;
         if (input.start_date !== undefined) updateData.start_date = input.start_date;
         if (input.end_date !== undefined) updateData.end_date = input.end_date;
         if (input.priority !== undefined) updateData.priority = input.priority;
         if (input.status !== undefined) updateData.status = input.status;
+
+        // Handle file upload if new file is provided
+        if (input.file) {
+            // === DELETE OLD IMAGE IF EXISTS ===
+            if (popup.image_url) {
+                try {
+                    // Extract file path from URL
+                    // Example URL: https://<...>.supabase.co/storage/v1/object/public/my-uploads/popups/12345.jpg
+                    // We need: 'popups/12345.jpg'
+                    const oldFilePath = popup.image_url.split(`${BUCKET_NAME}/`)[1];
+
+                    // Delete old file from Supabase Storage
+                    const { error: deleteError } = await supabase.storage
+                        .from(BUCKET_NAME)
+                        .remove([oldFilePath]);
+
+                    if (deleteError) {
+                        // Log error but don't stop the process
+                        console.error('Supabase Delete Error:', deleteError);
+                    }
+                } catch (e) {
+                    console.error('Error parsing or deleting old file:', e.message);
+                }
+            }
+            // === END DELETE OLD IMAGE ===
+
+            // Upload new file
+            const uniqueFileName = `${Date.now()}-${input.file.originalname}`;
+            const newFilePath = `popups/${uniqueFileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from(BUCKET_NAME)
+                .upload(newFilePath, input.file.buffer, {
+                    contentType: input.file.mimetype
+                });
+
+            if (uploadError) {
+                console.error('Supabase Upload Error:', uploadError);
+                return Response.formatServiceReturn(false, 500, null, language?.POPUP?.UPLOAD_FAILED || 'Failed to upload image');
+            }
+
+            const { data: publicUrlData } = supabase.storage
+                .from(BUCKET_NAME)
+                .getPublicUrl(newFilePath);
+
+            if (!publicUrlData || !publicUrlData.publicUrl) {
+                return Response.formatServiceReturn(false, 500, null, language?.POPUP?.GET_URL_FAILED || 'Failed to get image URL');
+            }
+
+            // Add new image URL to update data
+            updateData.image_url = publicUrlData.publicUrl;
+        } else if (input.image_url !== undefined) {
+            // If manual URL is provided (not file upload)
+            updateData.image_url = input.image_url;
+        }
 
         await PopupRepository.update(updateData, { uuid });
 

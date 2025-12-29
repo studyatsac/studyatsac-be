@@ -5,6 +5,7 @@ const validation = require('../../../validations/v1/popup/create');
 /**
  * POST /admin/popups
  * Admin endpoint - Create new popup
+ * Supports both file upload and manual image_url
  */
 exports.createPopup = async (req, res) => {
     const lang = Language.getLanguage(req.locale);
@@ -24,7 +25,13 @@ exports.createPopup = async (req, res) => {
         // Get user ID from token
         const userId = req.user?.id;
 
-        const result = await PopupService.createPopup(value, userId, { lang });
+        // Add file to input if uploaded
+        const input = value;
+        if (req.file) {
+            input.file = req.file;
+        }
+
+        const result = await PopupService.createPopup(input, userId, { lang });
 
         if (!result.status) {
             return res.status(result.code).json({

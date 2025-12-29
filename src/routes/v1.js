@@ -1266,13 +1266,13 @@ router.get(
 
 router.post(
     '/admin/popups',
-    [tokenMiddleware, adminOnlyMiddleware],
+    [tokenMiddleware, adminOnlyMiddleware, upload.single('image')],
     require('../methods/v1/popup/admin_create').createPopup
 );
 
 router.put(
     '/admin/popups/:uuid',
-    [tokenMiddleware, adminOnlyMiddleware],
+    [tokenMiddleware, adminOnlyMiddleware, upload.single('image')],
     require('../methods/v1/popup/admin_update').updatePopup
 );
 
