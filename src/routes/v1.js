@@ -1243,6 +1243,45 @@ router.post(
     require('../methods/v1/placement-test/create_placement_test').postPlacementTest
 );
 
+// ==================== POPUP ROUTES ====================
+// Public endpoint - Get active popup (no authentication)
+router.get(
+    '/popup/active',
+    [],
+    require('../methods/v1/popup/get_active').getActivePopup
+);
+
+// Admin endpoints - Popup management
+router.get(
+    '/admin/popups',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/popup/admin_list').getPopupList
+);
+
+router.get(
+    '/admin/popups/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/popup/admin_detail').getPopupDetail
+);
+
+router.post(
+    '/admin/popups',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/popup/admin_create').createPopup
+);
+
+router.put(
+    '/admin/popups/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/popup/admin_update').updatePopup
+);
+
+router.delete(
+    '/admin/popups/:uuid',
+    [tokenMiddleware, adminOnlyMiddleware],
+    require('../methods/v1/popup/admin_delete').deletePopup
+);
+
 // lead submissions
 router.post(
     '/lead-submissions',
