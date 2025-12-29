@@ -5,6 +5,7 @@ const validation = require('../../../validations/v1/popup/update');
 /**
  * PUT /admin/popups/:uuid
  * Admin endpoint - Update popup by UUID
+ * Supports both file upload and manual image_url
  */
 exports.updatePopup = async (req, res) => {
     const lang = Language.getLanguage(req.locale);
@@ -26,8 +27,11 @@ exports.updatePopup = async (req, res) => {
         // Get user ID from token
         const userId = req.user?.id;
 
-        // Add uuid to input
+        // Add uuid and file to input
         const input = { ...value, uuid };
+        if (req.file) {
+            input.file = req.file;
+        }
 
         const result = await PopupService.updatePopup(input, userId, { lang });
 
